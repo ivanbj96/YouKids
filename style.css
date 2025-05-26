@@ -29,3 +29,62 @@ h1 {
   height: 40px;
   border-radius: 50%;
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: #ff0000;
+  color: white;
+}
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+}
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: white;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
+.footer a {
+  text-decoration: none;
+  color: #888;
+  font-weight: bold;
+}
+.footer .active {
+  color: #ff0000;
+}
+
+.video-card {
+  background: white;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.video-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+}
+.channel-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
