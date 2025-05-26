@@ -5,64 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouKids - Inicio</title>
   <link rel="stylesheet" href="style.css"/>
-  <script>
-    const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-    let currentKeyword = "videos cristianos niños";
-
-    async function fetchVideos() {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
-      const data = await res.json();
-
-      const container = document.getElementById("video-list");
-      container.innerHTML = "";
-
-      for (let item of data.items) {
-        const videoId = item.id.videoId;
-        const title = item.snippet.title;
-        const thumbnail = item.snippet.thumbnails.high.url;
-        const channelTitle = item.snippet.channelTitle;
-        const channelId = item.snippet.channelId;
-
-        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
-        const channelData = await channelRes.json();
-        const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
-
-        const videoCard = `
-          <div class="video-card">
-            <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
-            <div class="video-info">
-              <img src="${channelImg}" class="channel-img" />
-              <div>
-                <strong>${title}</strong><br/>
-                <small>${channelTitle}</small>
-              </div>
-            </div>
-          </div>
-        `;
-        container.innerHTML += videoCard;
-      }
-    }
-
-    function openFilterModal() {
-      const newKeyword = prompt("¿Qué quieres buscar? (ej: alabanzas, historias bíblicas, etc)", currentKeyword);
-      if (newKeyword) {
-        currentKeyword = newKeyword;
-        fetchVideos();
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", fetchVideos);
-  </script>
 </head>
 <body>
   <header class="header">
     <div class="left-header">YouKids</div>
     <div class="right-header">
-      <button onclick="openFilterModal()" title="Buscar">
-        <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 8.5C16 5.46 13.54 3 10.5 3S5 5.46 5 8.5 7.46 14 10.5 14a6.5 6.5 0 0 0 4.23-1.5l.27.28v.79l5 5L20.5 19l-5-5zm-5 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/></svg>
+      <button id="searchBtn" title="Buscar">
+        🔍
       </button>
-      <button onclick="openFilterModal()" title="Filtro">
-        <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M3 6h18v2H3zm4 5h10v2H7zm6 5H9v2h4z"/></svg>
+      <button id="filterBtn" title="Filtro">
+        ⚙️
       </button>
     </div>
   </header>
@@ -75,5 +27,60 @@
     <a href="index.html" class="active">Inicio</a>
     <a href="shorts.html">Shorts</a>
   </footer>
+
+  <!-- Modal de Búsqueda -->
+  <div id="searchModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeSearch">&times;</span>
+      <input type="text" id="searchInput" placeholder="¿Qué quieres buscar?" />
+      <button id="searchSubmit">Buscar</button>
+    </div>
+  </div>
+
+  <!-- Modal de Filtros -->
+  <div id="filterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeFilter">&times;</span>
+      <h2>Filtros</h2>
+      <label>Región:
+        <select id="regionFilter">
+          <option value="">Todas</option>
+          <option value="EC">Ecuador</option>
+          <option value="MX">México</option>
+          <!-- Agrega más regiones según sea necesario -->
+        </select>
+      </label>
+      <label>Género de Video:
+        <select id="videoGenreFilter">
+          <option value="">Todos</option>
+          <option value="educativo">Educativo</option>
+          <option value="entretenimiento">Entretenimiento</option>
+          <!-- Agrega más géneros según sea necesario -->
+        </select>
+      </label>
+      <label>Género de Música:
+        <select id="musicGenreFilter">
+          <option value="">Todos</option>
+          <option value="cristiana">Cristiana</option>
+          <option value="infantil">Infantil</option>
+          <!-- Agrega más géneros según sea necesario -->
+        </select>
+      </label>
+      <label>Religión:
+        <select id="religionFilter">
+          <option value="">Todas</option>
+          <option value="cristiana">Cristiana</option>
+          <option value="catolica">Católica</option>
+          <!-- Agrega más religiones según sea necesario -->
+        </select>
+      </label>
+      <label>Canales a Prohibir (separados por comas):
+        <input type="text" id="blockedChannels" placeholder="Canal1, Canal2" />
+      </label>
+      <button id="applyFilters">Aplicar Filtros</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
