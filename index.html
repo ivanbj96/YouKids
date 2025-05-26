@@ -8,14 +8,43 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-white text-black">
-  <header class="bg-red-600 text-white text-center p-4">
+  <header class="bg-red-600 text-white flex items-center justify-between p-4">
     <h1 class="text-xl font-bold">YouKids</h1>
+    <button id="btn-filter" class="text-white">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
+        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 14.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-2.586L3.293 6.707A1 1 0 013 6V4z">
+        </path>
+      </svg>
+    </button>
   </header>
-  <main id="videos" class="p-4"></main>
-  <nav class="fixed bottom-0 w-full flex justify-around bg-white border-t">
-    <a href="index.html" class="p-4 text-red-600 font-bold">Inicio</a>
-    <a href="shorts.html" class="p-4 text-red-600 font-bold">Shorts</a>
+
+  <main id="main-content" class="p-4 overflow-y-auto h-[calc(100vh-112px)]"></main>
+
+  <nav class="fixed bottom-0 w-full flex justify-around bg-white border-t z-10">
+    <button id="btn-home" class="p-4 flex flex-col items-center text-red-600 font-bold">
+      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 2L2 9h3v7h10V9h3L10 2z" />
+      </svg>
+      Inicio
+    </button>
+
+    <button id="btn-shorts" class="p-4 flex flex-col items-center text-gray-600 font-bold">
+      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M10 16.5l6-4.5-6-4.5v9z" />
+      </svg>
+      Shorts
+    </button>
+
+    <button id="btn-profile" class="p-4 flex flex-col items-center text-gray-600 font-bold">
+      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      Perfil
+    </button>
   </nav>
+
   <script src="app.js"></script>
 </body>
 </html>
