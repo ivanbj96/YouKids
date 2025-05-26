@@ -6,64 +6,60 @@
   <title>YouKids</title>
   <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-    }
-    #main-content {
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-      height: calc(100vh - 64px - 56px); /* header + nav */
-    }
-    .video-card {
-      scroll-snap-align: start;
-      height: 100vh;
-    }
-  </style>
 </head>
-<body class="bg-black text-white flex flex-col">
+<body class="bg-white text-black">
 
-  <!-- HEADER -->
-  <header class="bg-red-600 flex justify-between items-center px-4 py-3">
+  <!-- Header con botón de filtro -->
+  <header class="bg-red-600 text-white flex justify-between items-center p-4">
     <h1 class="text-xl font-bold">YouKids</h1>
-    <button id="btn-filter" class="text-white">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
-        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 14.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-2.586L3.293 6.707A1 1 0 013 6V4z">
-        </path>
+    <button onclick="showFilterModal()">
+      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 12.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 019 17v-4.586L3.293 6.707A1 1 0 013 6V4z" />
       </svg>
     </button>
   </header>
 
-  <!-- MAIN CONTENT -->
-  <main id="main-content" class="flex-1 overflow-y-auto"></main>
+  <!-- Contenedor de videos -->
+  <main id="videos" class="p-0"></main>
 
-  <!-- NAVIGATION -->
-  <nav class="bg-white text-black flex justify-around items-center py-2 border-t">
-    <button id="btn-home" class="flex flex-col items-center text-red-600">
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 2L2 9h3v7h10V9h3L10 2z" />
+  <!-- Menú inferior -->
+  <nav class="fixed bottom-0 w-full flex justify-around bg-white border-t z-50">
+    <a href="index.html" class="flex flex-col items-center p-2 text-red-600">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1V9.75z" />
       </svg>
       <span class="text-xs">Inicio</span>
-    </button>
-
-    <button id="btn-shorts" class="flex flex-col items-center text-gray-700">
+    </a>
+    <a href="shorts.html" class="flex flex-col items-center p-2 text-gray-600">
       <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M10 16.5l6-4.5-6-4.5v9z" />
+        <path d="M10 17l6-5-6-5v10z" />
       </svg>
       <span class="text-xs">Shorts</span>
-    </button>
-
-    <button id="btn-profile" class="flex flex-col items-center text-gray-700">
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-      </svg>
-      <span class="text-xs">Perfil</span>
-    </button>
+    </a>
   </nav>
+
+  <!-- Modal de filtros -->
+  <div id="filterModal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center">
+    <div class="bg-white p-4 rounded-lg w-11/12 max-w-md">
+      <h2 class="text-lg font-bold mb-4">Filtros</h2>
+      <label class="block mb-2 text-sm">País (código):</label>
+      <input id="regionInput" class="w-full p-2 border mb-3" placeholder="EC, MX, US..." />
+
+      <label class="block mb-2 text-sm">Género musical:</label>
+      <input id="genreInput" class="w-full p-2 border mb-3" placeholder="cristiana, infantil..." />
+
+      <label class="block mb-2 text-sm">Religión (opcional):</label>
+      <input id="religionInput" class="w-full p-2 border mb-3" placeholder="evangélica, católica..." />
+
+      <label class="block mb-2 text-sm">Bloquear canales (IDs separados por coma):</label>
+      <input id="blockInput" class="w-full p-2 border mb-4" placeholder="UC1234, UC5678" />
+
+      <div class="flex justify-end gap-2">
+        <button onclick="hideFilterModal()" class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
+        <button onclick="applyFilters()" class="px-4 py-2 bg-red-600 text-white rounded">Aplicar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
