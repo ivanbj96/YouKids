@@ -1,63 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouKids – Inicio</title>
-  <link rel="manifest" href="manifest.json" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouKids - Home</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="flex flex-col h-screen bg-black text-white">
+<body>
+  <h1>Videos sugeridos</h1>
+  <div id="video-list"></div>
 
-  <!-- HEADER -->
-  <header class="flex items-center justify-between px-4 py-2 bg-[#0f0f0f]">
-    <h1 class="text-lg font-bold">YouKids</h1>
-    <button id="btnFilter" class="p-2">
-      <!-- icono de filtro/búsqueda -->
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 4h18M3 10h18M5 16h14" />
-      </svg>
-    </button>
-  </header>
-
-  <!-- FEED -->
-  <main id="feed" class="flex-1 overflow-y-auto pb-16">
-    <!-- Tarjetas de video se inyectan vía app.js -->
-  </main>
-
-  <!-- NAV -->
-  <nav class="fixed bottom-0 inset-x-0 flex justify-around bg-[#0f0f0f] border-t border-gray-700 text-gray-400">
-    <a href="index.html" class="flex flex-col items-center py-2 text-red-600">
-      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2L2 9h3v11h6v-7h2v7h6V9h3L10 2z"/></svg>
-      <span class="text-xs">Inicio</span>
-    </a>
-    <a href="shorts.html" class="flex flex-col items-center py-2">
-      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 17l6-5-6-5v10z"/></svg>
-      <span class="text-xs">Shorts</span>
-    </a>
-  </nav>
-
-  <!-- MODAL FILTRO -->
-  <div id="modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
-    <div class="bg-white text-black p-6 rounded-lg w-11/12 max-w-md">
-      <h2 class="font-bold mb-4">Filtros</h2>
-      <label class="block text-sm mb-1">País</label>
-      <input id="region" class="w-full border rounded mb-3 p-2" placeholder="EC, MX…">
-      <label class="block text-sm mb-1">Género musical</label>
-      <input id="genre" class="w-full border rounded mb-3 p-2" placeholder="cristiana, infantil…">
-      <label class="block text-sm mb-1">Religión</label>
-      <input id="religion" class="w-full border rounded mb-3 p-2" placeholder="católica, evangélica…">
-      <label class="block text-sm mb-1">Bloquear canales (IDs)</label>
-      <input id="blocked" class="w-full border rounded mb-4 p-2" placeholder="UC123,UC456">
-      <div class="flex justify-end gap-2">
-        <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
-        <button onclick="applyFilters()" class="px-4 py-2 bg-red-600 text-white rounded">Aplicar</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+  <script>
+    fetch('/videos')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('video-list');
+        data.forEach(video => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <div style="margin-bottom:20px">
+              <iframe width="100%" height="220" src="https://www.youtube.com/embed/${video.id}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+              <div style="display:flex;align-items:center;margin-top:8px;">
+                <img src="${video.channelThumbnail}" style="width:40px;height:40px;border-radius:50%;margin-right:10px;">
+                <div>
+                  <strong>${video.title}</strong><br>
+                  <small>${video.channelTitle}</small>
+                </div>
+              </div>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      });
+  </script>
 </body>
 </html>
