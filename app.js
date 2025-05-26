@@ -1,87 +1,90 @@
-const express = require('express');
-const axios = require('axios');
-const app = express();
-const PORT = 3000;
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+let currentKeyword = "videos cristianos niños";
+let filters = {
+  region: "",
+  videoGenre: "",
+  musicGenre: "",
+  religion: "",
+  blockedChannels: []
+};
 
-const API_KEY = 'AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI'; // reemplaza esto
+async function fetchVideos() {
+  const query = `${currentKeyword} ${filters.videoGenre} ${filters.musicGenre} ${filters.religion}`;
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`);
+  const data = await res.json();
 
-app.use(express.static('.'));
+  const container = document.getElementById("video-list");
+  container.innerHTML = "";
 
-app.get('/videos', async (req, res) => {
-  try {
-    const { data } = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
-      params: {
-        part: 'snippet',
-        q: 'videos cristianos para niños',
-        maxResults: 10,
-        type: 'video',
-        key: API_KEY
-      }
-    });
+  for (let item of data.items) {
+    const videoId = item.id.videoId;
+    const title = item.snippet.title;
+    const thumbnail = item.snippet.thumbnails.high.url;
+    const channelTitle = item.snippet.channelTitle;
+    const channelId = item.snippet.channelId;
 
-    const result = await Promise.all(data.items.map(async item => {
-      const videoId = item.id.videoId;
-      const channelId = item.snippet.channelId;
-      const channelThumb = await getChannelThumbnail(channelId);
-      return {
-        id: videoId,
-        title: item.snippet.title,
-        channelTitle: item.snippet.channelTitle,
-        channelThumbnail: channelThumb
-      };
-    }));
+    if (filters.blockedChannels.includes(channelTitle)) continue;
 
-    res.json(result);
-  } catch (e) {
-    res.status(500).send('Error al obtener videos');
-  }
-});
+    const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
+    const channelData = await channelRes.json();
+    const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
 
-app.get('/shorts', async (req, res) => {
-  const query = req.query.q || 'shorts cristianos para niños';
-  try {
-    const { data } = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
-      params: {
-        part: 'snippet',
-        q: query,
-        maxResults: 10,
-        type: 'video',
-        videoDuration: 'short',
-        key: API_KEY
-      }
-    });
-
-    const result = await Promise.all(data.items.map(async item => {
-      const videoId = item.id.videoId;
-      const channelId = item.snippet.channelId;
-      const channelThumb = await getChannelThumbnail(channelId);
-      return {
-        id: videoId,
-        title: item.snippet.title,
-        channelTitle: item.snippet.channelTitle,
-        channelThumbnail: channelThumb
-      };
-    }));
-
-    res.json(result);
-  } catch (e) {
-    res.status(500).send('Error en Shorts');
-  }
-});
-
-async function getChannelThumbnail(channelId) {
-  try {
-    const { data } = await axios.get(`https://www.googleapis.com/youtube/v3/channels`, {
-      params: {
-        part: 'snippet',
-        id: channelId,
-        key: API_KEY
-      }
-    });
-    return data.items[0].snippet.thumbnails.default.url;
-  } catch (e) {
-    return '';
+    const videoCard = `
+      <div class="video-card">
+        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+        <div class="video-info">
+          <img src="${channelImg}" class="channel-img" />
+          <div>
+            <strong>${title}</strong><br/>
+            <small>${channelTitle}</small>
+          </div>
+        </div>
+      </div>
+    `;
+    container.innerHTML += videoCard;
   }
 }
 
-app.listen(PORT, () => console.log(`Servidor en http://localhost:${PORT}`));
+document.addEventListener("DOMContentLoaded", () => {
+  fetchVideos();
+
+  const searchModal = document.getElementById("searchModal");
+  const filterModal = document.getElementById("filterModal");
+
+  document.getElementById("searchBtn").onclick = () => {
+    searchModal.style.display = "block";
+  };
+
+  document.getElementById("filterBtn").onclick = () => {
+    filterModal.style.display = "block";
+  };
+
+  document.getElementById("closeSearch").onclick = () => {
+    searchModal.style.display = "none";
+  };
+
+  document.getElementById("closeFilter").onclick = () => {
+    filterModal.style.display = "none";
+  };
+
+  window.onclick = function(event) {
+    if (event.target == searchModal) {
+      searchModal.style.display = "none";
+    }
+    if (event.target == filterModal) {
+      filterModal.style.display = "none";
+    }
+  };
+
+  document.getElementById("searchSubmit").onclick = () => {
+    const input = document.getElementById("searchInput").value.trim();
+    if (input) {
+      currentKeyword = input;
+      fetchVideos();
+      searchModal.style.display = "none";
+    }
+  };
+
+  document.getElementById("applyFilters").onclick = () => {
+    filters.region = document.getElementById("regionFilter").value;
+    filters.videoGenre = document13
