@@ -1,0 +1,13 @@
+{
+  "name": "YouKids",
+  "short_name": "YouKids",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff0000",
+  "icons": [{
+    "src": "https://cdn-icons-png.flaticon.com/512/1384/1384060.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+}
