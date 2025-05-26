@@ -5,42 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouKids - Inicio</title>
   <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-  <h1>Videos recomendados</h1>
-  <div id="video-list" class="grid"></div>
   <script>
     const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=videos%20cristianos%20niños&type=video&key=${apiKey}`)
-      .then(res => res.json())
-      .then(async data => {
-        const list = document.getElementById('video-list');
-        for (let item of data.items) {
-          const videoId = item.id.videoId;
-          const title = item.snippet.title;
-          const channelTitle = item.snippet.channelTitle;
-          const thumbnail = item.snippet.thumbnails.high.url;
-          const channelId = item.snippet.channelId;
+    let currentKeyword = "videos cristianos niños";
 
-          const channelInfo = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`)
-            .then(res => res.json())
-            .then(c => c.items[0]?.snippet?.thumbnails?.default?.url || '');
+    async function fetchVideos() {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
+      const data = await res.json();
 
-          const div = document.createElement('div');
-          div.innerHTML = `
-            <div class="video-card">
-              <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>
-              <div class="video-info">
-                <img src="${channelInfo}" class="channel-img" />
-                <div>
-                  <strong>${title}</strong><br>
-                  <small>${channelTitle}</small>
-                </div>
+      const container = document.getElementById("video-list");
+      container.innerHTML = "";
+
+      for (let item of data.items) {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const thumbnail = item.snippet.thumbnails.high.url;
+        const channelTitle = item.snippet.channelTitle;
+        const channelId = item.snippet.channelId;
+
+        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
+        const channelData = await channelRes.json();
+        const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
+
+        const videoCard = `
+          <div class="video-card">
+            <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+            <div class="video-info">
+              <img src="${channelImg}" class="channel-img" />
+              <div>
+                <strong>${title}</strong><br/>
+                <small>${channelTitle}</small>
               </div>
-            </div>`;
-          list.appendChild(div);
-        }
-      });
+            </div>
+          </div>
+        `;
+        container.innerHTML += videoCard;
+      }
+    }
+
+    function openFilterModal() {
+      const newKeyword = prompt("¿Qué quieres buscar? (ej: alabanzas, historias bíblicas, etc)", currentKeyword);
+      if (newKeyword) {
+        currentKeyword = newKeyword;
+        fetchVideos();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchVideos);
   </script>
+</head>
+<body>
+  <header class="header">
+    <h1 class="logo">YouKids</h1>
+    <div class="header-actions">
+      <button onclick="openFilterModal()" title="Buscar y filtrar">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 0 0 1.48-5.34C15.16 5.59 12.1 3 8.5 3S1.84 5.59 1.84 8.39s3.06 5.39 6.66 5.39c1.61 0 3.09-.59 4.22-1.56l.27.28v.79l5 4.99L20.49 19l-4.99-5zM8.5 13C6.01 13 4 10.99 4 8.39S6.01 3.78 8.5 3.78s4.5 2.01 4.5 4.61S10.99 13 8.5 13z"/></svg>
+      </button>
+      <button onclick="openFilterModal()" title="Filtro">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24"><path fill="currentColor" d="M3 6h18v2H3V6zm4 5h10v2H7v-2zm6 5H9v2h4v-2z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div id="video-list" class="grid"></div>
+  </main>
+
+  <footer class="footer">
+    <a href="index.html" class="active">Inicio</a>
+    <a href="shorts.html">Shorts</a>
+  </footer>
 </body>
 </html>
