@@ -2,79 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouKids - Videos para niños</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouKids</title>
+  <link rel="manifest" href="manifest.json" />
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-white text-gray-900 flex flex-col min-h-screen">
-
-  <!-- Barra superior -->
-  <header class="fixed top-0 left-0 right-0 bg-white shadow z-20 flex items-center justify-between px-4 h-14">
-    <h1 class="font-bold text-xl">YouKids</h1>
-    <button id="btnFiltro" class="text-blue-600 font-semibold">Filtros</button>
+<body class="bg-white text-black">
+  <header class="bg-red-600 text-white text-center p-4">
+    <h1 class="text-xl font-bold">YouKids</h1>
   </header>
-
-  <!-- Contenedor videos -->
-  <main id="videos" class="mt-16 px-4 flex flex-col gap-4 overflow-auto flex-grow">
-    <!-- Aquí van los videos -->
-  </main>
-
-  <!-- Barra inferior -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around py-2 shadow-lg z-20">
-    <button id="homeBtn" class="flex flex-col items-center text-blue-600">
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9.5l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      <span class="text-xs">Inicio</span>
-    </button>
-    <button id="shortsBtn" class="flex flex-col items-center">
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 16l5-4-5-4v8z"/></svg>
-      <span class="text-xs">Shorts</span>
-    </button>
-    <button id="profileBtn" class="flex flex-col items-center">
-      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20a6 6 0 0112 0"/></svg>
-      <span class="text-xs">Perfil</span>
-    </button>
+  <main id="videos" class="p-4"></main>
+  <nav class="fixed bottom-0 w-full flex justify-around bg-white border-t">
+    <a href="index.html" class="p-4 text-red-600 font-bold">Inicio</a>
+    <a href="shorts.html" class="p-4 text-red-600 font-bold">Shorts</a>
   </nav>
-
-  <!-- Modal filtros -->
-  <div id="modalFiltros" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-30">
-    <div class="bg-white rounded p-6 w-80">
-      <h2 class="text-lg font-bold mb-4">Filtros</h2>
-      <label class="block mb-2">País:
-        <select id="filterCountry" class="w-full border rounded px-2 py-1">
-          <option value="">Todos</option>
-          <option value="EC">Ecuador</option>
-          <option value="US">Estados Unidos</option>
-          <option value="ES">España</option>
-          <!-- Más países -->
-        </select>
-      </label>
-      <label class="block mb-2">Género musical:
-        <select id="filterGenre" class="w-full border rounded px-2 py-1">
-          <option value="">Todos</option>
-          <option value="kids">Niños</option>
-          <option value="christian">Cristiana</option>
-          <option value="pop">Pop</option>
-          <!-- Más géneros -->
-        </select>
-      </label>
-      <label class="block mb-2">Religión:
-        <select id="filterReligion" class="w-full border rounded px-2 py-1">
-          <option value="">Todas</option>
-          <option value="christian">Cristiana</option>
-          <option value="none">Sin religión</option>
-          <!-- Más opciones -->
-        </select>
-      </label>
-      <label class="block mb-4">Canales bloqueados (IDs separados por coma):
-        <input id="blockedChannels" type="text" class="w-full border rounded px-2 py-1" placeholder="UC123..., UC456..." />
-      </label>
-      <div class="flex justify-end gap-2">
-        <button id="btnCerrarFiltros" class="px-4 py-2 rounded bg-gray-300">Cancelar</button>
-        <button id="btnAplicarFiltros" class="px-4 py-2 rounded bg-blue-600 text-white">Aplicar</button>
-      </div>
-    </div>
-  </div>
-
   <script src="app.js"></script>
 </body>
 </html>
