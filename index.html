@@ -52,6 +52,25 @@
     }
 
     document.addEventListener("DOMContentLoaded", fetchVideos);
+
+function openFilterModal() {
+  document.getElementById("search-modal").classList.add("show");
+  document.getElementById("search-input").value = currentKeyword;
+  document.getElementById("search-input").focus();
+}
+
+function applySearch() {
+  const input = document.getElementById("search-input").value.trim();
+  if (input !== "") {
+    currentKeyword = input;
+    fetchVideos();
+  }
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById("search-modal").classList.remove("show");
+}
   </script>
 </head>
 <body>
