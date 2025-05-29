@@ -2,40 +2,93 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouKids – Shorts</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouKids - Shorts</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="filters.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+    }
+    main {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+    }
+    .short-video {
+      width: 100%;
+      height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+    }
+    .short-video iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #ccc;
+      z-index: 9999;
+    }
+    .footer a {
+      padding: 10px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+    .footer a.active {
+      color: #d00;
+    }
+  </style>
+  <script>
+    const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+    const shortsKeyword = "shorts cristianos niños";
+
+    async function fetchShorts() {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(shortsKeyword)}&type=video&videoDuration=short&key=${apiKey}`);
+      const data = await res.json();
+
+      const container = document.getElementById("shorts-list");
+      container.innerHTML = "";
+
+      for (let item of data.items) {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const channelId = item.snippet.channelId;
+
+        // Filtro
+        if (!passesFilters(item.snippet)) continue;
+
+        const videoEl = `
+          <div class="short-video">
+            <iframe 
+              src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1&controls=0&modestbranding=1&rel=0&playsinline=1" 
+              allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+            </iframe>
+          </div>
+        `;
+        container.innerHTML += videoEl;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchShorts);
+  </script>
 </head>
-<body class="bg-black text-white overflow-hidden">
+<body>
+  <main id="shorts-list"></main>
 
-  <!-- LISTA VERTICAL SCROLL-SNAP -->
-  <main id="shorts" class="h-screen overflow-y-auto snap-y snap-mandatory">
-    <!-- Cada video se añade desde app.js -->
-  </main>
-
-  <!-- BOTONES LATERALES -->
-  <div id="sideBtns" class="fixed right-2 top-1/3 flex flex-col items-center gap-4 text-white">
-    <button id="likeBtn">
-      <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 017.5 3 5.5 5.5 0 0113 8.5l-.57 4.28L12 21.35z"/></svg>
-    </button>
-    <button id="shareBtn">
-      <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M18 8a3 3 0 10-2.83-2H9.83A3 3 0 107 8v8a3 3 0 103 0h5a3 3 0 102-2.83V8z"/></svg>
-    </button>
-  </div>
-
-  <!-- NAV INFERIOR -->
-  <nav class="fixed bottom-0 inset-x-0 flex justify-around bg-[#0f0f0f] border-t border-gray-700 text-gray-400">
-    <a href="index.html" class="flex flex-col items-center py-2">
-      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 2L2 9h3v11h6v-7h2v7h6V9h3L10 2z"/></svg>
-      <span class="text-xs">Inicio</span>
-    </a>
-    <a href="shorts.html" class="flex flex-col items-center py-2 text-red-600">
-      <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 17l6-5-6-5v10z"/></svg>
-      <span class="text-xs">Shorts</span>
-    </a>
-  </nav>
-
-  <script src="app.js"></script>
+  <footer class="footer">
+    <a href="index.html">Inicio</a>
+    <a href="shorts.html" class="active">Shorts</a>
+  </footer>
 </body>
 </html>
