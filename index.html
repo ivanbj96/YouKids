@@ -6,83 +6,63 @@
   <title>YouKids - Inicio</title>
   <link rel="stylesheet" href="style.css"/>
 
-  <!-- Reemplaza tu <script> actual por este -->
+  <script>
+    const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+    let currentKeyword = "videos cristianos niños";
 
-<script>
-  const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-  let currentKeyword = "videos cristianos niños";
-  let filters = {
-    edad: "niños",
-    idioma: "español",
-    genero: "",
-    tipo: "",
-    canalesBloqueados: []
-  };
+    async function fetchVideos() {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
+      const data = await res.json();
 
-  async function fetchVideos() {
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
-    const data = await res.json();
+      const container = document.getElementById("video-list");
+      container.innerHTML = "";
 
-    const container = document.getElementById("video-list");
-    container.innerHTML = "";
+      for (let item of data.items) {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const thumbnail = item.snippet.thumbnails.medium.url;
+        const channelTitle = item.snippet.channelTitle;
 
-    for (let item of data.items) {
-      const videoId = item.id.videoId;
-      const title = item.snippet.title.toLowerCase();
-      const thumbnail = item.snippet.thumbnails.medium.url;
-      const channelTitle = item.snippet.channelTitle;
-      const channelId = item.snippet.channelId;
-
-      // Filtro por canal
-      if (filters.canalesBloqueados.includes(channelId)) continue;
-
-      // Filtros por texto
-      const filtroTexto = `${title} ${channelTitle}`.toLowerCase();
-      if (filters.genero && !filtroTexto.includes(filters.genero)) continue;
-      if (filters.tipo && !filtroTexto.includes(filters.tipo)) continue;
-      if (filters.idioma && !filtroTexto.includes(filters.idioma)) continue;
-      if (filters.edad && !filtroTexto.includes(filters.edad)) continue;
-
-      const videoCard = `
-        <div class="video-card">
-          <img src="${thumbnail}" class="thumbnail" onclick="openVideo('${videoId}')" />
-          <div class="video-info">
-            <div class="video-meta">
-              <strong>${item.snippet.title}</strong>
-              <small>${channelTitle}</small>
+        const videoCard = `
+          <div class="video-card">
+            <img src="${thumbnail}" class="thumbnail" onclick="openVideo('${videoId}')" />
+            <div class="video-info">
+              <div class="video-meta">
+                <strong>${title}</strong>
+                <small>${channelTitle}</small>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-      container.innerHTML += videoCard;
+        `;
+        container.innerHTML += videoCard;
+      }
     }
-  }
 
-  function openVideo(videoId) {
-    window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
-  }
+    function openVideo(videoId) {
+      window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
+    }
 
-  function openFilterModal() {
-    document.getElementById("filter-modal").classList.add("show");
-  }
+    function openFilterModal() {
+      document.getElementById("search-modal").classList.add("show");
+      document.getElementById("search-input").value = currentKeyword;
+      document.getElementById("search-input").focus();
+    }
 
-  function applyFilters() {
-    filters.edad = document.getElementById("filter-edad").value;
-    filters.idioma = document.getElementById("filter-idioma").value.toLowerCase();
-    filters.genero = document.getElementById("filter-genero").value.toLowerCase();
-    filters.tipo = document.getElementById("filter-tipo").value.toLowerCase();
-    filters.canalesBloqueados = document.getElementById("filter-bloqueo").value.split(",").map(id => id.trim());
-    fetchVideos();
-    closeModal();
-  }
+    function applySearch() {
+      const input = document.getElementById("search-input").value.trim();
+      if (input !== "") {
+        currentKeyword = input;
+        fetchVideos();
+      }
+      closeModal();
+    }
 
-  function closeModal() {
-    document.getElementById("filter-modal").classList.remove("show");
-    document.getElementById("search-modal").classList.remove("show");
-  }
+    function closeModal() {
+      document.getElementById("search-modal").classList.remove("show");
+    }
 
-  document.addEventListener("DOMContentLoaded", fetchVideos);
-</script>
+    document.addEventListener("DOMContentLoaded", fetchVideos);
+  </script>
 </head>
 <body>
   <header class="header">
@@ -111,35 +91,6 @@
     </div>
   </div>
 
-<!-- Modal de Filtros Avanzados -->
-<div id="filter-modal" class="modal">
-  <div class="modal-content">
-    <h3>Filtros avanzados</h3>
-    <label>Edad:</label>
-    <select id="filter-edad">
-      <option value="niños">Niños</option>
-      <option value="bebés">Bebés</option>
-      <option value="">Todos</option>
-    </select>
-
-    <label>Idioma:</label>
-    <input type="text" id="filter-idioma" placeholder="ej: español" />
-
-    <label>Género musical:</label>
-    <input type="text" id="filter-genero" placeholder="ej: alabanza" />
-
-    <label>Tipo de video:</label>
-    <input type="text" id="filter-tipo" placeholder="ej: canciones, historias" />
-
-    <label>Bloquear canales (ID separados por coma):</label>
-    <textarea id="filter-bloqueo" rows="2" placeholder="UCxxx, UCyyy..."></textarea>
-
-    <div class="modal-buttons">
-      <button onclick="applyFilters()">Aplicar</button>
-      <button onclick="closeModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
   <footer class="footer">
     <a href="index.html" class="active">Inicio</a>
     <a href="shorts.html">Shorts</a>
