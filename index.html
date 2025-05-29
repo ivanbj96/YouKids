@@ -70,7 +70,14 @@
   <main>
     <div id="video-list" class="grid"></div>
   </main>
-
+<!-- Dentro de <body> justo después de <main> -->
+<div id="search-modal" class="modal">
+  <div class="modal-content">
+    <input type="text" id="search-input" placeholder="Buscar videos..." />
+    <button onclick="applySearch()">Buscar</button>
+    <button onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
   <footer class="footer">
     <a href="index.html" class="active">Inicio</a>
     <a href="shorts.html">Shorts</a>
