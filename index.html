@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouKids - Inicio</title>
   <link rel="stylesheet" href="style.css"/>
+
   <script>
     const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
     let currentKeyword = "videos cristianos niños";
@@ -19,21 +20,15 @@
       for (let item of data.items) {
         const videoId = item.id.videoId;
         const title = item.snippet.title;
-        const thumbnail = item.snippet.thumbnails.high.url;
+        const thumbnail = item.snippet.thumbnails.medium.url;
         const channelTitle = item.snippet.channelTitle;
-        const channelId = item.snippet.channelId;
-
-        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
-        const channelData = await channelRes.json();
-        const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
 
         const videoCard = `
           <div class="video-card">
-            <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+            <img src="${thumbnail}" class="thumbnail" onclick="openVideo('${videoId}')" />
             <div class="video-info">
-              <img src="${channelImg}" class="channel-img" />
-              <div>
-                <strong>${title}</strong><br/>
+              <div class="video-meta">
+                <strong>${title}</strong>
                 <small>${channelTitle}</small>
               </div>
             </div>
@@ -43,12 +38,27 @@
       }
     }
 
+    function openVideo(videoId) {
+      window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
+    }
+
     function openFilterModal() {
-      const newKeyword = prompt("¿Qué quieres buscar? (ej: alabanzas, historias bíblicas, etc)", currentKeyword);
-      if (newKeyword) {
-        currentKeyword = newKeyword;
+      document.getElementById("search-modal").classList.add("show");
+      document.getElementById("search-input").value = currentKeyword;
+      document.getElementById("search-input").focus();
+    }
+
+    function applySearch() {
+      const input = document.getElementById("search-input").value.trim();
+      if (input !== "") {
+        currentKeyword = input;
         fetchVideos();
       }
+      closeModal();
+    }
+
+    function closeModal() {
+      document.getElementById("search-modal").classList.remove("show");
     }
 
     document.addEventListener("DOMContentLoaded", fetchVideos);
@@ -56,20 +66,30 @@
 </head>
 <body>
   <header class="header">
-    <div class="left-header">YouKids</div>
-    <div class="right-header">
+    <div class="logo">YouKids</div>
+    <div class="actions">
       <button onclick="openFilterModal()" title="Buscar">
-        <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 8.5C16 5.46 13.54 3 10.5 3S5 5.46 5 8.5 7.46 14 10.5 14a6.5 6.5 0 0 0 4.23-1.5l.27.28v.79l5 5L20.5 19l-5-5zm-5 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/></svg>
+        🔍
       </button>
       <button onclick="openFilterModal()" title="Filtro">
-        <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M3 6h18v2H3zm4 5h10v2H7zm6 5H9v2h4z"/></svg>
+        ⚙️
       </button>
     </div>
   </header>
 
   <main>
-    <div id="video-list" class="grid"></div>
+    <div id="video-list" class="video-grid"></div>
   </main>
+
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <input type="text" id="search-input" placeholder="Buscar videos..." />
+      <div class="modal-buttons">
+        <button onclick="applySearch()">Buscar</button>
+        <button onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="footer">
     <a href="index.html" class="active">Inicio</a>
