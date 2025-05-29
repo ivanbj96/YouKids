@@ -66,7 +66,14 @@
       </button>
     </div>
   </header>
-
+<!-- Dentro de <body> justo después de <main> -->
+<div id="search-modal" class="modal">
+  <div class="modal-content">
+    <input type="text" id="search-input" placeholder="Buscar videos..." />
+    <button onclick="applySearch()">Buscar</button>
+    <button onclick="closeModal()">Cancelar</button>
+  </div>
+</div>
   <main>
     <div id="video-list" class="grid"></div>
   </main>
