@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -6,50 +7,51 @@
   <link rel="stylesheet" href="style.css"/>
   <script>
     const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-    let currentKeyword = "videos cristianos niños";async function fetchVideos() {
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
-  const data = await res.json();
+    let currentKeyword = "videos cristianos niños";
 
-  const container = document.getElementById("video-list");
-  container.innerHTML = "";
+    async function fetchVideos() {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
+      const data = await res.json();
 
-  for (let item of data.items) {
-    const videoId = item.id.videoId;
-    const title = item.snippet.title;
-    const thumbnail = item.snippet.thumbnails.high.url;
-    const channelTitle = item.snippet.channelTitle;
-    const channelId = item.snippet.channelId;
+      const container = document.getElementById("video-list");
+      container.innerHTML = "";
 
-    const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
-    const channelData = await channelRes.json();
-    const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
+      for (let item of data.items) {
+        const videoId = item.id.videoId;
+        const title = item.snippet.title;
+        const thumbnail = item.snippet.thumbnails.high.url;
+        const channelTitle = item.snippet.channelTitle;
+        const channelId = item.snippet.channelId;
 
-    const videoCard = `
-      <div class="video-card">
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
-        <div class="video-info">
-          <img src="${channelImg}" class="channel-img" />
-          <div>
-            <strong>${title}</strong><br/>
-            <small>${channelTitle}</small>
+        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
+        const channelData = await channelRes.json();
+        const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
+
+        const videoCard = `
+          <div class="video-card">
+            <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+            <div class="video-info">
+              <img src="${channelImg}" class="channel-img" />
+              <div>
+                <strong>${title}</strong><br/>
+                <small>${channelTitle}</small>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    `;
-    container.innerHTML += videoCard;
-  }
-}
+        `;
+        container.innerHTML += videoCard;
+      }
+    }
 
-function openFilterModal() {
-  const newKeyword = prompt("¿Qué quieres buscar? (ej: alabanzas, historias bíblicas, etc)", currentKeyword);
-  if (newKeyword) {
-    currentKeyword = newKeyword;
-    fetchVideos();
-  }
-}
+    function openFilterModal() {
+      const newKeyword = prompt("¿Qué quieres buscar? (ej: alabanzas, historias bíblicas, etc)", currentKeyword);
+      if (newKeyword) {
+        currentKeyword = newKeyword;
+        fetchVideos();
+      }
+    }
 
-document.addEventListener("DOMContentLoaded", fetchVideos);
-
+    document.addEventListener("DOMContentLoaded", fetchVideos);
   </script>
 </head>
 <body>
@@ -63,29 +65,15 @@ document.addEventListener("DOMContentLoaded", fetchVideos);
         <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M3 6h18v2H3zm4 5h10v2H7zm6 5H9v2h4z"/></svg>
       </button>
     </div>
-  </header>  <main>
+  </header>
+
+  <main>
     <div id="video-list" class="grid"></div>
-  </main>  <footer class="footer">
+  </main>
+
+  <footer class="footer">
     <a href="index.html" class="active">Inicio</a>
     <a href="shorts.html">Shorts</a>
-  </footer>  <button id="installBtn" class="install-button" style="display:none;">
-    Instalar YouKids
-  </button>  <script>
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      installBtn.style.display = 'none';
-      deferredPrompt = null;
-    });
-  </script></body>
+  </footer>
+</body>
 </html>
