@@ -1,16 +1,36 @@
 const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
 let currentKeyword = "videos cristianos niños";
 let filters = {
-  region: "",
-  videoGenre: "",
-  musicGenre: "",
-  religion: "",
+  language: "",
+  genres: [],
   blockedChannels: []
 };
 
+function openSearchModal() {
+  const newKeyword = prompt("¿Qué quieres buscar? (ej: alabanzas, historias bíblicas, etc)", currentKeyword);
+  if (newKeyword) {
+    currentKeyword = newKeyword;
+    fetchVideos();
+  }
+}
+
+function openFilterModal() {
+  document.getElementById("filterModal").style.display = "flex";
+  document.getElementById("langFilter").value = filters.language;
+  document.getElementById("genreFilter").value = filters.genres.join(", ");
+  document.getElementById("blockedChannels").value = filters.blockedChannels.join(", ");
+}
+
+function saveFilters() {
+  filters.language = document.getElementById("langFilter").value.trim();
+  filters.genres = document.getElementById("genreFilter").value.split(",").map(x => x.trim().toLowerCase());
+  filters.blockedChannels = document.getElementById("blockedChannels").value.split(",").map(x => x.trim());
+  document.getElementById("filterModal").style.display = "none";
+  fetchVideos();
+}
+
 async function fetchVideos() {
-  const query = `${currentKeyword} ${filters.videoGenre} ${filters.musicGenre} ${filters.religion}`;
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`);
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
   const data = await res.json();
 
   const container = document.getElementById("video-list");
@@ -19,11 +39,14 @@ async function fetchVideos() {
   for (let item of data.items) {
     const videoId = item.id.videoId;
     const title = item.snippet.title;
+    const description = item.snippet.description.toLowerCase();
     const thumbnail = item.snippet.thumbnails.high.url;
     const channelTitle = item.snippet.channelTitle;
     const channelId = item.snippet.channelId;
 
-    if (filters.blockedChannels.includes(channelTitle)) continue;
+    if (filters.language && !description.includes(filters.language.toLowerCase())) continue;
+    if (filters.genres.length > 0 && !filters.genres.some(genre => description.includes(genre))) continue;
+    if (filters.blockedChannels.includes(channelId)) continue;
 
     const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
     const channelData = await channelRes.json();
@@ -45,46 +68,4 @@ async function fetchVideos() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  fetchVideos();
-
-  const searchModal = document.getElementById("searchModal");
-  const filterModal = document.getElementById("filterModal");
-
-  document.getElementById("searchBtn").onclick = () => {
-    searchModal.style.display = "block";
-  };
-
-  document.getElementById("filterBtn").onclick = () => {
-    filterModal.style.display = "block";
-  };
-
-  document.getElementById("closeSearch").onclick = () => {
-    searchModal.style.display = "none";
-  };
-
-  document.getElementById("closeFilter").onclick = () => {
-    filterModal.style.display = "none";
-  };
-
-  window.onclick = function(event) {
-    if (event.target == searchModal) {
-      searchModal.style.display = "none";
-    }
-    if (event.target == filterModal) {
-      filterModal.style.display = "none";
-    }
-  };
-
-  document.getElementById("searchSubmit").onclick = () => {
-    const input = document.getElementById("searchInput").value.trim();
-    if (input) {
-      currentKeyword = input;
-      fetchVideos();
-      searchModal.style.display = "none";
-    }
-  };
-
-  document.getElementById("applyFilters").onclick = () => {
-    filters.region = document.getElementById("regionFilter").value;
-    filters.videoGenre = document13
+document.addEventListener("DOMContentLoaded", fetchVideos);
