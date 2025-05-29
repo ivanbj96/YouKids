@@ -7,48 +7,55 @@
 body {
   margin: 0;
   font-family: sans-serif;
+  background: #f9f9f9;
 }
 
-.header, .footer {
+.header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.5em 1em;
-  background: #ff3366;
+  padding: 1em;
+  background: #d32f2f;
   color: white;
+  font-size: 1.2em;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5em 0;
 }
 
 .footer a {
-  flex: 1;
-  text-align: center;
-  padding: 1em;
   text-decoration: none;
-  color: white;
+  color: #333;
 }
 
 .footer a.active {
-  background: #cc0044;
+  color: #d32f2f;
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1em;
   padding: 1em;
+  display: grid;
+  gap: 1em;
 }
 
 .video-card {
-  background: #fff;
-  border-radius: 10px;
+  background: white;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
 .video-info {
   display: flex;
-  gap: 10px;
+  gap: 1em;
   padding: 0.5em;
-  align-items: center;
 }
 
 .channel-img {
@@ -57,17 +64,10 @@ body {
   border-radius: 50%;
 }
 
-.icon {
-  width: 24px;
-  height: 24px;
-}
-
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background: rgba(0,0,0,0.5);
   display: none;
   justify-content: center;
@@ -83,21 +83,29 @@ body {
   max-width: 400px;
 }
 
-.modal-content h2 {
-  margin-top: 0;
+.shorts-body {
+  background: black;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-.modal-content label {
-  display: block;
-  margin: 0.5em 0 0.2em;
+#shorts-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
 }
 
-.modal-content input,
-.modal-content select {
+.short-video {
+  scroll-snap-align: start;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.short-video iframe {
   width: 100%;
-  padding: 0.3em;
-}
-
-.modal-content button {
-  margin-top: 1em;
+  height: 100%;
+  border: none;
 }
