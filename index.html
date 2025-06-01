@@ -1,174 +1,153 @@
 <!DOCTYPE html><html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YouKids</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #0f0f0f;
-      color: white;
-    }header {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  background-color: #212121;
-}
-
-header .material-icons {
-  color: white;
-  margin-right: 8px;
-}
-
-.search-bar {
-  display: flex;
-  align-items: center;
-  background-color: #121212;
-  padding: 8px 10px;
-}
-
-.search-bar input {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 4px;
-  background-color: #303030;
-  color: white;
-}
-
-.filter-bar {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 10px;
-  background-color: #181818;
-}
-
-.filter-bar button {
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 6px 16px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.video-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 10px;
-  padding: 10px;
-}
-
-.video-card {
-  background-color: #181818;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.video-card iframe {
-  width: 100%;
-  height: 180px;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 56px;
-  background-color: #212121;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top: 1px solid #333;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 12px;
-}
-
-.bottom-nav .material-icons {
-  font-size: 24px;
-}
-
+      background-color: #111;
+      color: #fff;
+    }
+    header {
+      padding: 10px;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    input[type="text"] {
+      flex: 1;
+      margin: 0 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+    }
+    .video-list {
+      padding-bottom: 80px;
+    }
+    .video {
+      border-bottom: 1px solid #333;
+      padding: 10px;
+    }
+    .video-title {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    .video-thumbnail {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .channel-info {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+    }
+    .channel-info img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background-color: #000;
+      border-top: 1px solid #333;
+    }
+    .nav-button {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      color: #fff;
+    }
+    .nav-button img {
+      width: 24px;
+      height: 24px;
+    }
   </style>
 </head>
 <body>
   <header>
-    <span class="material-icons">home</span>
-    <span>YouKids</span>
-  </header>  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Buscar...">
-  </div>  <div class="filter-bar">
-    <button onclick="loadCategory('Todo')">Todo</button>
-    <button onclick="loadCategory('En directo')">En directo</button>
-    <button onclick="loadCategory('Música')">Música</button>
-    <button onclick="loadCategory('Cristianos')">Cristianos</button>
-    <button onclick="loadCategory('Niños')">Niños</button>
-  </div>  <div class="video-section" id="videoContainer">
-    <!-- Videos aparecerán aquí -->
-  </div>  <nav class="bottom-nav">
-    <button onclick="goHome()">
-      <span class="material-icons">home</span>
-      Inicio
-    </button>
-    <button onclick="loadShorts()">
-      <span class="material-icons">play_circle_filled</span>
-      Shorts
-    </button>
-    <button>
-      <span class="material-icons">subscriptions</span>
-      Suscripciones
-    </button>
-    <button>
-      <span class="material-icons">account_circle</span>
-      Tú
-    </button>
-  </nav>  <script>
-    const API_KEY = 'AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI';
+    <span style="font-size: 20px; font-weight: bold; color: #fff">YouKids</span>
+    <input type="text" id="search" placeholder="Buscar videos cristianos..." />
+    <button onclick="filterVideos()">Filtrar</button>
+  </header>  <div class="video-list" id="videoList"></div>  <div class="bottom-nav">
+    <div class="nav-button">
+      <img src="icons/home.svg" alt="Inicio">
+      <div>Inicio</div>
+    </div>
+    <div class="nav-button">
+      <img src="icons/shorts.svg" alt="Shorts">
+      <div>Shorts</div>
+    </div>
+    <div class="nav-button">
+      <img src="icons/profile.svg" alt="Perfil">
+      <div>Perfil</div>
+    </div>
+  </div>  <script>
+    const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+    const searchQuery = "canciones cristianas para niños";
 
-    async function fetchVideos(query) {
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&type=video&safeSearch=strict&q=${encodeURIComponent(query)}&key=${API_KEY}`;
-      const res = await fetch(url);
+    async function loadVideos() {
+      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&maxResults=10&key=${apiKey}`);
       const data = await res.json();
-      const container = document.getElementById('videoContainer');
-      container.innerHTML = '';
-      data.items.forEach(video => {
-        const videoId = video.id.videoId;
-        const div = document.createElement('div');
-        div.className = 'video-card';
-        div.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen></iframe>`;
-        container.appendChild(div);
+
+      const container = document.getElementById("videoList");
+      container.innerHTML = "";
+
+      data.items.forEach(item => {
+        const video = document.createElement("div");
+        video.className = "video";
+
+        video.innerHTML = `
+          <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
+          <div class="video-title">${item.snippet.title}</div>
+          <div class="channel-info">
+            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="Canal">
+            <span>${item.snippet.channelTitle}</span>
+          </div>
+        `;
+
+        container.appendChild(video);
       });
     }
 
-    function loadCategory(cat) {
-      fetchVideos(`videos cristianos para niños ${cat}`);
+    function filterVideos() {
+      const term = document.getElementById("search").value.trim();
+      if (term) {
+        fetchVideos(term);
+      }
     }
 
-    function goHome() {
-      fetchVideos('videos cristianos para niños');
+    function fetchVideos(query) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${apiKey}`;
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById("videoList");
+          container.innerHTML = "";
+          data.items.forEach(item => {
+            const video = document.createElement("div");
+            video.className = "video";
+            video.innerHTML = `
+              <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
+              <div class="video-title">${item.snippet.title}</div>
+              <div class="channel-info">
+                <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="Canal">
+                <span>${item.snippet.channelTitle}</span>
+              </div>
+            `;
+            container.appendChild(video);
+          });
+        });
     }
 
-    function loadShorts() {
-      fetchVideos('shorts cristianos para niños');
-    }
-
-    document.getElementById('searchInput').addEventListener('input', e => {
-      const q = e.target.value;
-      if (q.length > 2) fetchVideos(q);
-    });
-
-    goHome();
+    loadVideos();
   </script></body>
 </html>
