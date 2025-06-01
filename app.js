@@ -125,3 +125,42 @@ async function fetchShorts() {
     shortsList.innerHTML += videoHTML;
   }
 }
+
+async function loadShorts() {
+  const keyword = "videos cortos cristianos infantiles";
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(keyword)}&type=video&videoDuration=short&key=${apiKey}`);
+  const data = await res.json();
+
+  const container = document.getElementById("shorts-list");
+  container.innerHTML = "";
+
+  for (let item of data.items) {
+    const videoId = item.id.videoId;
+    const title = item.snippet.title;
+    const thumbnail = item.snippet.thumbnails.high.url;
+    const channelTitle = item.snippet.channelTitle;
+    const channelId = item.snippet.channelId;
+
+    const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
+    const channelData = await channelRes.json();
+    const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || "";
+
+    const shortCard = `
+      <div class="video-card">
+        <iframe
+          width="100%" height="400"
+          src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=${isMuted ? 1 : 0}"
+          frameborder="0" allowfullscreen
+        ></iframe>
+        <div class="video-info">
+          <img src="${channelImg}" class="channel-img" />
+          <div>
+            <strong>${title}</strong><br/>
+            <small>${channelTitle}</small>
+          </div>
+        </div>
+      </div>
+    `;
+    container.innerHTML += shortCard;
+  }
+}
