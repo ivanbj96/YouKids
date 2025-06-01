@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
       container.innerHTML = '';
       data.items.forEach(item => {
         const videoId = item.id.videoId;
-        const title = item.snippet.title;
         const iframe = document.createElement('iframe');
         iframe.src = `https://www.youtube.com/embed/${videoId}?rel=0&playsinline=1`;
         iframe.setAttribute('allowfullscreen', '');
