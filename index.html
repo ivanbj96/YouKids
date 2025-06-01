@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouKids - Videos Cristianos para Niños</title>
+  <title>YouKids</title>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   <style>
     body {
@@ -11,19 +11,46 @@
       margin: 0; padding: 0;
       background: #f9f9f9;
       color: #222;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     header {
       background: #4caf50;
       color: white;
-      padding: 1rem;
-      text-align: center;
+      padding: 1rem 1.5rem;
       font-size: 1.5rem;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
     main {
-      padding: 1rem;
+      padding: 1rem 1.5rem;
       max-width: 900px;
       margin: auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    input[type="search"], select {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline-offset: 2px;
+      outline-color: #4caf50;
+      transition: outline-color 0.2s ease-in-out;
+    }
+    input[type="search"]:focus, select:focus {
+      outline-color: #388e3c;
     }
     .video-list {
       display: grid;
@@ -62,56 +89,83 @@
       font-size: 0.8rem;
       padding: 1rem;
       color: #666;
+      background: #f0f0f0;
+    }
+    @media (max-width: 480px) {
+      .controls {
+        flex-direction: column;
+      }
+      input[type="search"], select {
+        flex: unset;
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <span class="material-icons" style="vertical-align: middle;">child_friendly</span> YouKids - Videos Cristianos para Niños
+    <span class="material-icons" style="vertical-align: middle;">child_friendly</span>
+    YouKids
   </header>
   <main>
-    <div id="videoContainer" class="video-list">Cargando videos...</div>
+    <div class="controls">
+      <input type="search" id="searchInput" placeholder="Buscar videos para niños..." aria-label="Buscar videos" />
+      <select id="filterSelect" aria-label="Filtro de categorías">
+        <option value="">Todas las categorías</option>
+        <option value="canciones">Canciones</option>
+        <option value="dibujos">Dibujos</option>
+        <option value="oraciones">Oraciones</option>
+        <option value="historias">Historias</option>
+      </select>
+    </div>
+    <div id="videoContainer" class="video-list">Introduce un término y selecciona filtro para buscar videos.</div>
   </main>
   <footer>
-    &copy; 2025 YouKids | Contenido seguro y dedicado para los más pequeños.
+    &copy; 2025 YouKids | Contenido seguro para los más pequeños.
   </footer>
 
   <script>
     const API_KEY = 'AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI';
-    const SEARCH_TERMS = [
-      'canciones cristianas para niños',
-      'dibujos bíblicos para niños',
-      'historias bíblicas animadas',
-      'oraciones para niños',
-      'canciones infantiles cristianas'
-    ];
 
-    // Seleccionar términos de búsqueda aleatorios para variedad
-    const term = SEARCH_TERMS[Math.floor(Math.random() * SEARCH_TERMS.length)];
+    // Mapeo simple para filtro a palabras clave
+    const categoryKeywords = {
+      canciones: 'canciones cristianas para niños',
+      dibujos: 'dibujos bíblicos para niños',
+      oraciones: 'oraciones para niños',
+      historias: 'historias bíblicas animadas',
+    };
+
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
+    const videoContainer = document.getElementById('videoContainer');
 
     async function fetchVideos(query) {
-      const maxResults = 12;
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${API_KEY}&videoEmbeddable=true&safeSearch=strict`;
+      if (!query || query.trim().length < 3) {
+        videoContainer.innerHTML = 'Introduce al menos 3 caracteres para buscar.';
+        return;
+      }
+
+      videoContainer.innerHTML = 'Buscando videos...';
+
+      // YouTube API endpoint con parámetros seguros
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=10&maxResults=12&key=${API_KEY}&videoEmbeddable=true&safeSearch=strict&q=${encodeURIComponent(query)}`;
 
       try {
         const response = await fetch(url);
         const data = await response.json();
 
         if (!data.items || data.items.length === 0) {
-          document.getElementById('videoContainer').innerHTML = 'No se encontraron videos para esta búsqueda.';
+          videoContainer.innerHTML = 'No se encontraron videos para esta búsqueda.';
           return;
         }
 
-        const container = document.getElementById('videoContainer');
-        container.innerHTML = ''; // limpiar mensaje de carga
-
+        videoContainer.innerHTML = '';
         data.items.forEach(video => {
           const videoId = video.id.videoId;
           const title = video.snippet.title;
 
           const card = document.createElement('div');
           card.className = 'video-card';
-
           card.innerHTML = `
             <iframe 
               src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&controls=1&disablekb=1" 
@@ -125,16 +179,37 @@
             </div>
           `;
 
-          container.appendChild(card);
+          videoContainer.appendChild(card);
         });
 
       } catch (error) {
         console.error('Error cargando videos:', error);
-        document.getElementById('videoContainer').innerHTML = 'Error cargando videos. Intenta de nuevo más tarde.';
+        videoContainer.innerHTML = 'Error cargando videos. Intenta de nuevo más tarde.';
       }
     }
 
-    fetchVideos(term);
+    // Escuchar eventos de búsqueda y filtro
+    function triggerSearch() {
+      const userQuery = searchInput.value.trim();
+      const filter = filterSelect.value;
+
+      let finalQuery = userQuery;
+      if (filter && categoryKeywords[filter]) {
+        finalQuery = `${userQuery} ${categoryKeywords[filter]}`.trim();
+      }
+
+      fetchVideos(finalQuery);
+    }
+
+    // Ejecutar búsqueda cuando se escribe (con debounce para evitar consultas excesivas)
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(triggerSearch, 600);
+    });
+
+    filterSelect.addEventListener('change', triggerSearch);
+
   </script>
 </body>
 </html>
