@@ -89,3 +89,39 @@ function loadShorts() {
   const container = document.getElementById("shorts-container");
   container.innerHTML = "<p>Shorts aún en desarrollo...</p>"; // Placeholder
 }
+
+
+const approvedChannels = ["UCN1hnUccO4FD5WfM7ithXaw", "UCcIXc5Ym5r5vTcf-TsiI_8g"]; // Añadir más
+const blockedKeywords = ["terror", "violencia", "guerra", "sexo", "asesinato", "gta"];
+const allowedKeywords = ["niños", "infantil", "cuentos", "alabanza", "cristiano", "educativo"];
+
+async function fetchShorts() {
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&maxResults=50&q=niños&relevanceLanguage=es&key=${apiKey}`);
+  const data = await res.json();
+
+  const shortsList = document.getElementById("shorts-list");
+  shortsList.innerHTML = "";
+
+  for (let item of data.items) {
+    const videoId = item.id.videoId;
+    const title = item.snippet.title.toLowerCase();
+    const description = item.snippet.description.toLowerCase();
+    const channelId = item.snippet.channelId;
+
+    // Filtro por canal aprobado
+    if (!approvedChannels.includes(channelId)) continue;
+
+    // Filtro por palabras bloqueadas
+    if (blockedKeywords.some(w => title.includes(w) || description.includes(w))) continue;
+
+    // Filtro por temas permitidos
+    if (!allowedKeywords.some(w => title.includes(w) || description.includes(w))) continue;
+
+    const videoHTML = `
+      <div class="short-video">
+        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&playsinline=1" frameborder="0" allowfullscreen></iframe>
+      </div>
+    `;
+    shortsList.innerHTML += videoHTML;
+  }
+}
