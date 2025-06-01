@@ -127,6 +127,48 @@ function closeModal() {
     <a href="index.html" class="active">Inicio</a>
     <a href="shorts.html">Shorts</a>
   </footer>
+<div id="filterModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeFilter">&times;</span>
+      <h2>Filtros</h2>
+      <label>Región:
+        <select id="regionFilter">
+          <option value="">Todas</option>
+          <option value="EC">Ecuador</option>
+          <option value="MX">México</option>
+          <!-- Agrega más regiones según sea necesario -->
+        </select>
+      </label>
+      <label>Género de Video:
+        <select id="videoGenreFilter">
+          <option value="">Todos</option>
+          <option value="educativo">Educativo</option>
+          <option value="entretenimiento">Entretenimiento</option>
+          <!-- Agrega más géneros según sea necesario -->
+        </select>
+      </label>
+      <label>Género de Música:
+        <select id="musicGenreFilter">
+          <option value="">Todos</option>
+          <option value="cristiana">Cristiana</option>
+          <option value="infantil">Infantil</option>
+          <!-- Agrega más géneros según sea necesario -->
+        </select>
+      </label>
+      <label>Religión:
+        <select id="religionFilter">
+          <option value="">Todas</option>
+          <option value="cristiana">Cristiana</option>
+          <option value="catolica">Católica</option>
+          <!-- Agrega más religiones según sea necesario -->
+        </select>
+      </label>
+      <label>Canales a Prohibir (separados por comas):
+        <input type="text" id="blockedChannels" placeholder="Canal1, Canal2" />
+      </label>
+      <button id="applyFilters">Aplicar Filtros</button>
+    </div>
+  </div>
 <button id="installBtn" class="install-button" style="display:none;">
   Instalar YouKids
 </button>
