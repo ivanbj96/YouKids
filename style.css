@@ -133,3 +133,17 @@ body {
 .modal-content button:last-child {
   background-color: #999;
 }
+
+.install-button {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background-color: #ff4081;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
