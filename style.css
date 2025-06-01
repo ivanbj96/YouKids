@@ -1,96 +1,94 @@
-body {
+* {
   margin: 0;
   padding: 0;
-  background: #fff;
-  font-family: sans-serif;
+  box-sizing: border-box;
 }
 
-header {
-  background-color: #f8f8f8;
-  padding: 1em;
-  text-align: center;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-}
-
-main {
-  padding-top: 60px;
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
   padding-bottom: 60px;
 }
 
-#video-list, #shorts-container {
+.header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  width: 100%;
+  padding: 12px 16px;
+  background-color: #ff0000;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.video, .short-video {
-  width: 100%;
-  max-width: 600px;
-  height: 315px;
-  border: none;
-  margin-bottom: 10px;
-}
-
-body.shorts-view .short-video {
-  height: 100vh;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background-color: #f8f8f8;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  z-index: 1000;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  font-size: 16px;
-  padding: 10px;
-}
-
-.bottom-nav button.active {
+.left-header {
+  font-size: 20px;
   font-weight: bold;
 }
 
-.back-button {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  background: none;
-  border: none;
-  font-size: 18px;
-}
-
-.short-video-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 20px;
-}
-
-.video-controls {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.right-header {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
-.video-controls button {
-  background: rgba(0,0,0,0.5);
+.right-header button {
+  background: transparent;
   border: none;
-  color: #fff;
-  font-size: 24px;
+  cursor: pointer;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  fill: white;
+}
+
+.grid {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.video-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 10px;
+}
+
+.channel-img {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+}
+
+.footer a {
+  text-decoration: none;
+  color: #666;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.footer .active {
+  color: #ff0000;
 }
