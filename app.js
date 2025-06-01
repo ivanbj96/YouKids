@@ -1,90 +1,91 @@
 const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
 let currentKeyword = "videos cristianos niños";
-let filters = {
-  region: "",
-  videoGenre: "",
-  musicGenre: "",
-  religion: "",
-  blockedChannels: []
-};
-
-async function fetchVideos() {
-  const query = `${currentKeyword} ${filters.videoGenre} ${filters.musicGenre} ${filters.religion}`;
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`);
-  const data = await res.json();
-
-  const container = document.getElementById("video-list");
-  container.innerHTML = "";
-
-  for (let item of data.items) {
-    const videoId = item.id.videoId;
-    const title = item.snippet.title;
-    const thumbnail = item.snippet.thumbnails.high.url;
-    const channelTitle = item.snippet.channelTitle;
-    const channelId = item.snippet.channelId;
-
-    if (filters.blockedChannels.includes(channelTitle)) continue;
-
-    const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
-    const channelData = await channelRes.json();
-    const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
-
-    const videoCard = `
-      <div class="video-card">
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
-        <div class="video-info">
-          <img src="${channelImg}" class="channel-img" />
-          <div>
-            <strong>${title}</strong><br/>
-            <small>${channelTitle}</small>
-          </div>
-        </div>
-      </div>
-    `;
-    container.innerHTML += videoCard;
-  }
-}
+let blockedChannels = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (location.pathname.includes("shorts.html")) {
+    loadShorts();
+  } else {
+    fetchVideos();
+    setupInstallPrompt();
+  }
+});
+
+function fetchVideos() {
+  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`)
+    .then(res => res.json())
+    .then(async data => {
+      const container = document.getElementById("video-list");
+      container.innerHTML = "";
+
+      for (let item of data.items) {
+        const { videoId } = item.id;
+        const { title, thumbnails, channelTitle, channelId } = item.snippet;
+
+        if (blockedChannels.some(b => channelTitle.toLowerCase().includes(b.trim().toLowerCase()))) continue;
+
+        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
+        const channelData = await channelRes.json();
+        const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
+
+        const videoCard = `
+          <div class="video-card">
+            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+            <div class="video-info">
+              <img src="${channelImg}" class="channel-img" />
+              <div><strong>${title}</strong><br/><small>${channelTitle}</small></div>
+            </div>
+          </div>`;
+        container.innerHTML += videoCard;
+      }
+    });
+}
+
+function openFilterModal() {
+  document.getElementById("search-modal").classList.add("show");
+  document.getElementById("search-input").value = currentKeyword;
+}
+
+function applySearch() {
+  const input = document.getElementById("search-input").value.trim();
+  if (input !== "") {
+    currentKeyword = input;
+    fetchVideos();
+  }
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById("search-modal").classList.remove("show");
+}
+
+function applyFilters() {
+  const blocked = document.getElementById("blockedChannels").value;
+  blockedChannels = blocked.split(",");
   fetchVideos();
+}
 
-  const searchModal = document.getElementById("searchModal");
-  const filterModal = document.getElementById("filterModal");
+function setupInstallPrompt() {
+  let deferredPrompt;
+  const installBtn = document.getElementById('installBtn');
 
-  document.getElementById("searchBtn").onclick = () => {
-    searchModal.style.display = "block";
-  };
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block';
 
-  document.getElementById("filterBtn").onclick = () => {
-    filterModal.style.display = "block";
-  };
+    installBtn.addEventListener('click', async () => {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(outcome === 'accepted' ? 'Instalación aceptada' : 'Instalación rechazada');
+      installBtn.style.display = 'none';
+      deferredPrompt = null;
+    });
+  });
+}
 
-  document.getElementById("closeSearch").onclick = () => {
-    searchModal.style.display = "none";
-  };
-
-  document.getElementById("closeFilter").onclick = () => {
-    filterModal.style.display = "none";
-  };
-
-  window.onclick = function(event) {
-    if (event.target == searchModal) {
-      searchModal.style.display = "none";
-    }
-    if (event.target == filterModal) {
-      filterModal.style.display = "none";
-    }
-  };
-
-  document.getElementById("searchSubmit").onclick = () => {
-    const input = document.getElementById("searchInput").value.trim();
-    if (input) {
-      currentKeyword = input;
-      fetchVideos();
-      searchModal.style.display = "none";
-    }
-  };
-
-  document.getElementById("applyFilters").onclick = () => {
-    filters.region = document.getElementById("regionFilter").value;
-    filters.videoGenre = document13
+function loadShorts() {
+  // Aquí implementas autoplay y scroll infinito de videos verticales estilo reels
+  const container = document.getElementById("shorts-container");
+  container.innerHTML = "<p>Shorts aún en desarrollo...</p>"; // Placeholder
+}
