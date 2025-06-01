@@ -1,18 +1,23 @@
-self.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open("youkids-cache").then((cache) => {
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open('youkids-cache').then(cache => {
       return cache.addAll([
-        "/index.html",
-        "/shorts.html",
-        "/style.css",
-        "/app.js",
-        "/manifest.json"
+        '/',
+        '/index.html',
+        '/shorts.html',
+        '/style.css',
+        '/app.js',
+        '/shorts.js',
+        '/manifest.json'
       ]);
     })
   );
 });
-self.addEventListener("fetch", (e) => {
-  e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
