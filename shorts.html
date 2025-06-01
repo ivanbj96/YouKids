@@ -2,21 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouKids Shorts</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouKids - Shorts</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css"/>
 </head>
-<body class="shorts-view">
-  <header>
-    <button onclick="window.location.href='index.html'" class="back-button">← Inicio</button>
-  </header>
-  <main id="shorts-container">
-    <div id="loading">Cargando Shorts cristianos para niños...</div>
-  </main>
-  <nav class="bottom-nav">
-    <button onclick="window.location.href='index.html'">Inicio</button>
-    <button onclick="window.location.href='shorts.html'" class="active">Shorts</button>
-  </nav>
-  <script src="shorts.js"></script>
+<body class="shorts-page">
+  <main id="shorts-container"></main>
+
+  <footer class="footer">
+    <a href="index.html">Inicio</a>
+    <a href="shorts.html" class="active">Shorts</a>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>
