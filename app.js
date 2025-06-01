@@ -1,65 +1,49 @@
-const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-const API_URL = "https://www.googleapis.com/youtube/v3/search";
-
-// Mapeo de filtros a parámetros (puedes personalizar esto según tu backend o tus reglas)
-const CATEGORY_KEYWORDS = {
-  all: '',
-  music: 'música cristiana niños',
-  stories: 'historias bíblicas niños'
-};
-
-const LANGUAGE_SUFFIX = {
-  es: 'en español',
-  en: 'in English'
-};
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+const baseUrl = "https://www.googleapis.com/youtube/v3/search";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const filterForm = document.querySelector("form");
-  filterForm.addEventListener("submit", async (e) => {
+  const searchInput = document.getElementById("search-input");
+  const searchForm = document.getElementById("search-form");
+
+  searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const category = document.getElementById("category").value;
-    const language = document.getElementById("language").value;
-    await fetchVideos(category, language);
-    closeFilterModal();
+    const query = searchInput.value.trim();
+    if (query) {
+      fetchVideos(query);
+    }
   });
 
-  // Carga inicial con filtros por defecto
-  fetchVideos("all", "es");
+  // Búsqueda inicial por defecto
+  fetchVideos("videos cristianos para niños");
 });
 
-async function fetchVideos(category, language) {
-  const searchQuery = `${CATEGORY_KEYWORDS[category]} ${LANGUAGE_SUFFIX[language]}`.trim();
-
-  const params = new URLSearchParams({
-    key: API_KEY,
-    part: "snippet",
-    q: searchQuery,
-    type: "video",
-    maxResults: 10,
-    videoEmbeddable: "true",
-    safeSearch: "strict"
-  });
-
+async function fetchVideos(query) {
   try {
-    const response = await fetch(`${API_URL}?${params.toString()}`);
+    const url = `${baseUrl}?key=${apiKey}&part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
     const data = await response.json();
 
-    if (data.items) {
-      renderVideos(data.items);
-    } else {
-      renderError("No se encontraron resultados.");
+    console.log("YouTube API response:", data); // Para debug
+
+    if (data.error) {
+      renderError(`Error de API: ${data.error.message}`);
+      return;
     }
+
+    renderVideos(data.items);
   } catch (error) {
     console.error("Error al buscar videos:", error);
-    renderError("Error al cargar videos.");
+    renderError("Ocurrió un error al cargar los videos.");
   }
 }
 
 function renderVideos(videos) {
   const main = document.querySelector("main");
-  main.innerHTML = ""; // Limpiar contenido anterior
+  main.innerHTML = "";
 
   videos.forEach((video) => {
+    if (!video.id || !video.id.videoId) return; // Aseguramos que sea video válido
+
     const videoId = video.id.videoId;
     const title = video.snippet.title;
     const thumbnail = video.snippet.thumbnails.medium.url;
@@ -81,5 +65,5 @@ function renderVideos(videos) {
 
 function renderError(message) {
   const main = document.querySelector("main");
-  main.innerHTML = `<p style="padding: 2rem; text-align: center; color: #b00020;">${message}</p>`;
+  main.innerHTML = `<p style="color: red; text-align: center;">${message}</p>`;
 }
