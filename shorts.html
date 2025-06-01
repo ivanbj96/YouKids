@@ -4,82 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouKids - Shorts</title>
-  <link rel="stylesheet" href="style.css"/>
-  <style>
-    body {
-      margin: 0;
-      overflow-y: scroll;
-      background-color: #000;
-      color: #fff;
-    }
-    .short-container {
-      height: 100vh;
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-    }
-    .short {
-      scroll-snap-align: start;
-      height: 100vh;
-      position: relative;
-    }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-    .short-info {
-      position: absolute;
-      bottom: 16px;
-      left: 16px;
-      color: white;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 8px;
-      border-radius: 8px;
-    }
-  </style>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
+  <!-- Header con íconos modernos -->
   <header class="header">
-    <div class="left-header">YouKids</div>
+    <div class="left-header">YouKids Shorts</div>
     <div class="right-header">
-      <a href="index.html">← Inicio</a>
+      <button onclick="toggleMute()" title="Silenciar/Activar sonido">
+        <span class="material-icons" id="muteIcon">volume_up</span>
+      </button>
+      <button onclick="loadShorts()" title="Recargar Shorts">
+        <span class="material-icons">smart_display</span>
+      </button>
     </div>
   </header>
 
-  <main class="short-container" id="shortsContainer">
-    <!-- Shorts dinámicos -->
+  <!-- Contenedor de shorts -->
+  <main>
+    <div id="shorts-list" class="grid"></div>
   </main>
 
+  <!-- Footer con navegación -->
   <footer class="footer">
     <a href="index.html">Inicio</a>
     <a href="shorts.html" class="active">Shorts</a>
   </footer>
 
+  <!-- Script -->
   <script src="app.js"></script>
-  <script>
-    const shortsKeyword = "shorts cristianos para niños";
-
-    async function fetchShorts() {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(shortsKeyword)}&type=video&videoDuration=short&key=${apiKey}`);
-      const data = await res.json();
-      const container = document.getElementById("shortsContainer");
-      container.innerHTML = "";
-
-      data.items.forEach(item => {
-        const videoId = item.id.videoId;
-        const title = item.snippet.title;
-
-        const shortHTML = `
-          <div class="short">
-            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&modestbranding=1&rel=0&showinfo=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            <div class="short-info">${title}</div>
-          </div>
-        `;
-        container.innerHTML += shortHTML;
-      });
-    }
-
-    window.addEventListener("DOMContentLoaded", fetchShorts);
-  </script>
 </body>
 </html>
