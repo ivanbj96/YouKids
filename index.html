@@ -2,50 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>YouKids - Inicio</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouKids</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
-  <header class="header">
-    <div class="left-header">YouKids</div>
-    <div class="right-header">
-      <button onclick="openSearchModal()" title="Buscar">
-        🔍
-      </button>
-      <button onclick="openFilterModal()" title="Filtro">
-        ⚙️
-      </button>
-    </div>
+  <header>
+    <h1>YouKids</h1>
+    <button onclick="window.location.href='shorts.html'">Ver Shorts</button>
   </header>
-
-  <main>
-    <div id="video-list" class="grid"></div>
+  <main id="video-list">
+    <p>Cargando videos...</p>
   </main>
-
-  <footer class="footer">
-    <a href="index.html" class="active">Inicio</a>
-    <a href="shorts.html">Shorts</a>
-  </footer>
-
-  <!-- MODAL DE FILTRO -->
-  <div id="filterModal" class="modal">
-    <div class="modal-content">
-      <h2>Filtros</h2>
-      <label>Idioma:</label>
-      <select id="langFilter">
-        <option value="">Todos</option>
-        <option value="español">Español</option>
-        <option value="english">Inglés</option>
-      </select>
-      <label>Géneros permitidos:</label>
-      <input type="text" id="genreFilter" placeholder="ej: infantil, cristiano">
-      <label>Canales prohibidos:</label>
-      <input type="text" id="blockedChannels" placeholder="IDs separados por coma">
-      <button onclick="saveFilters()">Aplicar</button>
-    </div>
-  </div>
-
   <script src="app.js"></script>
 </body>
 </html>
