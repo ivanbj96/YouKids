@@ -1,6 +1,6 @@
 
 const API_KEY = 'AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI';
-const MAX_RESULTS = 10;
+const MAX_RESULTS = 100;
 const QUERY = 'videos cristianos para niños';
 const API_URL = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&part=snippet&type=video&videoEmbeddable=true&maxResults=${MAX_RESULTS}&q=${encodeURIComponent(QUERY)}&relevanceLanguage=es`;
 
