@@ -1,166 +1,85 @@
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-let currentKeyword = "videos cristianos niños";
-let blockedChannels = [];
+const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+const API_URL = "https://www.googleapis.com/youtube/v3/search";
+
+// Mapeo de filtros a parámetros (puedes personalizar esto según tu backend o tus reglas)
+const CATEGORY_KEYWORDS = {
+  all: '',
+  music: 'música cristiana niños',
+  stories: 'historias bíblicas niños'
+};
+
+const LANGUAGE_SUFFIX = {
+  es: 'en español',
+  en: 'in English'
+};
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (location.pathname.includes("shorts.html")) {
-    loadShorts();
-  } else {
-    fetchVideos();
-    setupInstallPrompt();
-  }
+  const filterForm = document.querySelector("form");
+  filterForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const category = document.getElementById("category").value;
+    const language = document.getElementById("language").value;
+    await fetchVideos(category, language);
+    closeFilterModal();
+  });
+
+  // Carga inicial con filtros por defecto
+  fetchVideos("all", "es");
 });
 
-function fetchVideos() {
-  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`)
-    .then(res => res.json())
-    .then(async data => {
-      const container = document.getElementById("video-list");
-      container.innerHTML = "";
+async function fetchVideos(category, language) {
+  const searchQuery = `${CATEGORY_KEYWORDS[category]} ${LANGUAGE_SUFFIX[language]}`.trim();
 
-      for (let item of data.items) {
-        const { videoId } = item.id;
-        const { title, thumbnails, channelTitle, channelId } = item.snippet;
+  const params = new URLSearchParams({
+    key: API_KEY,
+    part: "snippet",
+    q: searchQuery,
+    type: "video",
+    maxResults: 10,
+    videoEmbeddable: "true",
+    safeSearch: "strict"
+  });
 
-        if (blockedChannels.some(b => channelTitle.toLowerCase().includes(b.trim().toLowerCase()))) continue;
+  try {
+    const response = await fetch(`${API_URL}?${params.toString()}`);
+    const data = await response.json();
 
-        const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
-        const channelData = await channelRes.json();
-        const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
-
-        const videoCard = `
-          <div class="video-card">
-            <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
-            <div class="video-info">
-              <img src="${channelImg}" class="channel-img" />
-              <div><strong>${title}</strong><br/><small>${channelTitle}</small></div>
-            </div>
-          </div>`;
-        container.innerHTML += videoCard;
-      }
-    });
-}
-
-function openFilterModal() {
-  document.getElementById("search-modal").classList.add("show");
-  document.getElementById("search-input").value = currentKeyword;
-}
-
-function applySearch() {
-  const input = document.getElementById("search-input").value.trim();
-  if (input !== "") {
-    currentKeyword = input;
-    fetchVideos();
+    if (data.items) {
+      renderVideos(data.items);
+    } else {
+      renderError("No se encontraron resultados.");
+    }
+  } catch (error) {
+    console.error("Error al buscar videos:", error);
+    renderError("Error al cargar videos.");
   }
-  closeModal();
 }
 
-function closeModal() {
-  document.getElementById("search-modal").classList.remove("show");
-}
+function renderVideos(videos) {
+  const main = document.querySelector("main");
+  main.innerHTML = ""; // Limpiar contenido anterior
 
-function applyFilters() {
-  const blocked = document.getElementById("blockedChannels").value;
-  blockedChannels = blocked.split(",");
-  fetchVideos();
-}
+  videos.forEach((video) => {
+    const videoId = video.id.videoId;
+    const title = video.snippet.title;
+    const thumbnail = video.snippet.thumbnails.medium.url;
 
-function setupInstallPrompt() {
-  let deferredPrompt;
-  const installBtn = document.getElementById('installBtn');
+    const card = document.createElement("div");
+    card.style.margin = "1rem";
+    card.style.textAlign = "center";
 
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'block';
+    card.innerHTML = `
+      <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" style="text-decoration: none; color: inherit;">
+        <img src="${thumbnail}" alt="${title}" style="border-radius: 0.75rem; width: 100%; max-width: 360px;">
+        <p style="margin-top: 0.5rem;">${title}</p>
+      </a>
+    `;
 
-    installBtn.addEventListener('click', async () => {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(outcome === 'accepted' ? 'Instalación aceptada' : 'Instalación rechazada');
-      installBtn.style.display = 'none';
-      deferredPrompt = null;
-    });
+    main.appendChild(card);
   });
 }
 
-function loadShorts() {
-  // Aquí implementas autoplay y scroll infinito de videos verticales estilo reels
-  const container = document.getElementById("shorts-container");
-  container.innerHTML = "<p>Shorts aún en desarrollo...</p>"; // Placeholder
-}
-
-
-const approvedChannels = ["UCN1hnUccO4FD5WfM7ithXaw", "UCcIXc5Ym5r5vTcf-TsiI_8g"]; // Añadir más
-const blockedKeywords = ["terror", "violencia", "guerra", "sexo", "asesinato", "gta"];
-const allowedKeywords = ["niños", "infantil", "cuentos", "alabanza", "cristiano", "educativo"];
-
-async function fetchShorts() {
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&maxResults=50&q=niños&relevanceLanguage=es&key=${apiKey}`);
-  const data = await res.json();
-
-  const shortsList = document.getElementById("shorts-list");
-  shortsList.innerHTML = "";
-
-  for (let item of data.items) {
-    const videoId = item.id.videoId;
-    const title = item.snippet.title.toLowerCase();
-    const description = item.snippet.description.toLowerCase();
-    const channelId = item.snippet.channelId;
-
-    // Filtro por canal aprobado
-    if (!approvedChannels.includes(channelId)) continue;
-
-    // Filtro por palabras bloqueadas
-    if (blockedKeywords.some(w => title.includes(w) || description.includes(w))) continue;
-
-    // Filtro por temas permitidos
-    if (!allowedKeywords.some(w => title.includes(w) || description.includes(w))) continue;
-
-    const videoHTML = `
-      <div class="short-video">
-        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&playsinline=1" frameborder="0" allowfullscreen></iframe>
-      </div>
-    `;
-    shortsList.innerHTML += videoHTML;
-  }
-}
-
-async function loadShorts() {
-  const keyword = "videos cortos cristianos infantiles";
-  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(keyword)}&type=video&videoDuration=short&key=${apiKey}`);
-  const data = await res.json();
-
-  const container = document.getElementById("shorts-list");
-  container.innerHTML = "";
-
-  for (let item of data.items) {
-    const videoId = item.id.videoId;
-    const title = item.snippet.title;
-    const thumbnail = item.snippet.thumbnails.high.url;
-    const channelTitle = item.snippet.channelTitle;
-    const channelId = item.snippet.channelId;
-
-    const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
-    const channelData = await channelRes.json();
-    const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || "";
-
-    const shortCard = `
-      <div class="video-card">
-        <iframe
-          width="100%" height="400"
-          src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=${isMuted ? 1 : 0}"
-          frameborder="0" allowfullscreen
-        ></iframe>
-        <div class="video-info">
-          <img src="${channelImg}" class="channel-img" />
-          <div>
-            <strong>${title}</strong><br/>
-            <small>${channelTitle}</small>
-          </div>
-        </div>
-      </div>
-    `;
-    container.innerHTML += shortCard;
-  }
+function renderError(message) {
+  const main = document.querySelector("main");
+  main.innerHTML = `<p style="padding: 2rem; text-align: center; color: #b00020;">${message}</p>`;
 }
