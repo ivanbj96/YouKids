@@ -1,4 +1,3 @@
-const API_KEY = 'AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI';
 const MAX_RESULTS = 10;
 const QUERY = 'shorts cristianos para niños';
 let nextPageToken = '';
