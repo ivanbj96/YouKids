@@ -28,6 +28,11 @@ const playPauseButton = document.getElementById("play-pause-button");
 const muteButton = document.getElementById("mute-button");
 const playPauseIcon = playPauseButton.querySelector('.material-icons');
 const muteIcon = muteButton.querySelector('.material-icons');
+const autoplayToggleButton = document.getElementById("autoplay-toggle-button"); // Nuevo botón
+const previousVideoButton = document.getElementById("previous-video-button"); // Nuevo botón
+const nextVideoButton = document.getElementById("next-video-button"); // Nuevo botón
+const fullscreenButton = document.getElementById("fullscreen-button"); // Nuevo botón
+const autoplayToggleIcon = autoplayToggleButton.querySelector('.material-icons'); // Icono para autoplay
 
 // Elementos del modal de filtros
 const regionFilter = document.getElementById("regionFilter");
@@ -38,6 +43,10 @@ const blockedChannelsInput = document.getElementById("blockedChannels");
 
 let deferredPrompt; // Para el evento de instalación de PWA
 let player; // Variable global para el reproductor de YouTube
+let currentVideoId = null; // ID del video actualmente reproduciéndose
+let currentVideoIndex = -1; // Índice del video actual en loadedVideosData
+let loadedVideosData = []; // Array de videos cargados desde la API
+let isAutoplayEnabled = false; // Estado de la reproducción automática
 
 // --- Funciones de Utilidad ---
 
@@ -63,7 +72,8 @@ function savePreferences() {
     videoGenre: videoGenreFilter.value,
     musicGenre: musicGenreFilter.value,
     religion: religionFilter.value,
-    blockedChannels: blockedChannelsInput.value
+    blockedChannels: blockedChannelsInput.value,
+    isAutoplayEnabled: isAutoplayEnabled // Guardar estado de autoplay
   };
   localStorage.setItem('youkidsPreferences', JSON.stringify(preferences));
   console.log("Preferencias guardadas:", preferences);
@@ -81,6 +91,8 @@ function loadPreferences() {
     musicGenreFilter.value = preferences.musicGenre || '';
     religionFilter.value = preferences.religion || '';
     blockedChannelsInput.value = preferences.blockedChannels || '';
+    isAutoplayEnabled = preferences.isAutoplayEnabled || false; // Cargar estado de autoplay
+    updateAutoplayButtonIcon(); // Actualizar icono al cargar preferencias
     console.log("Preferencias cargadas:", preferences);
   }
 }
@@ -93,7 +105,6 @@ function loadPreferences() {
  */
 function onYouTubeIframeAPIReady() {
   console.log("YouTube IFrame API Ready.");
-  // Crear el reproductor cuando esté listo el DOM y la API
   initializePlayer();
 }
 
@@ -101,8 +112,7 @@ function onYouTubeIframeAPIReady() {
  * Inicializa el reproductor de YouTube.
  */
 function initializePlayer() {
-  // Solo inicializa una vez
-  if (player) return;
+  if (player) return; // Solo inicializa una vez
 
   player = new YT.Player('player', {
     height: '360',
@@ -110,9 +120,10 @@ function initializePlayer() {
     videoId: '', // Se carga un video vacío inicialmente
     playerVars: {
       'autoplay': 0,
-      'controls': 0, // No mostrar controles nativos de YouTube si queremos los nuestros
-      'modestbranding': 1, // Logo de YouTube más pequeño
-      'rel': 0 // No mostrar videos relacionados al final
+      'controls': 0, // No mostrar controles nativos de YouTube
+      'modestbranding': 1,
+      'rel': 0,
+      'playsinline': 1 // Permite que se reproduzca en línea en iOS
     },
     events: {
       'onReady': onPlayerReady,
@@ -127,8 +138,6 @@ function initializePlayer() {
  */
 function onPlayerReady(event) {
   console.log('Reproductor de YouTube listo!');
-  // Si tienes un video inicial para cargar al cargar la página:
-  // event.target.loadVideoById('dQw4w9WgXcQ'); // Ejemplo: Rick Astley
 }
 
 /**
@@ -137,30 +146,38 @@ function onPlayerReady(event) {
  */
 function onPlayerStateChange(event) {
   const playerState = event.data;
-  // YT.PlayerState.ENDED, YT.PlayerState.PLAYING, YT.PlayerState.PAUSED,
-  // YT.PlayerState.BUFFERING, YT.PlayerState.CUED
+
+  // Actualizar icono de play/pause
   if (playerState === YT.PlayerState.PLAYING) {
     playPauseIcon.textContent = 'pause';
   } else if (playerState === YT.PlayerState.PAUSED || playerState === YT.PlayerState.ENDED) {
     playPauseIcon.textContent = 'play_arrow';
   }
-  updateMuteButtonIcon(); // Actualiza el icono de silencio si cambia el estado
+
+  // Si el video termina y la reproducción automática está activa, ir al siguiente
+  if (playerState === YT.PlayerState.ENDED && isAutoplayEnabled) {
+    playNextVideo();
+  }
+  updateMuteButtonIcon(); // Asegurar que el icono de mute esté correcto
 }
 
 /**
  * Carga y reproduce un video específico en el reproductor.
  * @param {string} videoId - El ID del video de YouTube a cargar.
+ * @param {number} index - El índice del video en loadedVideosData.
  */
-function loadAndPlayVideo(videoId) {
+function loadAndPlayVideo(videoId, index) {
   if (player && typeof player.loadVideoById === 'function') {
     player.loadVideoById(videoId);
+    currentVideoId = videoId;
+    currentVideoIndex = index;
     playerSection.style.display = 'block'; // Mostrar la sección del reproductor
     window.scrollTo({ top: 0, behavior: 'smooth' }); // Desplazarse al inicio para ver el reproductor
-    console.log(`Cargando video: ${videoId}`);
+    playPauseIcon.textContent = 'pause'; // Asumir que empezará a reproducir
+    console.log(`Cargando y reproduciendo: ${videoId}, Index: ${index}`);
   } else {
     console.error("El reproductor de YouTube no está inicializado correctamente.");
-    // Fallback: abrir en YouTube si el reproductor no está listo
-    openYouTubeVideo(videoId);
+    openYouTubeVideo(videoId); // Fallback: abrir en YouTube
   }
 }
 
@@ -168,13 +185,13 @@ function loadAndPlayVideo(videoId) {
  * Alterna entre reproducir y pausar el video.
  */
 function togglePlayPause() {
-  if (player && typeof player.getPlayerState === 'function') {
-    const state = player.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) {
-      player.pauseVideo();
-    } else {
-      player.playVideo();
-    }
+  if (!player || typeof player.getPlayerState !== 'function') return;
+
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+  } else {
+    player.playVideo();
   }
 }
 
@@ -182,42 +199,99 @@ function togglePlayPause() {
  * Alterna entre silenciar y desilenciar el video.
  */
 function toggleMute() {
-  if (player && typeof player.isMuted === 'function') {
-    if (player.isMuted()) {
-      player.unMute();
-    } else {
-      player.mute();
-    }
-    updateMuteButtonIcon();
+  if (!player || typeof player.isMuted !== 'function') return;
+
+  if (player.isMuted()) {
+    player.unMute();
+  } else {
+    player.mute();
   }
+  updateMuteButtonIcon();
 }
 
 /**
  * Actualiza el icono del botón de silencio/desilencio.
  */
 function updateMuteButtonIcon() {
-  if (player && typeof player.isMuted === 'function') {
-    if (player.isMuted()) {
-      muteIcon.textContent = 'volume_off';
-    } else {
-      muteIcon.textContent = 'volume_up';
-    }
+  if (!player || typeof player.isMuted !== 'function') return;
+  muteIcon.textContent = player.isMuted() ? 'volume_off' : 'volume_up';
+}
+
+/**
+ * Alterna el estado de la reproducción automática y actualiza el icono.
+ */
+function toggleAutoplay() {
+  isAutoplayEnabled = !isAutoplayEnabled;
+  updateAutoplayButtonIcon();
+  savePreferences(); // Guardar el nuevo estado de autoplay
+}
+
+/**
+ * Actualiza el icono del botón de reproducción automática.
+ */
+function updateAutoplayButtonIcon() {
+  autoplayToggleIcon.textContent = isAutoplayEnabled ? 'loop' : 'autoplay'; // 'loop' o 'repeat' para activado
+  autoplayToggleIcon.style.color = isAutoplayEnabled ? 'lightgreen' : 'white';
+}
+
+/**
+ * Reproduce el siguiente video en la lista.
+ */
+function playNextVideo() {
+  if (loadedVideosData.length === 0) return;
+
+  let nextIndex = currentVideoIndex + 1;
+  if (nextIndex >= loadedVideosData.length) {
+    nextIndex = 0; // Vuelve al inicio de la lista si se llega al final
+    console.log("Fin de la lista de videos, volviendo al inicio.");
+  }
+
+  const nextVideo = loadedVideosData[nextIndex];
+  loadAndPlayVideo(nextVideo.id.videoId, nextIndex);
+}
+
+/**
+ * Reproduce el video anterior en la lista.
+ */
+function playPreviousVideo() {
+  if (loadedVideosData.length === 0) return;
+
+  let prevIndex = currentVideoIndex - 1;
+  if (prevIndex < 0) {
+    prevIndex = loadedVideosData.length - 1; // Va al final de la lista si se llega al inicio
+    console.log("Inicio de la lista de videos, yendo al final.");
+  }
+
+  const prevVideo = loadedVideosData[prevIndex];
+  loadAndPlayVideo(prevVideo.id.videoId, prevIndex);
+}
+
+/**
+ * Alterna el modo de pantalla completa para el reproductor de YouTube.
+ */
+function toggleFullscreen() {
+  if (!player || typeof player.getIframe !== 'function') return;
+
+  const iframe = player.getIframe();
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else if (iframe.requestFullscreen) {
+    iframe.requestFullscreen();
+  } else if (iframe.mozRequestFullScreen) { /* Firefox */
+    iframe.mozRequestFullScreen();
+  } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    iframe.webkitRequestFullscreen();
+  } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+    iframe.msRequestFullscreen();
   }
 }
 
-
-// --- Lógica de Carga y Filtrado de Videos ---
+// --- Lógica de Carga y Filtrado de Videos (API de YouTube) ---
 
 /**
  * Carga videos de YouTube usando la API y los muestra en la lista.
  * Aplica filtros si se proporcionan.
  * @param {Object} options - Objeto con opciones de búsqueda y filtrado.
- * @param {string} [options.query=defaultSearchQuery] - El término de búsqueda.
- * @param {string} [options.region=''] - Código de región (ej: 'EC', 'MX').
- * @param {string} [options.videoGenre=''] - Género de video (se añade a la query).
- * @param {string} [options.musicGenre=''] - Género de música (se añade a la query).
- * @param {string} [options.religion=''] - Religión (se añade a la query).
- * @param {string[]} [options.blockedChannels=[]] - Lista de canales a prohibir.
  */
 async function loadVideos({
   query = defaultSearchQuery,
@@ -228,7 +302,6 @@ async function loadVideos({
   blockedChannels = []
 } = {}) {
 
-  // Construye la query completa añadiendo los términos de filtro
   let fullQuery = query;
   if (videoGenre) fullQuery += ` ${videoGenre}`;
   if (musicGenre) fullQuery += ` ${musicGenre}`;
@@ -244,16 +317,16 @@ async function loadVideos({
 
   try {
     const res = await fetch(url);
-
     if (!res.ok) {
       const errorBody = await res.json().catch(() => ({ message: res.statusText }));
       throw new Error(`Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'}`);
     }
-
     const data = await res.json();
 
+    loadedVideosData = data.items || []; // Almacenar todos los videos para navegación
+
     videoListContainer.innerHTML = ""; // Limpiar videos existentes
-    let filteredItems = data.items || [];
+    let filteredItems = loadedVideosData;
 
     // Filtrado de canales bloqueados (client-side)
     if (blockedChannels.length > 0) {
@@ -264,16 +337,16 @@ async function loadVideos({
     }
 
     if (filteredItems.length > 0) {
-      for (const item of filteredItems) {
+      filteredItems.forEach((item, index) => {
         if (!item.id || !item.id.videoId) {
           console.warn("Item no es un video o no tiene videoId:", item);
-          continue;
+          return;
         }
 
         const videoCard = document.createElement("div");
         videoCard.className = "video-card";
-        videoCard.dataset.videoId = item.id.videoId; // Guardar el videoId en un data attribute
-        videoCard.onclick = () => loadAndPlayVideo(item.id.videoId); // Clic para cargar en el reproductor
+        // Al hacer clic, carga y reproduce en el reproductor embebido
+        videoCard.onclick = () => loadAndPlayVideo(item.id.videoId, loadedVideosData.indexOf(item));
 
         const channelAvatarUrl = `https://www.google.com/s2/favicons?domain=youtube.com&sz=64`;
 
@@ -288,7 +361,7 @@ async function loadVideos({
           </div>
         `;
         videoListContainer.appendChild(videoCard);
-      }
+      });
     } else {
       videoListContainer.innerHTML = "<p style='text-align: center; margin-top: 20px;'>No se encontraron videos para esta búsqueda y filtros.</p>";
     }
@@ -325,43 +398,35 @@ function applyFiltersAndSearch() {
 
 // --- Event Listeners para la UI ---
 
-// Botón de búsqueda en el header
 searchButton.addEventListener("click", () => {
   toggleModal(searchModal, true);
   searchInput.focus();
 });
-
-// Botón "Buscar" dentro del modal de búsqueda
 applySearchButton.addEventListener("click", applyFiltersAndSearch);
-
-// Botón "Cancelar" dentro del modal de búsqueda
 cancelSearchButton.addEventListener("click", () => {
   toggleModal(searchModal, false);
 });
-
-// Permitir buscar con Enter en el modal de búsqueda
 searchInput.addEventListener("keypress", (event) => {
   if (event.key === "Enter") {
     applyFiltersAndSearch();
   }
 });
 
-// Botón de filtro en el header
 filterButton.addEventListener("click", () => {
   toggleModal(filterModal, true);
 });
-
-// Botón para cerrar el modal de filtros
 closeFilterButton.addEventListener("click", () => {
   toggleModal(filterModal, false);
 });
-
-// Botón "Aplicar Filtros" dentro del modal de filtros
 applyFiltersButton.addEventListener("click", applyFiltersAndSearch);
 
 // Controles del reproductor
 playPauseButton.addEventListener('click', togglePlayPause);
 muteButton.addEventListener('click', toggleMute);
+autoplayToggleButton.addEventListener('click', toggleAutoplay); // Nuevo listener
+previousVideoButton.addEventListener('click', playPreviousVideo); // Nuevo listener
+nextVideoButton.addEventListener('click', playNextVideo); // Nuevo listener
+fullscreenButton.addEventListener('click', toggleFullscreen); // Nuevo listener
 
 // --- Lógica del Service Worker y PWA Install ---
 
@@ -406,9 +471,9 @@ window.addEventListener('appinstalled', () => {
 
 // Cargar preferencias y videos al iniciar la página
 document.addEventListener("DOMContentLoaded", () => {
-  loadPreferences(); // Cargar preferencias guardadas
+  loadPreferences(); // Cargar preferencias guardadas, incluyendo autoplay
   // Usar las preferencias cargadas para la búsqueda inicial
-  const initialQuery = searchInput.value.trim() || defaultSearchQuery; // Si se cargó una query del input, úsala
+  const initialQuery = searchInput.value.trim() || defaultSearchQuery;
   const blockedChannels = blockedChannelsInput.value.split(',').map(ch => ch.trim()).filter(ch => ch !== '');
 
   loadVideos({
