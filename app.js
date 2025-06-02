@@ -20,6 +20,14 @@ const applySearchButton = document.getElementById("apply-search");
 const cancelSearchButton = document.getElementById("cancel-search");
 const closeFilterButton = document.getElementById("closeFilter");
 const applyFiltersButton = document.getElementById("applyFilters");
+const installButton = document.getElementById("installBtn");
+const playerSection = document.getElementById("player-section"); // Nueva sección del reproductor
+
+// Elementos de control del reproductor
+const playPauseButton = document.getElementById("play-pause-button");
+const muteButton = document.getElementById("mute-button");
+const playPauseIcon = playPauseButton.querySelector('.material-icons');
+const muteIcon = muteButton.querySelector('.material-icons');
 
 // Elementos del modal de filtros
 const regionFilter = document.getElementById("regionFilter");
@@ -27,6 +35,9 @@ const videoGenreFilter = document.getElementById("videoGenreFilter");
 const musicGenreFilter = document.getElementById("musicGenreFilter");
 const religionFilter = document.getElementById("religionFilter");
 const blockedChannelsInput = document.getElementById("blockedChannels");
+
+let deferredPrompt; // Para el evento de instalación de PWA
+let player; // Variable global para el reproductor de YouTube
 
 // --- Funciones de Utilidad ---
 
@@ -44,12 +55,156 @@ function toggleModal(modalElement, show) {
 }
 
 /**
- * Abre la URL de un video en YouTube en una nueva pestaña/ventana.
- * @param {string} videoId - El ID del video de YouTube.
+ * Guarda las preferencias del usuario en localStorage.
  */
-function openYouTubeVideo(videoId) {
-  window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+function savePreferences() {
+  const preferences = {
+    region: regionFilter.value,
+    videoGenre: videoGenreFilter.value,
+    musicGenre: musicGenreFilter.value,
+    religion: religionFilter.value,
+    blockedChannels: blockedChannelsInput.value
+  };
+  localStorage.setItem('youkidsPreferences', JSON.stringify(preferences));
+  console.log("Preferencias guardadas:", preferences);
 }
+
+/**
+ * Carga las preferencias del usuario de localStorage.
+ */
+function loadPreferences() {
+  const savedPreferences = localStorage.getItem('youkidsPreferences');
+  if (savedPreferences) {
+    const preferences = JSON.parse(savedPreferences);
+    regionFilter.value = preferences.region || '';
+    videoGenreFilter.value = preferences.videoGenre || '';
+    musicGenreFilter.value = preferences.musicGenre || '';
+    religionFilter.value = preferences.religion || '';
+    blockedChannelsInput.value = preferences.blockedChannels || '';
+    console.log("Preferencias cargadas:", preferences);
+  }
+}
+
+// --- Lógica del Reproductor de YouTube ---
+
+/**
+ * Esta función es llamada automáticamente por el IFrame Player API de YouTube
+ * cuando el código del reproductor ha sido cargado.
+ */
+function onYouTubeIframeAPIReady() {
+  console.log("YouTube IFrame API Ready.");
+  // Crear el reproductor cuando esté listo el DOM y la API
+  initializePlayer();
+}
+
+/**
+ * Inicializa el reproductor de YouTube.
+ */
+function initializePlayer() {
+  // Solo inicializa una vez
+  if (player) return;
+
+  player = new YT.Player('player', {
+    height: '360',
+    width: '640',
+    videoId: '', // Se carga un video vacío inicialmente
+    playerVars: {
+      'autoplay': 0,
+      'controls': 0, // No mostrar controles nativos de YouTube si queremos los nuestros
+      'modestbranding': 1, // Logo de YouTube más pequeño
+      'rel': 0 // No mostrar videos relacionados al final
+    },
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+
+/**
+ * Llamado cuando el reproductor de YouTube está listo.
+ * @param {Object} event - El evento onReady.
+ */
+function onPlayerReady(event) {
+  console.log('Reproductor de YouTube listo!');
+  // Si tienes un video inicial para cargar al cargar la página:
+  // event.target.loadVideoById('dQw4w9WgXcQ'); // Ejemplo: Rick Astley
+}
+
+/**
+ * Llamado cuando el estado del reproductor cambia.
+ * @param {Object} event - El evento onStateChange.
+ */
+function onPlayerStateChange(event) {
+  const playerState = event.data;
+  // YT.PlayerState.ENDED, YT.PlayerState.PLAYING, YT.PlayerState.PAUSED,
+  // YT.PlayerState.BUFFERING, YT.PlayerState.CUED
+  if (playerState === YT.PlayerState.PLAYING) {
+    playPauseIcon.textContent = 'pause';
+  } else if (playerState === YT.PlayerState.PAUSED || playerState === YT.PlayerState.ENDED) {
+    playPauseIcon.textContent = 'play_arrow';
+  }
+  updateMuteButtonIcon(); // Actualiza el icono de silencio si cambia el estado
+}
+
+/**
+ * Carga y reproduce un video específico en el reproductor.
+ * @param {string} videoId - El ID del video de YouTube a cargar.
+ */
+function loadAndPlayVideo(videoId) {
+  if (player && typeof player.loadVideoById === 'function') {
+    player.loadVideoById(videoId);
+    playerSection.style.display = 'block'; // Mostrar la sección del reproductor
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Desplazarse al inicio para ver el reproductor
+    console.log(`Cargando video: ${videoId}`);
+  } else {
+    console.error("El reproductor de YouTube no está inicializado correctamente.");
+    // Fallback: abrir en YouTube si el reproductor no está listo
+    openYouTubeVideo(videoId);
+  }
+}
+
+/**
+ * Alterna entre reproducir y pausar el video.
+ */
+function togglePlayPause() {
+  if (player && typeof player.getPlayerState === 'function') {
+    const state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
+  }
+}
+
+/**
+ * Alterna entre silenciar y desilenciar el video.
+ */
+function toggleMute() {
+  if (player && typeof player.isMuted === 'function') {
+    if (player.isMuted()) {
+      player.unMute();
+    } else {
+      player.mute();
+    }
+    updateMuteButtonIcon();
+  }
+}
+
+/**
+ * Actualiza el icono del botón de silencio/desilencio.
+ */
+function updateMuteButtonIcon() {
+  if (player && typeof player.isMuted === 'function') {
+    if (player.isMuted()) {
+      muteIcon.textContent = 'volume_off';
+    } else {
+      muteIcon.textContent = 'volume_up';
+    }
+  }
+}
+
 
 // --- Lógica de Carga y Filtrado de Videos ---
 
@@ -91,7 +246,6 @@ async function loadVideos({
     const res = await fetch(url);
 
     if (!res.ok) {
-      // Intenta leer el cuerpo de la respuesta para obtener más detalles del error
       const errorBody = await res.json().catch(() => ({ message: res.statusText }));
       throw new Error(`Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'}`);
     }
@@ -111,17 +265,16 @@ async function loadVideos({
 
     if (filteredItems.length > 0) {
       for (const item of filteredItems) {
-        // Asegúrate de que el item sea un video y tenga un ID válido
         if (!item.id || !item.id.videoId) {
           console.warn("Item no es un video o no tiene videoId:", item);
-          continue; // Saltar este item
+          continue;
         }
 
         const videoCard = document.createElement("div");
         videoCard.className = "video-card";
-        videoCard.onclick = () => openYouTubeVideo(item.id.videoId); // Hacer la tarjeta clickeable
+        videoCard.dataset.videoId = item.id.videoId; // Guardar el videoId en un data attribute
+        videoCard.onclick = () => loadAndPlayVideo(item.id.videoId); // Clic para cargar en el reproductor
 
-        // La favicon de YouTube es genérica. Para avatares reales, necesitarías otra llamada a la API
         const channelAvatarUrl = `https://www.google.com/s2/favicons?domain=youtube.com&sz=64`;
 
         videoCard.innerHTML = `
@@ -148,14 +301,14 @@ async function loadVideos({
 
 /**
  * Recoge los valores de los filtros y el término de búsqueda, y llama a loadVideos.
- * Esta función es el punto central para iniciar una nueva búsqueda/filtrado.
+ * Guarda las preferencias después de aplicar.
  */
 function applyFiltersAndSearch() {
   const currentSearchTerm = searchInput.value.trim();
   const blockedChannels = blockedChannelsInput.value.split(',').map(ch => ch.trim()).filter(ch => ch !== '');
 
   loadVideos({
-    query: currentSearchTerm || defaultSearchQuery, // Si la búsqueda está vacía, usa la query por defecto
+    query: currentSearchTerm || defaultSearchQuery,
     region: regionFilter.value,
     videoGenre: videoGenreFilter.value,
     musicGenre: musicGenreFilter.value,
@@ -163,7 +316,8 @@ function applyFiltersAndSearch() {
     blockedChannels: blockedChannels
   });
 
-  // Cerrar ambos modales después de aplicar los filtros/búsqueda
+  savePreferences(); // Guardar las preferencias del usuario
+
   toggleModal(searchModal, false);
   toggleModal(filterModal, false);
 }
@@ -174,7 +328,7 @@ function applyFiltersAndSearch() {
 // Botón de búsqueda en el header
 searchButton.addEventListener("click", () => {
   toggleModal(searchModal, true);
-  searchInput.focus(); // Enfoca el input al abrir
+  searchInput.focus();
 });
 
 // Botón "Buscar" dentro del modal de búsqueda
@@ -205,10 +359,64 @@ closeFilterButton.addEventListener("click", () => {
 // Botón "Aplicar Filtros" dentro del modal de filtros
 applyFiltersButton.addEventListener("click", applyFiltersAndSearch);
 
+// Controles del reproductor
+playPauseButton.addEventListener('click', togglePlayPause);
+muteButton.addEventListener('click', toggleMute);
+
+// --- Lógica del Service Worker y PWA Install ---
+
+// Registro del Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registrado con éxito:', registration.scope);
+      })
+      .catch(error => {
+        console.error('Fallo el registro del Service Worker:', error);
+      });
+  });
+}
+
+// Evento beforeinstallprompt para el botón de instalación de PWA
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installButton.style.display = 'block';
+});
+
+// Manejador de clic para el botón de instalación
+installButton.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installButton.style.display = 'none';
+    console.log(`El usuario ${outcome} el prompt de instalación.`);
+  }
+});
+
+// Ocultar el botón de instalación si la app ya está instalada o en modo standalone
+window.addEventListener('appinstalled', () => {
+  installButton.style.display = 'none';
+  console.log('YouKids PWA instalada con éxito!');
+});
 
 // --- Inicialización ---
 
-// Cargar videos al iniciar la página con la query por defecto
+// Cargar preferencias y videos al iniciar la página
 document.addEventListener("DOMContentLoaded", () => {
-  loadVideos({ query: defaultSearchQuery });
+  loadPreferences(); // Cargar preferencias guardadas
+  // Usar las preferencias cargadas para la búsqueda inicial
+  const initialQuery = searchInput.value.trim() || defaultSearchQuery; // Si se cargó una query del input, úsala
+  const blockedChannels = blockedChannelsInput.value.split(',').map(ch => ch.trim()).filter(ch => ch !== '');
+
+  loadVideos({
+    query: initialQuery,
+    region: regionFilter.value,
+    videoGenre: videoGenreFilter.value,
+    musicGenre: musicGenreFilter.value,
+    religion: religionFilter.value,
+    blockedChannels: blockedChannels
+  });
 });
