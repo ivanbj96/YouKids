@@ -3,15 +3,8 @@ const urlsToCache = [
   './', // Ruta raíz, importante para cachear el index.html
   'index.html',
   'style.css',
-  'script.js',
-  'manifest.json',
-  // Iconos de la PWA
-  'icons/icon-192x192.png',
-  'icons/icon-512x512.png',
-  // Imágenes de los botones de navegación
-  'icons/home.svg',
-  'icons/shorts.svg',
-  'icons/profile.svg'
+  'app.js',
+  'manifest.json'
 ];
 
 // Evento de instalación del Service Worker: cachea los recursos estáticos
