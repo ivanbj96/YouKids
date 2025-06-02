@@ -1,19 +1,20 @@
-const CACHE_NAME = 'youkids-static-cache-v4'; // Versión 4 por los nuevos archivos
+const CACHE_NAME = 'youkids-static-cache-v5'; // Versión 5 debido a los cambios en shorts.js
 const urlsToCache = [
   './', // Ruta raíz, importante para cachear el index.html
   'index.html',
-  'shorts.html', // Nuevo archivo para shorts
+  'shorts.html',
   'style.css',
-  'shorts.css', // Nuevo archivo CSS para shorts
+  'shorts.css',
   'app.js',
-  'shorts.js', // Nuevo archivo JS para shorts
+  'shorts.js', // shorts.js modificado
   'manifest.json',
+  'YouKids.svg', // Tu archivo SVG en el directorio raíz
   // Iconos de la PWA (asegúrate de que existan)
   'icons/icon-192x192.png',
   'icons/icon-512x512.png',
   // Fuentes de Google Icons
   'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IughzsK_FfPqCsA.woff2' // Woff2 para los iconos
+  'https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IughzsK_FfPqCsA.woff2'
 ];
 
 // Evento de instalación del Service Worker: cachea los recursos estáticos
