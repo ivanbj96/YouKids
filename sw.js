@@ -1,18 +1,19 @@
-const CACHE_NAME = 'youkids-static-cache-v3'; // Versión 3 por los cambios en los archivos
+const CACHE_NAME = 'youkids-static-cache-v4'; // Versión 4 por los nuevos archivos
 const urlsToCache = [
   './', // Ruta raíz, importante para cachear el index.html
   'index.html',
+  'shorts.html', // Nuevo archivo para shorts
   'style.css',
+  'shorts.css', // Nuevo archivo CSS para shorts
   'app.js',
+  'shorts.js', // Nuevo archivo JS para shorts
   'manifest.json',
-  // Iconos de la PWA
+  // Iconos de la PWA (asegúrate de que existan)
   'icons/icon-192x192.png',
   'icons/icon-512x512.png',
   // Fuentes de Google Icons
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IughzsK_FfPqCsA.woff2' // Woff2 para los iconos
-  // Si añades `shorts.html` o cualquier otra página, agrégala aquí también:
-  // 'shorts.html'
 ];
 
 // Evento de instalación del Service Worker: cachea los recursos estáticos
@@ -31,11 +32,9 @@ self.addEventListener('install', event => {
 
 // Evento de 'fetch': intercepta las solicitudes de red
 self.addEventListener('fetch', event => {
-  // Estrategia Cache-First para recursos estáticos (shell de la app)
   const requestUrl = new URL(event.request.url);
 
-  // Considerar hostnames específicos para cachear (Google Fonts, YouTube API si es necesario)
-  // Las peticiones a la API de YouTube no se cachean con esta estrategia para asegurar resultados frescos.
+  // Estrategia Cache-First para recursos estáticos de la app y Google Fonts
   if (urlsToCache.includes(requestUrl.href) || urlsToCache.includes(requestUrl.pathname) || requestUrl.origin === 'https://fonts.googleapis.com' || requestUrl.origin === 'https://fonts.gstatic.com') {
     event.respondWith(
       caches.match(event.request).then(response => {
@@ -46,8 +45,8 @@ self.addEventListener('fetch', event => {
   }
 
   // Estrategia Network-First con fallback a cache para la API de YouTube y otras solicitudes dinámicas
-  // Esto es para que los datos estén siempre lo más actualizados posible
-  if (requestUrl.host.includes('googleapis.com') || requestUrl.host.includes('youtube.com')) {
+  // Esto es para que los datos estén siempre lo más actualizados posible (ej. resultados de búsqueda)
+  if (requestUrl.host.includes('googleapis.com') || requestUrl.host.includes('youtube.com') || requestUrl.host.includes('ytimg.com')) {
     event.respondWith(
       fetch(event.request)
         .then(networkResponse => {
