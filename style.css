@@ -74,18 +74,21 @@ body {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente para los controles */
   display: flex;
-  justify-content: center; /* Centrar botones */
-  padding: 10px;
-  gap: 20px;
+  justify-content: center;
+  align-items: center; /* Centrar verticalmente los íconos */
+  padding: 8px 10px; /* Reducir padding para más compactación */
+  gap: 10px; /* Reducir gap entre botones */
+  flex-wrap: wrap; /* Permitir que los botones se envuelvan si hay muchos */
 }
 
 .player-controls button {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  border-radius: 50%; /* Botones circulares */
+  padding: 4px; /* Reducir padding de botón */
+  border-radius: 50%;
   transition: background-color 0.2s ease;
+  flex-shrink: 0; /* Evitar que los botones se encojan */
 }
 
 .player-controls button:hover {
@@ -94,7 +97,7 @@ body {
 
 .player-controls .material-icons {
   color: white;
-  font-size: 32px; /* Iconos más grandes para controles */
+  font-size: 28px; /* Reducir tamaño de icono para más compactación */
 }
 
 
