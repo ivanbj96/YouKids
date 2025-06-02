@@ -1,0 +1,149 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%; /* Muy importante para que los shorts ocupen toda la altura */
+  overflow: hidden; /* Evita el scroll del body */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #000; /* Fondo oscuro para la experiencia de shorts */
+  color: white;
+  display: flex;
+  flex-direction: column; /* Para organizar header, shorts-container, footer */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #ff0000;
+  color: white;
+  z-index: 100;
+  flex-shrink: 0; /* No se encoge */
+}
+
+.left-header {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Estilo para los iconos de Material Design */
+.material-icons {
+  font-size: 24px;
+  color: white;
+  display: block;
+}
+
+.shorts-container {
+  flex-grow: 1; /* Ocupa todo el espacio disponible */
+  overflow-y: scroll; /* Permite el scroll vertical */
+  scroll-snap-type: y mandatory; /* Scroll con "snap" a cada short */
+  -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
+  position: relative; /* Para el mensaje de carga */
+}
+
+.loading-message {
+  text-align: center;
+  padding: 20px;
+  color: #ccc;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.short-card {
+  width: 100%;
+  height: 100%; /* Cada short ocupa toda la altura del contenedor */
+  scroll-snap-align: start; /* Se ajusta al inicio al hacer scroll */
+  position: relative;
+  background-color: #000; /* Fondo de cada short */
+  display: flex; /* Para centrar el iframe */
+  justify-content: center;
+  align-items: center;
+}
+
+.short-player-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Para manejar el desbordamiento si el iframe no se ajusta perfectamente */
+}
+
+.short-player-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Para que el video vertical se ajuste al centro */
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Controles de cada short */
+.short-controls {
+  position: absolute;
+  bottom: 20px; /* Espacio desde abajo */
+  right: 15px; /* Espacio desde la derecha */
+  display: flex;
+  flex-direction: column; /* Botones apilados verticalmente */
+  gap: 15px; /* Espacio entre botones */
+  z-index: 10; /* Asegura que estén encima del video */
+}
+
+.short-controls button {
+  background-color: rgba(255, 255, 255, 0.2); /* Fondo semitransparente */
+  border: none;
+  border-radius: 50%;
+  width: 50px; /* Tamaño del botón */
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.short-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.short-controls .material-icons {
+  font-size: 30px; /* Tamaño grande para los iconos de control */
+  color: white;
+}
+
+.footer {
+  flex-shrink: 0; /* No se encoge */
+  width: 100%;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.footer a {
+  text-decoration: none;
+  color: #666;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: color 0.3s ease;
+}
+
+.footer .active {
+  color: #ff0000;
+}
+
+.footer a:hover {
+  color: #ff0000;
+}
