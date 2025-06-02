@@ -16,6 +16,11 @@
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "YouKids.svg",      <-- ¡Tu archivo SVG añadido aquí!
+      "sizes": "any",             <-- Indica que es un vector y puede escalar
+      "type": "image/svg+xml"
     }
   ],
   "screenshots": [
