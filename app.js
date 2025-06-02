@@ -1,69 +1,82 @@
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-const baseUrl = "https://www.googleapis.com/youtube/v3/search";
+// **IMPORTANTE: Esta clave API está expuesta públicamente. NO USAR ASÍ EN PRODUCCIÓN.**
+// Para aplicaciones en producción, use un proxy del lado del servidor para interactuar con la API.
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakKklMrusAI";
+const defaultSearchQuery = "canciones cristianas para niños";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("search-input");
-  const searchForm = document.getElementById("search-form");
+/**
+ * Carga videos de YouTube usando la API y los muestra en la lista.
+ * @param {string} query - El término de búsqueda para los videos.
+ */
+async function loadVideos(query = defaultSearchQuery) {
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${apiKey}`;
 
-  searchForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const query = searchInput.value.trim();
-    if (query) {
-      fetchVideos(query);
-    }
-  });
-
-  // Búsqueda inicial por defecto
-  fetchVideos("videos cristianos para niños");
-});
-
-async function fetchVideos(query) {
   try {
-    const url = `${baseUrl}?key=${apiKey}&part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}`;
-    const response = await fetch(url);
-    const data = await response.json();
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(`Error HTTP: ${res.status}`);
+    }
+    const data = await res.json();
 
-    console.log("YouTube API response:", data); // Para debug
+    const container = document.getElementById("videoList");
+    container.innerHTML = ""; // Limpiar videos existentes
 
-    if (data.error) {
-      renderError(`Error de API: ${data.error.message}`);
-      return;
+    if (data.items && data.items.length > 0) {
+      data.items.forEach(item => {
+        const video = document.createElement("div");
+        video.className = "video";
+
+        // Aquí puedes hacer que el video sea clickeable para abrirlo en YouTube si quieres
+        // video.onclick = () => window.open(`https://www.youtube.com/watch?v=${item.id.videoId}`, '_blank');
+
+        video.innerHTML = `
+          <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
+          <div class="video-title">${item.snippet.title}</div>
+          <div class="channel-info">
+            <!-- La favicon de YouTube es genérica; si quieres el avatar del canal, requiere otra llamada a la API -->
+            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="Canal">
+            <span>${item.snippet.channelTitle}</span>
+          </div>
+        `;
+        container.appendChild(video);
+      });
+    } else {
+      container.innerHTML = "<p style='text-align: center; margin-top: 20px;'>No se encontraron videos para esta búsqueda.</p>";
     }
 
-    renderVideos(data.items);
   } catch (error) {
-    console.error("Error al buscar videos:", error);
-    renderError("Ocurrió un error al cargar los videos.");
+    console.error("Error al cargar videos:", error);
+    const container = document.getElementById("videoList");
+    container.innerHTML = "<p style='text-align: center; margin-top: 20px; color: red;'>Ocurrió un error al cargar los videos. Por favor, inténtalo de nuevo más tarde o verifica tu conexión.</p>";
   }
 }
 
-function renderVideos(videos) {
-  const main = document.querySelector("main");
-  main.innerHTML = "";
-
-  videos.forEach((video) => {
-    if (!video.id || !video.id.videoId) return; // Aseguramos que sea video válido
-
-    const videoId = video.id.videoId;
-    const title = video.snippet.title;
-    const thumbnail = video.snippet.thumbnails.medium.url;
-
-    const card = document.createElement("div");
-    card.style.margin = "1rem";
-    card.style.textAlign = "center";
-
-    card.innerHTML = `
-      <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" style="text-decoration: none; color: inherit;">
-        <img src="${thumbnail}" alt="${title}" style="border-radius: 0.75rem; width: 100%; max-width: 360px;">
-        <p style="margin-top: 0.5rem;">${title}</p>
-      </a>
-    `;
-
-    main.appendChild(card);
-  });
+/**
+ * Filtra los videos basados en el término de búsqueda ingresado por el usuario.
+ */
+function filterVideos() {
+  const searchTerm = document.getElementById("search").value.trim();
+  if (searchTerm) {
+    loadVideos(searchTerm);
+  } else {
+    // Si el campo de búsqueda está vacío, carga los videos por defecto
+    loadVideos(defaultSearchQuery);
+  }
 }
 
-function renderError(message) {
-  const main = document.querySelector("main");
-  main.innerHTML = `<p style="color: red; text-align: center;">${message}</p>`;
-}
+// Cargar videos al iniciar la página
+document.addEventListener("DOMContentLoaded", () => {
+  loadVideos(); // Carga los videos por defecto al cargar la página
+
+  // --- REGISTRO DEL SERVICE WORKER para la PWA ---
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registrado con éxito:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Fallo el registro del Service Worker:', error);
+        });
+    });
+  }
+});
