@@ -1,83 +1,26 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YouKids</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
-    }
-    header {
-      padding: 10px;
-      background-color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    input[type="text"] {
-      flex: 1;
-      margin: 0 10px;
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-    }
-    .video-list {
-      padding-bottom: 80px;
-    }
-    .video {
-      border-bottom: 1px solid #333;
-      padding: 10px;
-    }
-    .video-title {
-      font-size: 16px;
-      margin: 5px 0;
-    }
-    .video-thumbnail {
-      width: 100%;
-      border-radius: 8px;
-    }
-    .channel-info {
-      display: flex;
-      align-items: center;
-      margin-top: 5px;
-    }
-    .channel-info img {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      display: flex;
-      justify-content: space-around;
-      background-color: #000;
-      border-top: 1px solid #333;
-    }
-    .nav-button {
-      flex: 1;
-      padding: 10px 0;
-      text-align: center;
-      color: #fff;
-    }
-    .nav-button img {
-      width: 24px;
-      height: 24px;
-    }
-  </style>
+  <!-- Enlace al archivo CSS externo -->
+  <link rel="stylesheet" href="style.css" />
+  <!-- Enlace al manifiesto de la PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <!-- Define el color de la barra de título del navegador (Android) -->
+  <meta name="theme-color" content="#000000" />
 </head>
 <body>
   <header>
-    <span style="font-size: 20px; font-weight: bold; color: #fff">YouKids</span>
+    <span class="app-title">YouKids</span>
     <input type="text" id="search" placeholder="Buscar videos cristianos..." />
     <button onclick="filterVideos()">Filtrar</button>
-  </header>  <div class="video-list" id="videoList"></div>  <div class="bottom-nav">
+  </header>
+
+  <div class="video-list" id="videoList"></div>
+
+  <div class="bottom-nav">
     <div class="nav-button">
       <img src="icons/home.svg" alt="Inicio">
       <div>Inicio</div>
@@ -90,64 +33,9 @@
       <img src="icons/profile.svg" alt="Perfil">
       <div>Perfil</div>
     </div>
-  </div>  <script>
-    const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-    const searchQuery = "canciones cristianas para niños";
+  </div>
 
-    async function loadVideos() {
-      const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&maxResults=10&key=${apiKey}`);
-      const data = await res.json();
-
-      const container = document.getElementById("videoList");
-      container.innerHTML = "";
-
-      data.items.forEach(item => {
-        const video = document.createElement("div");
-        video.className = "video";
-
-        video.innerHTML = `
-          <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
-          <div class="video-title">${item.snippet.title}</div>
-          <div class="channel-info">
-            <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="Canal">
-            <span>${item.snippet.channelTitle}</span>
-          </div>
-        `;
-
-        container.appendChild(video);
-      });
-    }
-
-    function filterVideos() {
-      const term = document.getElementById("search").value.trim();
-      if (term) {
-        fetchVideos(term);
-      }
-    }
-
-    function fetchVideos(query) {
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${apiKey}`;
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          const container = document.getElementById("videoList");
-          container.innerHTML = "";
-          data.items.forEach(item => {
-            const video = document.createElement("div");
-            video.className = "video";
-            video.innerHTML = `
-              <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
-              <div class="video-title">${item.snippet.title}</div>
-              <div class="channel-info">
-                <img src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" alt="Canal">
-                <span>${item.snippet.channelTitle}</span>
-              </div>
-            `;
-            container.appendChild(video);
-          });
-        });
-    }
-
-    loadVideos();
-  </script></body>
+  <!-- Enlace al archivo JavaScript externo -->
+  <script src="script.js"></script>
+</body>
 </html>
