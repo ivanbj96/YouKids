@@ -1,164 +1,214 @@
-// **ADVERTENCIA DE SEGURIDAD: NO USAR ASÍ EN PRODUCCIÓN.**
-// Esta clave API está expuesta públicamente en el lado del cliente.
-// Para una aplicación real, usa un proxy del lado del servidor para interactuar con la API.
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakKklMrusAI";
-let currentKeyword = "videos cristianos niños";
+// ======================================================================
+// !!! IMPORTANTE: CLAVE API DE YOUTUBE !!!
+// ======================================================================
+// Por razones de seguridad, NUNCA expongas tu clave API directamente en el código del lado del cliente en producción.
+// Para proyectos reales, utiliza un proxy del lado del servidor para interactuar con la API de YouTube.
+// Por ahora, para pruebas locales, reemplaza "TU_CLAVE_API_DE_YOUTUBE" con tu clave real.
+// Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
+// ======================================================================
+const apiKey = "TU_CLAVE_API_DE_YOUTUBE"; // <-- ¡REEMPLAZA ESTO CON TU CLAVE REAL!
+const defaultSearchQuery = "canciones cristianas para niños";
+
+// Elementos del DOM
+const videoListContainer = document.getElementById("video-list");
+const searchButton = document.getElementById("search-button");
+const filterButton = document.getElementById("filter-button");
+const searchModal = document.getElementById("search-modal");
+const filterModal = document.getElementById("filterModal");
+const searchInput = document.getElementById("search-input");
+const applySearchButton = document.getElementById("apply-search");
+const cancelSearchButton = document.getElementById("cancel-search");
+const closeFilterButton = document.getElementById("closeFilter");
+const applyFiltersButton = document.getElementById("applyFilters");
+
+// Elementos del modal de filtros
+const regionFilter = document.getElementById("regionFilter");
+const videoGenreFilter = document.getElementById("videoGenreFilter");
+const musicGenreFilter = document.getElementById("musicGenreFilter");
+const religionFilter = document.getElementById("religionFilter");
+const blockedChannelsInput = document.getElementById("blockedChannels");
+
+// --- Funciones de Utilidad ---
+
+/**
+ * Muestra u oculta un modal añadiendo/quitando la clase 'show'.
+ * @param {HTMLElement} modalElement - El elemento del modal a mostrar/ocultar.
+ * @param {boolean} show - True para mostrar, false para ocultar.
+ */
+function toggleModal(modalElement, show) {
+  if (show) {
+    modalElement.classList.add("show");
+  } else {
+    modalElement.classList.remove("show");
+  }
+}
+
+/**
+ * Abre la URL de un video en YouTube en una nueva pestaña/ventana.
+ * @param {string} videoId - El ID del video de YouTube.
+ */
+function openYouTubeVideo(videoId) {
+  window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+}
+
+// --- Lógica de Carga y Filtrado de Videos ---
 
 /**
  * Carga videos de YouTube usando la API y los muestra en la lista.
- * **NOTA DE CUOTA API:** Esta función realiza una llamada API adicional por cada canal para obtener su imagen,
- * lo que puede agotar rápidamente tu cuota diaria de YouTube API si cargas muchos videos.
- * Considera optimizar esto para producción.
- * @param {string} query - El término de búsqueda para los videos.
+ * Aplica filtros si se proporcionan.
+ * @param {Object} options - Objeto con opciones de búsqueda y filtrado.
+ * @param {string} [options.query=defaultSearchQuery] - El término de búsqueda.
+ * @param {string} [options.region=''] - Código de región (ej: 'EC', 'MX').
+ * @param {string} [options.videoGenre=''] - Género de video (se añade a la query).
+ * @param {string} [options.musicGenre=''] - Género de música (se añade a la query).
+ * @param {string} [options.religion=''] - Religión (se añade a la query).
+ * @param {string[]} [options.blockedChannels=[]] - Lista de canales a prohibir.
  */
-async function fetchVideos(query = currentKeyword) {
-  const container = document.getElementById("video-list");
-  container.innerHTML = '<p style="text-align: center; margin-top: 20px;">Cargando videos...</p>';
+async function loadVideos({
+  query = defaultSearchQuery,
+  region = '',
+  videoGenre = '',
+  musicGenre = '',
+  religion = '',
+  blockedChannels = []
+} = {}) {
 
-  const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=100&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`;
+  // Construye la query completa añadiendo los términos de filtro
+  let fullQuery = query;
+  if (videoGenre) fullQuery += ` ${videoGenre}`;
+  if (musicGenre) fullQuery += ` ${musicGenre}`;
+  if (religion) fullQuery += ` ${religion}`;
+
+  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(fullQuery)}&type=video&maxResults=20&key=${apiKey}`;
+
+  if (region) {
+    url += `&regionCode=${region}`;
+  }
+
+  videoListContainer.innerHTML = "<p style='text-align: center; margin-top: 20px;'>Cargando videos...</p>";
 
   try {
-    const res = await fetch(searchUrl);
+    const res = await fetch(url);
+
     if (!res.ok) {
-      throw new Error(`Error HTTP: ${res.status} - ${res.statusText}`);
+      // Intenta leer el cuerpo de la respuesta para obtener más detalles del error
+      const errorBody = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error(`Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'}`);
     }
+
     const data = await res.json();
 
-    container.innerHTML = ""; // Limpiar mensaje de carga
+    videoListContainer.innerHTML = ""; // Limpiar videos existentes
+    let filteredItems = data.items || [];
 
-    if (data.items && data.items.length > 0) {
-      // Recopilar IDs de canales únicos para hacer una sola llamada de canales
-      const channelIds = new Set();
-      data.items.forEach(item => {
-        if (item.snippet.channelId) {
-          channelIds.add(item.snippet.channelId);
-        }
+    // Filtrado de canales bloqueados (client-side)
+    if (blockedChannels.length > 0) {
+      const lowercasedBlockedChannels = blockedChannels.map(c => c.toLowerCase());
+      filteredItems = filteredItems.filter(item => {
+        return !lowercasedBlockedChannels.includes(item.snippet.channelTitle.toLowerCase());
       });
+    }
 
-      const channelImages = {};
-      if (channelIds.size > 0) {
-        const channelIdsString = Array.from(channelIds).join(',');
-        const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${encodeURIComponent(channelIdsString)}&key=${apiKey}`;
-        const channelRes = await fetch(channelsUrl);
-        if (channelRes.ok) {
-          const channelData = await channelRes.json();
-          channelData.items.forEach(channel => {
-            channelImages[channel.id] = channel.snippet.thumbnails.default.url;
-          });
-        } else {
-          console.warn('No se pudieron obtener imágenes de los canales:', channelRes.status, channelRes.statusText);
+    if (filteredItems.length > 0) {
+      for (const item of filteredItems) {
+        // Asegúrate de que el item sea un video y tenga un ID válido
+        if (!item.id || !item.id.videoId) {
+          console.warn("Item no es un video o no tiene videoId:", item);
+          continue; // Saltar este item
         }
-      }
 
-      for (let item of data.items) {
-        const videoId = item.id.videoId;
-        const title = item.snippet.title;
-        const channelTitle = item.snippet.channelTitle;
-        const channelId = item.snippet.channelId;
-        const channelImg = channelImages[channelId] || 'https://www.google.com/s2/favicons?domain=youtube.com&sz=64'; // Fallback a favicon de YouTube
+        const videoCard = document.createElement("div");
+        videoCard.className = "video-card";
+        videoCard.onclick = () => openYouTubeVideo(item.id.videoId); // Hacer la tarjeta clickeable
 
-        const videoCard = `
-          <div class="video-card">
-            <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            <div class="video-info">
-              <img src="${channelImg}" class="channel-img" alt="${channelTitle}" />
-              <div>
-                <strong>${title}</strong><br/>
-                <small>${channelTitle}</small>
-              </div>
+        // La favicon de YouTube es genérica. Para avatares reales, necesitarías otra llamada a la API
+        const channelAvatarUrl = `https://www.google.com/s2/favicons?domain=youtube.com&sz=64`;
+
+        videoCard.innerHTML = `
+          <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
+          <div class="video-info">
+            <img class="channel-img" src="${channelAvatarUrl}" alt="Canal">
+            <div class="video-details">
+              <div class="video-title">${item.snippet.title}</div>
+              <div class="channel-name">${item.snippet.channelTitle}</div>
             </div>
           </div>
         `;
-        container.innerHTML += videoCard;
+        videoListContainer.appendChild(videoCard);
       }
     } else {
-      container.innerHTML = "<p style='text-align: center; margin-top: 20px;'>No se encontraron videos para esta búsqueda.</p>";
+      videoListContainer.innerHTML = "<p style='text-align: center; margin-top: 20px;'>No se encontraron videos para esta búsqueda y filtros.</p>";
     }
 
   } catch (error) {
     console.error("Error al cargar videos:", error);
-    container.innerHTML = "<p style='text-align: center; margin-top: 20px; color: red;'>Ocurrió un error al cargar los videos. Por favor, inténtalo de nuevo más tarde o verifica tu conexión.</p>";
+    videoListContainer.innerHTML = `<p style='text-align: center; margin-top: 20px; color: red;'>Ocurrió un error al cargar los videos.<br>Por favor, verifica tu clave API y conexión a internet.<br>Detalle: ${error.message}</p>`;
   }
 }
 
 /**
- * Abre el modal de búsqueda.
+ * Recoge los valores de los filtros y el término de búsqueda, y llama a loadVideos.
+ * Esta función es el punto central para iniciar una nueva búsqueda/filtrado.
  */
-function openFilterModal() {
-  document.getElementById("search-modal").classList.add("show");
-  document.getElementById("search-input").value = currentKeyword;
-  document.getElementById("search-input").focus();
+function applyFiltersAndSearch() {
+  const currentSearchTerm = searchInput.value.trim();
+  const blockedChannels = blockedChannelsInput.value.split(',').map(ch => ch.trim()).filter(ch => ch !== '');
+
+  loadVideos({
+    query: currentSearchTerm || defaultSearchQuery, // Si la búsqueda está vacía, usa la query por defecto
+    region: regionFilter.value,
+    videoGenre: videoGenreFilter.value,
+    musicGenre: musicGenreFilter.value,
+    religion: religionFilter.value,
+    blockedChannels: blockedChannels
+  });
+
+  // Cerrar ambos modales después de aplicar los filtros/búsqueda
+  toggleModal(searchModal, false);
+  toggleModal(filterModal, false);
 }
 
-/**
- * Aplica la búsqueda de videos con la palabra clave ingresada en el modal.
- */
-function applySearch() {
-  const input = document.getElementById("search-input").value.trim();
-  if (input !== "" && input !== currentKeyword) { // Solo si la palabra clave ha cambiado
-    currentKeyword = input;
-    fetchVideos();
-  }
-  closeModal();
-}
 
-/**
- * Cierra el modal de búsqueda.
- */
-function closeModal() {
-  document.getElementById("search-modal").classList.remove("show");
-}
+// --- Event Listeners para la UI ---
 
-// Variables y lógica para la instalación de la PWA
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn'); // Asegúrate de que este ID existe en tu HTML
+// Botón de búsqueda en el header
+searchButton.addEventListener("click", () => {
+  toggleModal(searchModal, true);
+  searchInput.focus(); // Enfoca el input al abrir
+});
 
-window.addEventListener('beforeinstallprompt', (e) => {
-  // Previene que el navegador muestre su propio mensaje de instalación
-  e.preventDefault();
-  // Almacena el evento para poder activarlo más tarde
-  deferredPrompt = e;
-  // Muestra tu botón de instalación
-  if (installBtn) {
-    installBtn.style.display = 'block';
+// Botón "Buscar" dentro del modal de búsqueda
+applySearchButton.addEventListener("click", applyFiltersAndSearch);
+
+// Botón "Cancelar" dentro del modal de búsqueda
+cancelSearchButton.addEventListener("click", () => {
+  toggleModal(searchModal, false);
+});
+
+// Permitir buscar con Enter en el modal de búsqueda
+searchInput.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") {
+    applyFiltersAndSearch();
   }
 });
 
-if (installBtn) {
-  installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
+// Botón de filtro en el header
+filterButton.addEventListener("click", () => {
+  toggleModal(filterModal, true);
+});
 
-    // Muestra el mensaje de instalación
-    deferredPrompt.prompt();
-    // Espera la elección del usuario
-    const { outcome } = await deferredPrompt.userChoice;
+// Botón para cerrar el modal de filtros
+closeFilterButton.addEventListener("click", () => {
+  toggleModal(filterModal, false);
+});
 
-    if (outcome === 'accepted') {
-      console.log('Instalación de PWA aceptada por el usuario');
-    } else {
-      console.log('Instalación de PWA rechazada por el usuario');
-    }
+// Botón "Aplicar Filtros" dentro del modal de filtros
+applyFiltersButton.addEventListener("click", applyFiltersAndSearch);
 
-    // Oculta el botón después de la interacción (independientemente del resultado)
-    installBtn.style.display = 'none';
-    deferredPrompt = null;
-  });
-}
 
-// Listener para cuando el DOM esté completamente cargado
+// --- Inicialización ---
+
+// Cargar videos al iniciar la página con la query por defecto
 document.addEventListener("DOMContentLoaded", () => {
-  fetchVideos(); // Carga los videos por defecto al iniciar
-
-  // --- REGISTRO DEL SERVICE WORKER para la PWA ---
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(registration => {
-          console.log('Service Worker registrado con éxito:', registration.scope);
-        })
-        .catch(error => {
-          console.error('Fallo el registro del Service Worker:', error);
-        });
-    });
-  }
+  loadVideos({ query: defaultSearchQuery });
 });
