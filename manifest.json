@@ -1,21 +1,21 @@
 {
   "name": "YouKids",
   "short_name": "YouKids",
-  "description": "Una aplicación web progresiva para videos cristianos para niños con reproducción embebida y filtros avanzados.",
+  "description": "Una aplicación web progresiva para videos cristianos para niños con reproducción embebida, shorts y filtros avanzados.",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f9f9f9",
   "theme_color": "#ff0000",
   "icons": [
     {
-      "src": "YouKids.svg",
+      "src": "icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg"
+      "type": "image/png"
     },
     {
-      "src": "YouKids.svg",
+      "src": "icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg"
+      "type": "image/png"
     }
   ],
   "screenshots": [
