@@ -12,12 +12,15 @@
 <body>
   <header class="header">
     <div class="left-header">YouKids Shorts</div>
-    <!-- Aquí podrías añadir un botón de cerrar si quisieras -->
   </header>
 
   <div id="shorts-container" class="shorts-container">
     <!-- Los shorts se cargarán aquí dinámicamente -->
-    <p class="loading-message">Cargando Shorts...</p>
+    <p class="initial-loading-message">Cargando Shorts...</p>
+    <div id="shorts-loading" class="shorts-loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Cargando más...</p>
+    </div>
   </div>
 
   <footer class="footer">
