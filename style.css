@@ -46,6 +46,58 @@ body {
   display: block; /* Elimina espacio extra debajo del icono */
 }
 
+/* Sección del reproductor de video */
+.player-section {
+  width: 100%;
+  background-color: #000; /* Fondo oscuro para el reproductor */
+  position: sticky;
+  top: 0px; /* Debajo del header */
+  z-index: 90; /* Detrás del header pero encima de los videos */
+  padding-bottom: 56.25%; /* Relación de aspecto 16:9 para el iframe */
+  height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+#player {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.player-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente para los controles */
+  display: flex;
+  justify-content: center; /* Centrar botones */
+  padding: 10px;
+  gap: 20px;
+}
+
+.player-controls button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%; /* Botones circulares */
+  transition: background-color 0.2s ease;
+}
+
+.player-controls button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.player-controls .material-icons {
+  color: white;
+  font-size: 32px; /* Iconos más grandes para controles */
+}
+
+
 .grid {
   padding: 16px;
   display: flex;
@@ -109,6 +161,7 @@ body {
   justify-content: space-around;
   padding: 10px 0;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05); /* Sombra sutil en el footer */
+  z-index: 100; /* Asegura que esté encima de todo */
 }
 
 .footer a {
@@ -238,4 +291,27 @@ body {
   font-size: 24px;
   cursor: pointer;
   color: #888;
+}
+
+/* Estilo para el botón de instalación */
+.install-button {
+  position: fixed;
+  bottom: 80px; /* Ajusta la posición para que no se solape con el footer */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 999;
+  transition: background-color 0.3s ease;
+}
+
+.install-button:hover {
+  background-color: #0056b3;
 }
