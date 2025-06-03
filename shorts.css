@@ -119,6 +119,11 @@ main#main-content {
     z-index: 50; /* Por encima de los videos iniciales si se están cargando */
 }
 
+/* Ocultar el indicador de carga para el infinite scroll por defecto */
+#shorts-loading {
+    display: none;
+}
+
 /* Tarjeta de Short (cada video individual) */
 .short-card {
     width: 100%;
@@ -151,8 +156,7 @@ main#main-content {
     border: none;
     /* object-fit: contain; para que se vea el video completo sin cortar */
     /* object-fit: cover; para que el video llene el contenedor (cortará si la relación de aspecto no coincide) */
-    /* En YouTube Shorts, el video suele llenar el espacio, así que 'cover' es más fiel */
-    object-fit: cover;
+    object-fit: cover; /* Más fiel a YouTube Shorts */
 }
 
 /* Controles de Short - ¡MÁS PEQUEÑOS Y COMPACTOS! */
