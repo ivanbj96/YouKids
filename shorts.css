@@ -1,5 +1,5 @@
-/* --- Global CSS Variables (se recomienda tenerlos en un archivo separado o que style.css sea importado aquí) --- */
-/* Para este ejemplo, los repito para que funcione de forma autónoma. */
+/* --- Global CSS Variables (se recomienda importar style.css primero para heredar variables) --- */
+/* Para este ejemplo, repito las variables que son críticas para que el archivo funcione solo. */
 :root {
     /* Valores por defecto para Modo Claro */
     --bg-color: #f9f9f9;
@@ -35,45 +35,87 @@
 }
 
 /* Estilos Globales para Shorts */
-body {
-    font-family: 'Roboto', sans-serif;
+html, body {
+    height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden; /* Evita el scroll del body en general */
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
-    height: 100vh; /* Altura completa del viewport */
-    overflow: hidden; /* Evita el scroll del body */
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Permite header, main, footer fijos y main con scroll */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Encabezado Principal (compartido, si se importa style.css se puede omitir aquí) */
+#main-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 56px;
+    padding: 0 15px;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 25px;
+    margin-right: 8px;
+}
+
+#main-header h1 {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1;
 }
 
 /* Contenedor de Shorts (donde se desplazan los videos) */
 #shorts-container {
-    flex-grow: 1; /* Ocupa todo el espacio disponible */
+    flex-grow: 1; /* Ocupa todo el espacio disponible entre header y footer */
     width: 100%;
-    height: 100%; /* Importante para el scroll vertical */
+    /* No establecer height: 100% aquí si el padre ya lo gestiona con flex-grow */
     overflow-y: scroll; /* Habilita el scroll vertical */
     scroll-snap-type: y mandatory; /* Scroll con "snap" para ir de short en short */
     -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
     position: relative; /* Para posicionar elementos internos */
+    background-color: black; /* Fondo negro detrás de los shorts, como YouTube */
 }
 
 .initial-loading-message, #shorts-loading {
     text-align: center;
-    padding: 20px;
-    color: var(--text-color);
-    display: flex;
+    color: var(--text-color); /* Usar color de texto para que se vea bien */
+    display: flex; /* Para centrar el spinner y texto */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Ocupa toda la altura del viewport para la carga inicial */
+    width: 100%;
+    height: 100%; /* Ocupa toda la altura del contenedor de shorts */
     font-size: 1.2em;
-    flex-direction: column;
+    position: absolute; /* Para que no afecte el scroll snap */
+    top: 0; left: 0;
+    background-color: var(--bg-color); /* Fondo para el mensaje de carga */
+    z-index: 50; /* Por encima de los videos iniciales si se están cargando */
 }
 
 /* Tarjeta de Short (cada video individual) */
 .short-card {
     width: 100%;
-    height: 100vh; /* Cada short ocupa la altura completa del viewport */
+    height: 100vh; /* Cada short ocupa la altura completa del viewport (incluyendo header/footer visualmente) */
     display: flex;
     flex-direction: column;
     justify-content: center; /* Centra el video verticalmente */
@@ -97,8 +139,7 @@ body {
 .short-player-wrapper iframe {
     width: 100%;
     height: 100%;
-    /* YouTube iframe no soporta object-fit directamente. */
-    /* El reproductor de YouTube se encarga de escalar el video. */
+    /* object-fit: cover; (No es soportado directamente por iframes) */
 }
 
 /* Controles de Short - ¡MÁS PEQUEÑOS Y COMPACTOS! */
@@ -149,8 +190,66 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+/* Navegación del Pie de Página (footer) - Compartido con style.css, pero se repite si no se importa */
+#main-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 56px;
+    background-color: var(--footer-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1500;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    flex-shrink: 0;
+}
+
+.footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--icon-color);
+    font-size: 0.7em;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 5px;
+    flex: 1;
+    min-width: 50px;
+}
+
+.footer-item .material-icons {
+    font-size: 24px;
+    margin-bottom: 2px;
+}
+
+.footer-item.active {
+    color: var(--active-nav-color);
+}
+
+.footer-item:hover {
+    color: var(--accent-color);
+}
+
 /* Ajuste del botón de instalación en shorts.html */
 .install-button-container {
-    bottom: 60px; /* Se ajusta para estar encima del footer de shorts */
-    padding-bottom: 15px; /* No necesita el padding extra del body */
+    bottom: 56px; /* Se ajusta para estar encima del footer de shorts */
+    padding: 10px 0; /* Un poco menos de padding vertical que en la página principal */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #main-header h1 {
+        font-size: 1.1em;
+    }
+    .app-logo {
+        height: 22px;
+    }
+    .install-button-container {
+        padding: 10px 0;
+    }
 }
