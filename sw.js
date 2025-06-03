@@ -1,4 +1,4 @@
-const CACHE_NAME = 'youkids-minimal-install-v2'; // Nuevo nombre de caché para forzar actualización
+const CACHE_NAME = 'youkids-minimal-install-v3'; // Nuevo nombre de caché para forzar actualización
 const urlsToCache = [
   './', // La ruta raíz
   'index.html',
