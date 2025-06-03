@@ -44,7 +44,7 @@ html, body {
     height: 100%; /* Asegura que html y body ocupen el 100% de la altura */
     margin: 0;
     padding: 0;
-    /* overflow: hidden; */ /* Lo comentamos para que main-content maneje su propio scroll */
+    overflow: hidden; /* Controla el scroll del body de manera general */
 }
 
 body {
@@ -279,6 +279,7 @@ main#main-content {
     color: var(--text-color);
     padding: 20px;
     grid-column: 1 / -1; /* Ocupa todas las columnas en el grid */
+    margin: auto; /* Centrarlo verticalmente si es el único contenido */
 }
 
 /* Navegación del Pie de Página (footer) */
