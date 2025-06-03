@@ -5,7 +5,7 @@
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
 // Sin una clave válida, la búsqueda de videos NO FUNCIONARÁ.
 // ======================================================================
-const apiKey = "TU_CLAVE_API_DE_YOUTUBE"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
 
 // ======================================================================
 // Elementos del DOM para la página de Shorts (shorts.html)
