@@ -1,7 +1,6 @@
 /* --- Global CSS Variables (se recomienda importar style.css primero para heredar variables) --- */
-/* Para este ejemplo, repito las variables que son críticas para que el archivo funcione solo. */
+/* Repetimos solo las variables de color para que este archivo sea más autónomo */
 :root {
-    /* Valores por defecto para Modo Claro */
     --bg-color: #f9f9f9;
     --text-color: #333;
     --header-bg: #fff;
@@ -18,7 +17,6 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /* Sobreescritura para Modo Oscuro */
         --bg-color: #0f0f0f;
         --text-color: #f0f0f0;
         --header-bg: #212121;
@@ -28,7 +26,6 @@
         --icon-color: #aaaaaa;
         --active-nav-color: #ff0000;
 
-        /* Específicos de Shorts */
         --shorts-control-bg: rgba(0, 0, 0, 0.7);
         --shorts-control-icon-color: #fff;
     }
@@ -48,11 +45,12 @@ body {
     color: var(--text-color);
     display: flex;
     flex-direction: column; /* Permite header, main, footer fijos y main con scroll */
+    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Encabezado Principal (compartido, si se importa style.css se puede omitir aquí) */
+/* Encabezado Principal (compartido, estilos básicos para no depender de style.css) */
 #main-header {
     display: flex;
     justify-content: flex-start;
@@ -84,38 +82,49 @@ body {
     line-height: 1;
 }
 
+/* Contenido Principal de Shorts */
+main#main-content {
+    flex-grow: 1; /* Ocupa todo el espacio entre header y footer */
+    display: flex; /* Para que el contenedor de shorts ocupe el 100% de alto */
+    flex-direction: column;
+    overflow: hidden; /* Importante para que #shorts-container maneje su propio scroll */
+    position: relative; /* Para que los mensajes de carga absoluta se posicionen correctamente */
+}
+
 /* Contenedor de Shorts (donde se desplazan los videos) */
 #shorts-container {
-    flex-grow: 1; /* Ocupa todo el espacio disponible entre header y footer */
+    flex-grow: 1; /* Ocupa el 100% de la altura de main-content */
     width: 100%;
-    /* No establecer height: 100% aquí si el padre ya lo gestiona con flex-grow */
     overflow-y: scroll; /* Habilita el scroll vertical */
     scroll-snap-type: y mandatory; /* Scroll con "snap" para ir de short en short */
     -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
-    position: relative; /* Para posicionar elementos internos */
+    position: relative; /* Para posicionar elementos internos de cada short */
     background-color: black; /* Fondo negro detrás de los shorts, como YouTube */
 }
 
 .initial-loading-message, #shorts-loading {
     text-align: center;
-    color: var(--text-color); /* Usar color de texto para que se vea bien */
-    display: flex; /* Para centrar el spinner y texto */
+    color: var(--text-color);
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%; /* Ocupa toda la altura del contenedor de shorts */
+    /* Altura completa del viewport, ajustada por header/footer en el body flex */
+    height: 100%;
     font-size: 1.2em;
+    background-color: var(--bg-color); /* Fondo para el mensaje de carga */
     position: absolute; /* Para que no afecte el scroll snap */
     top: 0; left: 0;
-    background-color: var(--bg-color); /* Fondo para el mensaje de carga */
     z-index: 50; /* Por encima de los videos iniciales si se están cargando */
 }
 
 /* Tarjeta de Short (cada video individual) */
 .short-card {
     width: 100%;
-    height: 100vh; /* Cada short ocupa la altura completa del viewport (incluyendo header/footer visualmente) */
+    /* Calculamos la altura para que cada short ocupe exactamente el espacio visible */
+    /* 100vh (viewport height) - 56px (header) - 56px (footer) */
+    height: calc(100vh - 56px - 56px);
     display: flex;
     flex-direction: column;
     justify-content: center; /* Centra el video verticalmente */
@@ -139,13 +148,17 @@ body {
 .short-player-wrapper iframe {
     width: 100%;
     height: 100%;
-    /* object-fit: cover; (No es soportado directamente por iframes) */
+    border: none;
+    /* object-fit: contain; para que se vea el video completo sin cortar */
+    /* object-fit: cover; para que el video llene el contenedor (cortará si la relación de aspecto no coincide) */
+    /* En YouTube Shorts, el video suele llenar el espacio, así que 'cover' es más fiel */
+    object-fit: cover;
 }
 
 /* Controles de Short - ¡MÁS PEQUEÑOS Y COMPACTOS! */
 .short-controls {
     position: absolute;
-    bottom: 80px; /* Posicionado encima del pie de página */
+    bottom: 20px; /* Posicionado cerca del borde inferior del short */
     left: 15px; /* Alineado a la izquierda */
     display: flex; /* Para organizar los botones horizontalmente */
     gap: 5px; /* Pequeño espacio entre botones */
@@ -192,7 +205,7 @@ body {
 
 /* Navegación del Pie de Página (footer) - Compartido con style.css, pero se repite si no se importa */
 #main-footer {
-    position: fixed;
+    position: sticky; /* Sticky para que se quede en la parte inferior si el contenido es pequeño */
     bottom: 0;
     left: 0;
     width: 100%;
@@ -205,6 +218,7 @@ body {
     z-index: 1500;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
     flex-shrink: 0;
+    margin-top: auto; /* Empuja el footer hacia abajo en un flex column */
 }
 
 .footer-item {
@@ -236,7 +250,7 @@ body {
 }
 
 /* Ajuste del botón de instalación en shorts.html */
-.install-button-container {
+#install-button-container { /* Cambiado de class a id para mayor especificidad */
     bottom: 56px; /* Se ajusta para estar encima del footer de shorts */
     padding: 10px 0; /* Un poco menos de padding vertical que en la página principal */
 }
@@ -249,7 +263,11 @@ body {
     .app-logo {
         height: 22px;
     }
-    .install-button-container {
+    #install-button-container {
         padding: 10px 0;
+    }
+    .short-card {
+        /* Reajusta la altura de los shorts para pantallas más pequeñas */
+        height: calc(100vh - 56px - 56px); /* Mantiene la misma lógica */
     }
 }
