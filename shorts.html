@@ -8,9 +8,10 @@
     <!-- Google Fonts: Roboto para un aspecto YouTube -->
     <link rel="preload" href="https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Material Icons para los iconos -->
+    <!-- Material Icons para los iconos (¡Crucial que esté bien!) -->
     <link rel="preload" href="https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-I-rkPtXQ2C-drcm_g2.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css"> <!-- Estilos base para elementos compartidos (header, footer, etc.) -->
     <link rel="stylesheet" href="shorts.css"> <!-- Estilos específicos de Shorts -->
 </head>
@@ -24,13 +25,15 @@
 
     <main id="main-content">
         <div id="shorts-container">
+            <!-- El mensaje de carga inicial ya está aquí, JS lo mostrará/ocultará -->
             <div class="initial-loading-message">
-                <div class="spinner"></div> <!-- Un spinner simple para la carga -->
+                <div class="spinner"></div>
                 Cargando Shorts...
             </div>
             <!-- Los shorts se cargarán aquí por shorts.js -->
         </div>
-        <div id="shorts-loading" style="display: none;">
+        <!-- Este es el indicador de carga para el infinite scroll de shorts -->
+        <div id="shorts-loading">
             <div class="spinner"></div>
             Cargando más Shorts...
         </div>
@@ -47,7 +50,7 @@
         </a>
     </footer>
 
-    <!-- Botón de Instalación PWA -->
+    <!-- Botón de Instalación PWA (oculto por defecto, JS lo muestra si es instalable) -->
     <div id="install-button-container">
         <button id="install-button">
             <i class="material-icons">add_to_home_screen</i>
@@ -57,7 +60,7 @@
 
     <!-- Scripts de la aplicación -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="app.js"></script> <!-- app.js para el registro del Service Worker y lógica de instalación PWA -->
-    <script src="shorts.js"></script> <!-- shorts.js para la lógica específica de los shorts -->
+    <script src="app.js"></script> <!-- Importa app.js para el Service Worker y el botón PWA -->
+    <script src="shorts.js"></script> <!-- Lógica específica de los shorts -->
 </body>
 </html>
