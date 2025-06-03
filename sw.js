@@ -8,10 +8,8 @@ const urlsToCache = [
   'app.js',
   'shorts.js', // shorts.js modificado
   'manifest.json',
-  'YouKids.svg', // Tu archivo SVG en el directorio raíz
+  'YouKids.png', // Tu archivo SVG en el directorio raíz
   // Iconos de la PWA (asegúrate de que existan)
-  'icons/icon-192x192.png',
-  'icons/icon-512x512.png',
   // Fuentes de Google Icons
   'https://fonts.googleapis.com/icon?family=Material+Icons',
   'https://fonts.gstatic.com/s/materialicons/v140/flUhRq6tzZclQEJ-Vdg-IughzsK_FfPqCsA.woff2'
