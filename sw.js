@@ -1,6 +1,6 @@
-const CACHE_NAME = 'youkids-minimal-cache-v1'; // Cambiado a v1 para esta nueva configuración
+const CACHE_NAME = 'youkids-minimal-install-v1'; // Nuevo nombre de caché para forzar actualización
 const urlsToCache = [
-  './', // Ruta raíz, importante para cachear el index.html
+  './', // La ruta raíz
   'index.html',
   'shorts.html',
   'style.css',
@@ -8,52 +8,39 @@ const urlsToCache = [
   'app.js',
   'shorts.js',
   'manifest.json',
-  'YouKids.svg' // Asegúrate de que este archivo esté en la raíz
+  'YouKids.png' // Tu imagen PNG para el icono
 ];
 
-// Evento de instalación: cachea los recursos básicos
 self.addEventListener('install', event => {
-  console.log('[SW] Instalando y cacheando recursos básicos...');
+  console.log('[Service Worker] Instalando y cacheando recursos esenciales...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         return cache.addAll(urlsToCache);
       })
       .catch(error => {
-        console.error('[SW] Error al cachear en la instalación:', error);
+        console.error('[Service Worker] Error al cachear en la instalación:', error);
       })
   );
 });
 
-// Evento de 'fetch': intercepta las solicitudes de red
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Devuelve el recurso de la caché si está disponible
-        if (response) {
-          return response;
-        }
-        // Si no está en caché, va a la red
-        return fetch(event.request);
-      })
-      .catch(error => {
-        console.error('[SW] Error en el fetch:', error);
-        // Puedes agregar un fallback para páginas offline aquí si lo necesitas
-        // Por ejemplo, devolver una página offline.html si la red falla
+        return response || fetch(event.request);
       })
   );
 });
 
-// Evento de 'activación': limpia cachés antiguos
 self.addEventListener('activate', event => {
-  console.log('[SW] Activando y limpiando cachés antiguos...');
+  console.log('[Service Worker] Activando y limpiando cachés antiguos...');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[SW] Eliminando caché antiguo:', cacheName);
+            console.log('[Service Worker] Eliminando caché antiguo:', cacheName);
             return caches.delete(cacheName);
           }
         })
