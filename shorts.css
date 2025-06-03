@@ -1,178 +1,156 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* --- Global CSS Variables (se recomienda tenerlos en un archivo separado o que style.css sea importado aquí) --- */
+/* Para este ejemplo, los repito para que funcione de forma autónoma. */
+:root {
+    /* Valores por defecto para Modo Claro */
+    --bg-color: #f9f9f9;
+    --text-color: #333;
+    --header-bg: #fff;
+    --footer-bg: #fff;
+    --border-color: #ddd;
+    --accent-color: #ff0000;
+    --icon-color: #606060;
+    --active-nav-color: #ff0000;
+
+    /* Específicos de Shorts */
+    --shorts-control-bg: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente para controles */
+    --shorts-control-icon-color: #fff; /* Iconos blancos para contraste */
 }
 
-html, body {
-  height: 100%; /* Muy importante para que los shorts ocupen toda la altura */
-  overflow: hidden; /* Evita el scroll del body */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Sobreescritura para Modo Oscuro */
+        --bg-color: #0f0f0f;
+        --text-color: #f0f0f0;
+        --header-bg: #212121;
+        --footer-bg: #212121;
+        --border-color: #383838;
+        --accent-color: #ff0000;
+        --icon-color: #aaaaaa;
+        --active-nav-color: #ff0000;
+
+        /* Específicos de Shorts */
+        --shorts-control-bg: rgba(0, 0, 0, 0.7);
+        --shorts-control-icon-color: #fff;
+    }
 }
 
+/* Estilos Globales para Shorts */
 body {
-  font-family: Arial, sans-serif;
-  background: #000; /* Fondo oscuro para la experiencia de shorts */
-  color: white;
-  display: flex;
-  flex-direction: column; /* Para organizar header, shorts-container, footer */
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    height: 100vh; /* Altura completa del viewport */
+    overflow: hidden; /* Evita el scroll del body */
+    display: flex;
+    flex-direction: column;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background-color: #ff0000;
-  color: white;
-  z-index: 100;
-  flex-shrink: 0; /* No se encoge */
+/* Contenedor de Shorts (donde se desplazan los videos) */
+#shorts-container {
+    flex-grow: 1; /* Ocupa todo el espacio disponible */
+    width: 100%;
+    height: 100%; /* Importante para el scroll vertical */
+    overflow-y: scroll; /* Habilita el scroll vertical */
+    scroll-snap-type: y mandatory; /* Scroll con "snap" para ir de short en short */
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+    position: relative; /* Para posicionar elementos internos */
 }
 
-.left-header {
-  font-size: 20px;
-  font-weight: bold;
+.initial-loading-message, #shorts-loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ocupa toda la altura del viewport para la carga inicial */
+    font-size: 1.2em;
+    flex-direction: column;
 }
 
-/* Estilo para los iconos de Material Design */
-.material-icons {
-  font-size: 24px;
-  color: white;
-  display: block;
-}
-
-.shorts-container {
-  flex-grow: 1; /* Ocupa todo el espacio disponible */
-  overflow-y: scroll; /* Permite el scroll vertical */
-  scroll-snap-type: y mandatory; /* Scroll con "snap" a cada short */
-  -webkit-overflow-scrolling: touch; /* Suaviza el scroll en iOS */
-  position: relative; /* Para el mensaje de carga */
-}
-
-.initial-loading-message {
-  text-align: center;
-  padding: 20px;
-  color: #ccc;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-}
-
+/* Tarjeta de Short (cada video individual) */
 .short-card {
-  width: 100%;
-  height: 100%; /* Cada short ocupa toda la altura del contenedor */
-  scroll-snap-align: start; /* Se ajusta al inicio al hacer scroll */
-  position: relative;
-  background-color: #000; /* Fondo de cada short */
-  display: flex; /* Para centrar el iframe */
-  justify-content: center;
-  align-items: center;
+    width: 100%;
+    height: 100vh; /* Cada short ocupa la altura completa del viewport */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el video verticalmente */
+    align-items: center;
+    position: relative;
+    scroll-snap-align: start; /* Se ajusta al inicio de cada tarjeta */
+    background-color: black; /* Fondo detrás del video si la relación de aspecto no coincide */
+    overflow: hidden;
 }
 
+/* Contenedor del Reproductor de Short */
 .short-player-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* Para manejar el desbordamiento si el iframe no se ajusta perfectamente */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* El iframe de YouTube real */
 .short-player-wrapper iframe {
-  width: 100%;
-  height: 100%;
-  /* object-fit: contain; Esto podría dejar barras negras laterales en videos verticales */
-  object-fit: cover; /* Para que el video ocupe todo el espacio y se recorte si es necesario */
-  position: absolute;
-  top: 0;
-  left: 0;
+    width: 100%;
+    height: 100%;
+    /* YouTube iframe no soporta object-fit directamente. */
+    /* El reproductor de YouTube se encarga de escalar el video. */
 }
 
-/* Controles de cada short */
+/* Controles de Short - ¡MÁS PEQUEÑOS Y COMPACTOS! */
 .short-controls {
-  position: absolute;
-  bottom: 20px; /* Espacio desde abajo */
-  right: 15px; /* Espacio desde la derecha */
-  display: flex;
-  flex-direction: column; /* Botones apilados verticalmente */
-  gap: 15px; /* Espacio entre botones */
-  z-index: 10; /* Asegura que estén encima del video */
+    position: absolute;
+    bottom: 80px; /* Posicionado encima del pie de página */
+    left: 15px; /* Alineado a la izquierda */
+    display: flex; /* Para organizar los botones horizontalmente */
+    gap: 5px; /* Pequeño espacio entre botones */
+    background-color: var(--shorts-control-bg); /* Fondo semi-transparente */
+    border-radius: 12px; /* Esquinas más redondeadas */
+    padding: 3px 8px; /* Padding reducido alrededor de los botones */
+    z-index: 10; /* Asegura que los controles estén encima del video */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-.short-controls button {
-  background-color: rgba(255, 255, 255, 0.2); /* Fondo semitransparente */
-  border: none;
-  border-radius: 50%;
-  width: 50px; /* Tamaño del botón */
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.short-play-pause-btn, .short-mute-btn {
+    background: none;
+    border: none;
+    color: var(--shorts-control-icon-color);
+    cursor: pointer;
+    padding: 5px; /* Padding minimal */
+    font-size: 1.5em; /* Tamaño de icono reducido */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.short-controls button:hover {
-  background-color: rgba(255, 255, 255, 0.4);
+.short-play-pause-btn:hover, .short-mute-btn:hover {
+    transform: scale(1.1);
+    opacity: 0.9;
 }
 
-.short-controls .material-icons {
-  font-size: 30px; /* Tamaño grande para los iconos de control */
-  color: white;
-}
-
-.footer {
-  flex-shrink: 0; /* No se encoge */
-  width: 100%;
-  background: white;
-  border-top: 1px solid #ddd;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-  z-index: 100;
-}
-
-.footer a {
-  text-decoration: none;
-  color: #666;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: color 0.3s ease;
-}
-
-.footer .active {
-  color: #ff0000;
-}
-
-.footer a:hover {
-  color: #ff0000;
-}
-
-/* Estilos para el cargador de scroll infinito */
-.shorts-loading {
-  text-align: center;
-  padding: 20px;
-  color: #ccc;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100px; /* Para que sea detectable por el IntersectionObserver */
-}
-
+/* Spinner de Carga */
 .spinner {
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #fff;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid var(--accent-color);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ajuste del botón de instalación en shorts.html */
+.install-button-container {
+    bottom: 60px; /* Se ajusta para estar encima del footer de shorts */
+    padding-bottom: 15px; /* No necesita el padding extra del body */
 }
