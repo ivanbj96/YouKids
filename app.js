@@ -1,29 +1,26 @@
 // ======================================================================
 // !!! IMPORTANTE: CLAVE API DE YOUTUBE !!!
 // ======================================================================
-// ¡¡REEMPLAZA ESTO CON TU CLAVE REAL DE LA API DE YOUTUBE!!
+// Por razones de seguridad, NUNCA expongas tu clave API directamente en el código del lado del cliente en producción.
+// Para proyectos reales, utiliza un proxy del lado del servidor para interactuar con la API de YouTube.
+// Por ahora, para pruebas locales, reemplaza "TU_CLAVE_API_DE_YOUTUBE" con tu clave real.
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
-// Sin una clave válida, la búsqueda de videos NO FUNCIONARÁ.
 // ======================================================================
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡REEMPLAZA ESTO CON TU CLAVE REAL!
 
-// ======================================================================
-// Elementos del DOM para la página principal (index.html)
-// ======================================================================
 const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
 const videosContainer = document.getElementById("videos-container");
 const loadingIndicator = document.getElementById("loading-indicator");
-const videoPlayerOverlay = document.getElementById("video-player"); // El div que contiene el iframe y el botón de cerrar
+const videoPlayer = document.getElementById("video-player");
 const closePlayerButton = document.getElementById("close-player-button");
-const youtubeIframeWrapper = document.getElementById("youtube-iframe-wrapper"); // Nuevo contenedor para el iframe
 
-let currentVideoPlayer = null; // Para la instancia del reproductor de YouTube API
+let currentVideoPlayer = null; // Para el reproductor de YouTube API
 let nextVideosPageToken = null; // Para la paginación de videos de la búsqueda
-let isLoading = false; // Para controlar la carga de videos y evitar solicitudes duplicadas
+let isLoading = false; // Para controlar la carga de videos
 
 // ======================================================================
-// Lógica para el botón de instalación de la PWA (compartido entre index y shorts)
+// Lógica para el botón de instalación de la PWA
 // ======================================================================
 let deferredPrompt;
 const installButtonContainer = document.getElementById('install-button-container');
@@ -37,7 +34,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   deferredPrompt = e;
   // Muestra tu botón de instalación personalizado.
   if (installButtonContainer) {
-    installButtonContainer.style.display = 'flex'; // Usar 'flex' para estilos CSS
+    installButtonContainer.style.display = 'flex'; // O 'block' si no usas flexbox para centrar
     console.log('Evento beforeinstallprompt disparado. Botón de instalación visible.');
   }
 });
@@ -60,7 +57,7 @@ if (installButton) {
 
       // El prompt solo se puede usar una vez. Si el usuario lo ignora, necesitará reiniciar la página
       // o usar la opción "Añadir a pantalla de inicio" del navegador.
-      deferredPrompt = null; // Resetea deferredPrompt
+      deferredPrompt = null;
 
       if (outcome === 'accepted') {
         console.log('YouKids PWA fue instalada con éxito!');
@@ -69,18 +66,17 @@ if (installButton) {
       }
     } else {
       console.warn('El deferredPrompt es nulo. No se pudo mostrar el prompt de instalación.');
-      // Fallback para iOS o navegadores que no soportan beforeinstallprompt directamente
       alert('Para instalar YouKids, usa la opción "Añadir a pantalla de inicio" en el menú de tu navegador (normalmente en los 3 puntos o el icono de compartir).');
     }
   });
 }
 
 // ======================================================================
-// Registro del Service Worker (Solo se registra una vez en app.js)
+// Registro del Service Worker
 // ======================================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js') // Asegúrate que tu service worker se llama sw.js
+    navigator.serviceWorker.register('sw.js') // <-- ¡CAMBIADO A 'sw.js'!
       .then(registration => {
         console.log('Service Worker registrado con éxito:', registration);
       })
@@ -91,25 +87,33 @@ if ('serviceWorker' in navigator) {
 }
 
 // ======================================================================
-// Lógica de búsqueda y reproducción de videos para la página principal (index.html)
+// Lógica de búsqueda de videos (lo que ya tenías)
 // ======================================================================
 
-// onYouTubeIframeAPIReady es una función global que la API de YouTube llama cuando está lista.
-// Necesitamos que esté definida para que la API la encuentre.
+function loadYouTubeIframeAPI() {
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
 function onYouTubeIframeAPIReady() {
   console.log("YouTube IFrame API Ready for main app.");
-  // No inicializamos un reproductor hasta que el usuario selecciona un video
+  // No hay un reproductor inicial aquí, solo cuando se selecciona un video.
 }
 
 async function searchYouTubeVideos(query, pageToken = '') {
-  if (isLoading) return; // Evita búsquedas múltiples mientras una está en progreso
+  if (isLoading) return;
   isLoading = true;
-  loadingIndicator.style.display = 'block'; // Muestra el indicador de carga
+  loadingIndicator.style.display = 'block';
 
-  // Modifica la URL para buscar contenido infantil cristiano.
-  // Es difícil filtrar directamente por "cristiano" vía API, así que confiaremos en la query.
-  // Eliminamos categoryId para no restringir demasiado y ampliamos el término.
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " para niños cristianos")}&type=video&maxResults=10&key=${apiKey}`;
+  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoCategoryId=15&maxResults=10&key=${apiKey}`; // Categoría 15 es 'Pets & Animals', no 'Kids'
+  // Considera usar una categoría más relevante si existe o confiar solo en la query.
+  // Para niños, podría ser "20 - Gaming" si son videos de juegos, o simplemente sin categoryId.
+  // La categoría "Education" (27) o "Howto & Style" (26) a veces tienen contenido infantil.
+  // Si buscas niños cristianos, solo la query es lo más fiable.
+  url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${apiKey}`;
+
 
   if (pageToken) {
     url += `&pageToken=${pageToken}`;
@@ -128,11 +132,11 @@ async function searchYouTubeVideos(query, pageToken = '') {
     nextVideosPageToken = data.nextPageToken || null;
 
     if (data.items && data.items.length > 0) {
-      if (!pageToken) { // Si es una nueva búsqueda, limpia los videos anteriores
+      if (!pageToken) { // Clear existing videos only for a new search
         videosContainer.innerHTML = '';
       }
       data.items.forEach(item => {
-        if (item.id.videoId) { // Asegúrate de que es un video (no un canal o playlist)
+        if (item.id.videoId) {
           createVideoCard(item.id.videoId, item.snippet.title, item.snippet.thumbnails.high.url);
         }
       });
@@ -142,14 +146,14 @@ async function searchYouTubeVideos(query, pageToken = '') {
       } else {
         console.log("No hay más videos para cargar.");
       }
-      nextVideosPageToken = null; // No hay más páginas
+      nextVideosPageToken = null;
     }
 
   } catch (error) {
     console.error("Error al buscar videos:", error);
     videosContainer.innerHTML = `<p class='error-message'>Ocurrió un error al cargar los videos.<br>Verifica tu clave API y conexión.<br>Detalle: ${error.message}</p>`;
   } finally {
-    loadingIndicator.style.display = 'none'; // Oculta el indicador de carga
+    loadingIndicator.style.display = 'none';
     isLoading = false;
   }
 }
@@ -166,71 +170,50 @@ function createVideoCard(videoId, title, thumbnailUrl) {
 }
 
 function playVideo(videoId) {
-  videoPlayerOverlay.classList.add('active'); // Añade la clase 'active' para mostrar el overlay
-
-  // Limpiar el contenido del wrapper antes de crear un nuevo iframe
-  youtubeIframeWrapper.innerHTML = '';
+  videoPlayer.style.display = 'flex'; // Muestra el contenedor del reproductor
 
   if (currentVideoPlayer) {
-    currentVideoPlayer.destroy(); // Destruye la instancia anterior del reproductor si existe
+    currentVideoPlayer.destroy(); // Destruye la instancia anterior del reproductor
   }
 
-  // Crea un nuevo reproductor de YouTube dentro del elemento 'youtube-iframe-wrapper'
-  currentVideoPlayer = new YT.Player(youtubeIframeWrapper, { // Pasa el elemento DOM directamente
+  currentVideoPlayer = new YT.Player('youtube-iframe', {
     videoId: videoId,
     playerVars: {
-      'autoplay': 1,      // Inicia la reproducción automáticamente
-      'controls': 1,      // Muestra los controles del reproductor
-      'modestbranding': 1, // Oculta el logo de YouTube en la barra de control
-      'rel': 0            // No muestra videos relacionados al final
+      'autoplay': 1,
+      'controls': 1,
+      'modestbranding': 1,
+      'rel': 0
     },
     events: {
-      'onReady': (event) => event.target.playVideo(), // Asegura que el video se reproduzca al estar listo
+      'onReady': (event) => event.target.playVideo(),
       'onError': (event) => console.error('Error de YouTube Player:', event.data)
     }
   });
 }
 
-// Cierra el reproductor y detiene el video
 closePlayerButton.addEventListener("click", () => {
-  videoPlayerOverlay.classList.remove('active'); // Elimina la clase 'active' para ocultar el overlay
+  videoPlayer.style.display = 'none';
   if (currentVideoPlayer) {
-    currentVideoPlayer.stopVideo(); // Detiene el video
-    currentVideoPlayer.destroy(); // Opcional: destruir para liberar recursos
-    currentVideoPlayer = null;
-    youtubeIframeWrapper.innerHTML = ''; // Limpiar el contenedor del iframe
+    currentVideoPlayer.stopVideo(); // Detiene el video al cerrar
   }
 });
 
-// Event listener para el botón de búsqueda
 searchButton.addEventListener("click", () => {
   const query = searchInput.value.trim();
   if (query) {
-    searchYouTubeVideos(query); // Inicia una nueva búsqueda
-  }
-});
-
-// Event listener para la tecla Enter en el campo de búsqueda
-searchInput.addEventListener("keypress", (event) => {
-  if (event.key === "Enter") {
-    searchButton.click(); // Simula un clic en el botón de búsqueda
+    searchYouTubeVideos(query);
   }
 });
 
 // Implementación de Infinite Scroll para la búsqueda principal
-// Detecta cuando el usuario llega al final del contenedor de videos
 videosContainer.addEventListener('scroll', () => {
-  const { scrollTop, scrollHeight, clientHeight } = videosContainer;
-  // Carga más videos cuando quedan 100px para el final del scroll
-  if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading && nextVideosPageToken) {
+  if (videosContainer.scrollTop + videosContainer.clientHeight >= videosContainer.scrollHeight - 100 && !isLoading && nextVideosPageToken) {
     searchYouTubeVideos(searchInput.value.trim(), nextVideosPageToken);
   }
 });
 
-// Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
+// Cargar la API de YouTube al cargar la página principal
 document.addEventListener("DOMContentLoaded", () => {
-  // La etiqueta <script src="https://www.youtube.com/iframe_api"></script> ya está en index.html
-  // La función onYouTubeIframeAPIReady se llamará automáticamente.
-  // Realiza la búsqueda inicial. Esto se ejecutará después de que el DOM esté listo.
-  searchYouTubeVideos("canciones infantiles cristianas"); // Búsqueda inicial por defecto
+  loadYouTubeIframeAPI();
+  searchYouTubeVideos("videos niños cristianos"); // Búsqueda inicial por defecto
 });
