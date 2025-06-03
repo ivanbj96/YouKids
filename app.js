@@ -1,12 +1,11 @@
 // ======================================================================
 // !!! IMPORTANTE: CLAVE API DE YOUTUBE !!!
 // ======================================================================
-// Por razones de seguridad, NUNCA expongas tu clave API directamente en el código del lado del cliente en producción.
-// Para proyectos reales, utiliza un proxy del lado del servidor para interactuar con la API de YouTube.
-// Por ahora, para pruebas locales, reemplaza "TU_CLAVE_API_DE_YOUTUBE" con tu clave real.
+// ¡¡REEMPLAZA ESTO CON TU CLAVE REAL DE LA API DE YOUTUBE!!
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
+// Sin una clave válida, la búsqueda de videos NO FUNCIONARÁ.
 // ======================================================================
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡REEMPLAZA ESTO CON TU CLAVE REAL!
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
 
 // ======================================================================
 // Elementos del DOM para la página principal (index.html)
@@ -15,7 +14,7 @@ const searchInput = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
 const videosContainer = document.getElementById("videos-container");
 const loadingIndicator = document.getElementById("loading-indicator");
-const videoPlayerOverlay = document.getElementById("video-player"); // Renombrado para claridad
+const videoPlayerOverlay = document.getElementById("video-player"); // El div que contiene el iframe y el botón de cerrar
 const closePlayerButton = document.getElementById("close-player-button");
 
 let currentVideoPlayer = null; // Para la instancia del reproductor de YouTube API
@@ -94,16 +93,8 @@ if ('serviceWorker' in navigator) {
 // Lógica de búsqueda y reproducción de videos para la página principal (index.html)
 // ======================================================================
 
-// Carga la API de IFrame de YouTube
-function loadYouTubeIframeAPI() {
-  const tag = document.createElement('script');
-  tag.src = "https://www.youtube.com/iframe_api";
-  const firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-}
-
-// Esta función se llama automáticamente cuando la API de IFrame de YouTube está lista
-// (Solo se necesita para el reproductor principal en index.html)
+// onYouTubeIframeAPIReady es una función global que la API de YouTube llama cuando está lista.
+// Necesitamos que esté definida para que la API la encuentre.
 function onYouTubeIframeAPIReady() {
   console.log("YouTube IFrame API Ready for main app.");
   // No inicializamos un reproductor hasta que el usuario selecciona un video
@@ -116,7 +107,7 @@ async function searchYouTubeVideos(query, pageToken = '') {
 
   // Modifica la URL para buscar contenido infantil cristiano.
   // Es difícil filtrar directamente por "cristiano" vía API, así que confiaremos en la query.
-  // Eliminamos categoryId para no restringir demasiado.
+  // Eliminamos categoryId para no restringir demasiado y ampliamos el término.
   let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " para niños cristianos")}&type=video&maxResults=10&key=${apiKey}`;
 
   if (pageToken) {
@@ -174,7 +165,7 @@ function createVideoCard(videoId, title, thumbnailUrl) {
 }
 
 function playVideo(videoId) {
-  videoPlayerOverlay.style.display = 'flex'; // Muestra el overlay del reproductor
+  videoPlayerOverlay.classList.add('active'); // Añade la clase 'active' para mostrar el overlay
 
   if (currentVideoPlayer) {
     currentVideoPlayer.destroy(); // Destruye la instancia anterior del reproductor si existe
@@ -198,7 +189,7 @@ function playVideo(videoId) {
 
 // Cierra el reproductor y detiene el video
 closePlayerButton.addEventListener("click", () => {
-  videoPlayerOverlay.style.display = 'none'; // Oculta el overlay
+  videoPlayerOverlay.classList.remove('active'); // Elimina la clase 'active' para ocultar el overlay
   if (currentVideoPlayer) {
     currentVideoPlayer.stopVideo(); // Detiene el video
   }
@@ -223,6 +214,7 @@ searchInput.addEventListener("keypress", (event) => {
 // Detecta cuando el usuario llega al final del contenedor de videos
 videosContainer.addEventListener('scroll', () => {
   const { scrollTop, scrollHeight, clientHeight } = videosContainer;
+  // Carga más videos cuando quedan 100px para el final del scroll
   if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading && nextVideosPageToken) {
     searchYouTubeVideos(searchInput.value.trim(), nextVideosPageToken);
   }
@@ -230,6 +222,12 @@ videosContainer.addEventListener('scroll', () => {
 
 // Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-  loadYouTubeIframeAPI();
-  searchYouTubeVideos("canciones infantiles cristianas"); // Búsqueda inicial por defecto
+  // Crea el script para la API de YouTube
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  // Realiza la búsqueda inicial. Esto se ejecutará después de que el DOM esté listo.
+  searchYouTubeVideos("canciones infantiles cristianas");
 });
