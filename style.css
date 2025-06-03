@@ -296,7 +296,7 @@ body {
   color: #888;
 }
 
-/* Estilo para el botón de instalación */
+/* Estilo para el botón de instalación 
 .install-button {
   position: fixed;
   bottom: 80px; /* Ajusta la posición para que no se solape con el footer */
@@ -317,4 +317,37 @@ body {
 
 .install-button:hover {
   background-color: #0056b3;
+} */
+
+/* Estilos para el contenedor del botón de instalación de la PWA */
+.install-button-container {
+  position: fixed; /* Lo fija en la pantalla */
+  bottom: 0; /* Lo coloca en la parte inferior */
+  left: 0;
+  width: 100%;
+  background-color: #333; /* Fondo oscuro */
+  padding: 10px;
+  box-shadow: 0 -3px 8px rgba(0,0,0,0.3); /* Sombra para que destaque */
+  z-index: 999; /* Asegura que esté por encima de otros elementos */
+  display: flex; /* Para centrar el botón */
+  justify-content: center;
+  align-items: center;
+}
+
+#install-button {
+  background-color: #ff0000; /* Color rojo, a juego con tu tema */
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#install-button:hover {
+  background-color: #cc0000;
+  transform: translateY(-2px); /* Pequeño efecto al pasar el mouse */
 }
