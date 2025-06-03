@@ -299,7 +299,7 @@ body {
 /* Estilo para el botón de instalación 
 .install-button {
   position: fixed;
-  bottom: 80px; /* Ajusta la posición para que no se solape con el footer */
+  bottom: 80px;  Ajusta la posición para que no se solape con el footer 
   left: 50%;
   transform: translateX(-50%);
   background-color: #007bff;
