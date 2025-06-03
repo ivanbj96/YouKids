@@ -431,17 +431,22 @@ fullscreenButton.addEventListener('click', toggleFullscreen); // Nuevo listener
 // --- Lógica del Service Worker y PWA Install ---
 
 // Registro del Service Worker
+// ... tu código existente de app.js ...
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register('sw.js') // <-- ¡CAMBIADO AQUÍ!
       .then(registration => {
-        console.log('Service Worker registrado con éxito:', registration.scope);
+        console.log('Service Worker registrado con éxito:', registration);
       })
       .catch(error => {
         console.error('Fallo el registro del Service Worker:', error);
       });
   });
 }
+
+// ... el resto de tu código existente ...
+
 
 // Evento beforeinstallprompt para el botón de instalación de PWA
 window.addEventListener('beforeinstallprompt', (e) => {
