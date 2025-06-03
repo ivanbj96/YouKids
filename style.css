@@ -351,3 +351,376 @@ body {
   background-color: #cc0000;
   transform: translateY(-2px); /* Pequeño efecto al pasar el mouse */
 }
+/* --- Global CSS Variables (para el Modo Oscuro) --- */
+:root {
+    /* Valores por defecto para Modo Claro */
+    --bg-color: #f9f9f9; /* Fondo principal */
+    --text-color: #333; /* Color de texto principal */
+    --header-bg: #fff; /* Fondo del encabezado */
+    --footer-bg: #fff; /* Fondo del pie de página */
+    --card-bg: #fff; /* Fondo de las tarjetas de video */
+    --border-color: #ddd; /* Color general de bordes */
+    --accent-color: #ff0000; /* Rojo de YouTube */
+    --player-overlay-bg: rgba(0, 0, 0, 0.8); /* Fondo del overlay del reproductor */
+    --input-bg: #f0f0f0; /* Fondo del campo de búsqueda */
+    --input-border: #ccc; /* Borde del campo de búsqueda */
+    --button-text-color: #fff; /* Color de texto de botones */
+    --button-bg: #ff0000; /* Fondo de botones */
+    --icon-color: #606060; /* Color de iconos por defecto */
+    --active-nav-color: #ff0000; /* Color de elemento de navegación activo */
+    --secondary-text-color: #606060; /* Color de texto secundario (ej. descripciones) */
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Sobreescritura para Modo Oscuro */
+        --bg-color: #0f0f0f; /* Fondo más oscuro como YouTube */
+        --text-color: #f0f0f0; /* Texto más claro */
+        --header-bg: #212121; /* Encabezado oscuro */
+        --footer-bg: #212121; /* Pie de página oscuro */
+        --card-bg: #282828; /* Fondo de tarjetas oscuro */
+        --border-color: #383838; /* Bordes más oscuros */
+        --accent-color: #ff0000; /* Rojo se mantiene */
+        --player-overlay-bg: rgba(0, 0, 0, 0.9); /* Overlay más oscuro */
+        --input-bg: #383838; /* Fondo de búsqueda oscuro */
+        --input-border: #555; /* Borde de búsqueda más oscuro */
+        --button-text-color: #fff;
+        --button-bg: #ff0000;
+        --icon-color: #aaaaaa; /* Iconos más claros en modo oscuro */
+        --active-nav-color: #ff0000;
+        --secondary-text-color: #aaaaaa;
+    }
+}
+
+/* Estilos Globales */
+body {
+    font-family: 'Roboto', sans-serif; /* Fuente de YouTube, asegúrate de importarla en HTML */
+    margin: 0;
+    padding: 0;
+    padding-bottom: 60px; /* Espacio para el footer fijo */
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Asegura que ocupe la altura completa del viewport */
+    -webkit-font-smoothing: antialiased; /* Mejorar el renderizado de la fuente */
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Encabezado Principal */
+#main-header {
+    display: flex;
+    justify-content: flex-start; /* Alinear elementos al inicio */
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky; /* Encabezado pegajoso */
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil */
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+}
+
+.app-logo {
+    height: 30px; /* Tamaño del logo */
+    margin-right: 8px;
+}
+
+#main-header h1 {
+    font-size: 1.5em;
+    font-weight: 700; /* Más negrita para el título */
+    color: var(--text-color);
+    margin: 0;
+}
+
+/* Contenedor de Búsqueda */
+.search-container {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+#search-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--input-border);
+    border-radius: 20px 0 0 20px;
+    font-size: 1em;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+#search-input:focus {
+    border-color: var(--accent-color);
+}
+
+#search-button {
+    background-color: var(--input-bg);
+    color: var(--icon-color);
+    border: 1px solid var(--input-border);
+    border-left: none;
+    border-radius: 0 20px 20px 0;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#search-button:hover {
+    background-color: var(--border-color);
+}
+
+/* Contenedor de Videos */
+#videos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px 15px;
+    flex-grow: 1;
+}
+
+.video-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.video-thumbnail {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior */
+}
+
+.video-title {
+    font-size: 1.1em;
+    font-weight: 500;
+    margin: 10px 15px 5px; /* Ajuste de margen */
+    color: var(--text-color);
+    line-height: 1.3;
+    flex-grow: 1;
+}
+
+/* Detalles del video (opcional, para añadir si tienes autor/vistas) */
+.video-details {
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+    margin: 0 15px 10px;
+}
+
+
+/* Overlay del Reproductor de Video */
+#video-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--player-overlay-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+#youtube-iframe {
+    width: 90%;
+    max-width: 800px;
+    height: calc(90vw * 9 / 16);
+    max-height: 450px;
+    border: none;
+    background-color: black;
+}
+
+#close-player-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5em;
+    cursor: pointer;
+    z-index: 2001;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease;
+}
+
+#close-player-button:hover {
+    transform: scale(1.1);
+}
+
+/* Indicador de Carga */
+#loading-indicator {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+    display: none;
+}
+
+/* Mensajes de No Resultados/Error */
+.no-results-message, .error-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--text-color);
+    padding: 20px;
+    grid-column: 1 / -1;
+}
+
+/* Navegación del Pie de Página */
+#main-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--footer-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1500;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+}
+
+.footer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--icon-color);
+    font-size: 0.7em;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 5px;
+    flex: 1;
+}
+
+.footer-item .material-icons {
+    font-size: 1.5em;
+    margin-bottom: 2px;
+}
+
+.footer-item.active {
+    color: var(--active-nav-color);
+}
+
+.footer-item:hover {
+    color: var(--accent-color);
+}
+
+/* Botón de Instalación PWA (mejorado) */
+.install-button-container {
+    position: fixed;
+    bottom: 60px; /* Ajustado para estar encima del footer */
+    left: 0;
+    width: 100%;
+    background-color: var(--header-bg);
+    padding: 15px 0;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+}
+
+#install-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  letter-spacing: 0.5px;
+}
+
+#install-button:hover {
+  background-color: #cc0000;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+#install-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#install-button .material-icons {
+  margin-right: 8px;
+  font-size: 1.3em;
+}
+
+/* Ajustes Responsivos */
+@media (max-width: 600px) {
+    #main-header h1 {
+        font-size: 1.3em;
+    }
+    .app-logo {
+        height: 25px;
+    }
+    .search-container {
+        flex-direction: column;
+    }
+    #search-input, #search-button {
+        border-radius: 20px; /* Bordes totalmente redondeados en móvil */
+        border: 1px solid var(--input-border);
+        margin-bottom: 10px;
+    }
+    #search-button {
+        margin-bottom: 0;
+    }
+    #videos-container {
+        grid-template-columns: 1fr;
+    }
+    #youtube-iframe {
+        width: 95%;
+    }
+    #close-player-button {
+        top: 10px;
+        right: 10px;
+        font-size: 2em;
+    }
+    .install-button-container {
+        padding-bottom: 15px; /* Ajuste para el padding del botón en móviles */
+    }
+    #install-button {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
+}
