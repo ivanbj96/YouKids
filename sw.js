@@ -1,4 +1,4 @@
-const CACHE_NAME = 'youkids-pwa-cache-v1.0.6'; // ¡Versión incrementada para forzar actualización!
+const CACHE_NAME = 'youkids-pwa-cache-v1.0.7'; // ¡Versión incrementada para forzar actualización!
 const urlsToCache = [
   '/',
   '/index.html',
