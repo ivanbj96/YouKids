@@ -37,7 +37,10 @@ async function loadShorts(pageToken = '') {
 
     if (!pageToken) {
         initialLoadingMessage.style.display = 'flex'; // Mostrar spinner y texto para la primera carga
-        shortsContainer.innerHTML = ''; // Limpiar el contenedor solo al inicio de una nueva búsqueda
+        shortsContainer.innerHTML = `<div class="initial-loading-message">
+                                        <div class="spinner"></div>
+                                        Cargando Shorts...
+                                     </div>`; // Restablecer el mensaje inicial
     } else {
         shortsLoadingIndicator.style.display = 'flex'; // Mostrar spinner de carga de más shorts
     }
@@ -45,7 +48,7 @@ async function loadShorts(pageToken = '') {
     // Estrategia de búsqueda mejorada para Shorts:
     // Buscar por términos generales de "niños cristianos" y filtrar por duración corta.
     // La clave es "videoDuration=short". YouTube categoriza esto como "Shorts" internamente.
-    const query = "canciones para niños cristianos"; // Query más amplia
+    const query = "videos cristianos infantiles"; // Query más amplia
     const maxResults = 10; // Número de resultados por solicitud
 
     let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoDuration=short&maxResults=${maxResults}&key=${apiKey}`;
@@ -67,8 +70,14 @@ async function loadShorts(pageToken = '') {
         nextShortsPageToken = data.nextPageToken || null;
 
         if (data.items && data.items.length > 0) {
+            if (!pageToken) {
+                // Eliminar el mensaje de carga inicial antes de añadir videos si es la primera carga
+                const currentInitialMessage = shortsContainer.querySelector('.initial-loading-message');
+                if (currentInitialMessage) {
+                    currentInitialMessage.remove();
+                }
+            }
             data.items.forEach(item => {
-                // Solo añadir videos con un ID de video válido y que no sean shorts preexistentes si es posible
                 if (item.id.videoId) {
                     createShortCard(item.id.videoId);
                 }
@@ -76,10 +85,17 @@ async function loadShorts(pageToken = '') {
 
             // Si es la primera carga y hay videos, reproduce el primero después de un pequeño retraso
             // para asegurar que el iframe se haya montado en el DOM y la API esté lista para interactuar.
-            if (!pageToken) {
+            if (!pageToken && data.items.length > 0) {
+                // Pausar todos los reproductores existentes antes de reproducir el primero nuevo
+                Object.values(shortsPlayers).forEach(player => {
+                    if (player && typeof player.pauseVideo === 'function' && player.getPlayerState() === YT.PlayerState.PLAYING) {
+                        player.pauseVideo();
+                    }
+                });
+                currentShortIndex = 0; // Asegurarse de que el índice es 0 para la primera carga
                 setTimeout(() => {
                     playCurrentShort();
-                }, 500); // Pequeño retraso para asegurar que los iframes se rendericen
+                }, 500); // Pequeño retraso
             }
         } else {
             if (!pageToken) {
@@ -127,7 +143,14 @@ function initializeShortPlayer(videoId) {
     return shortsPlayers[videoId];
   }
 
-  shortsPlayers[videoId] = new YT.Player(`player-${videoId}`, {
+  // Crea el div para el iframe si no existe (debería existir por el HTML)
+  const playerDiv = document.getElementById(`player-${videoId}`);
+  if (!playerDiv) {
+      console.error(`Player div not found for video ID: ${videoId}`);
+      return null;
+  }
+
+  shortsPlayers[videoId] = new YT.Player(playerDiv, { // Pasa el elemento DOM directamente
     videoId: videoId,
     playerVars: {
       'autoplay': 0, // No iniciar automáticamente al crear
@@ -153,9 +176,14 @@ function initializeShortPlayer(videoId) {
         if (playPauseBtnIcon) {
             if (event.data === YT.PlayerState.PLAYING) {
                 playPauseBtnIcon.textContent = 'pause';
-            } else {
+            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED || event.data === YT.PlayerState.BUFFERING) {
                 playPauseBtnIcon.textContent = 'play_arrow';
             }
+        }
+        if (event.data === YT.PlayerState.ENDED) {
+            // Si el video termina y loop está activado, se debería reiniciar automáticamente.
+            // Esto solo es para depuración o lógica adicional.
+            console.log(`Short ${videoId} ha terminado.`);
         }
       },
       'onError': (event) => {
@@ -200,13 +228,16 @@ function playCurrentShort() {
         const checkPlayerReady = setInterval(() => {
             // PlayerState.UNSTARTED (-1) significa que el reproductor aún no está listo.
             // Una vez que pase a otro estado (0, 1, 2, etc.), está listo.
-            if (player.getPlayerState() !== -1) {
+            // Solo reproducir si no está ya reproduciéndose
+            if (player.getPlayerState() !== -1 && player.getPlayerState() !== YT.PlayerState.PLAYING) {
                 clearInterval(checkPlayerReady);
                 player.playVideo();
-                // Asegurarse de que el icono de play/pause se actualiza
+                // Asegurar que el icono de play/pause se actualiza
                 const playPauseBtnIcon = shortsContainer.querySelector(`.short-play-pause-btn[data-video-id="${videoId}"] i`);
                 if (playPauseBtnIcon) playPauseBtnIcon.textContent = 'pause';
                 console.log(`Reproduciendo short: ${videoId}`);
+            } else if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+                clearInterval(checkPlayerReady); // Ya está reproduciendo, no necesitamos esperar
             }
         }, 100); // Intenta cada 100ms
     } else {
@@ -252,7 +283,9 @@ shortsContainer.addEventListener('scroll', () => {
     if (shortCards.length === 0) return;
 
     // Calcula el índice del short visible, redondeando para el "snap"
-    const newIndex = Math.round(shortsContainer.scrollTop / window.innerHeight);
+    // Usamos clientHeight para la altura del contenedor con scroll
+    const newIndex = Math.round(shortsContainer.scrollTop / shortsContainer.clientHeight);
+
 
     if (newIndex !== currentShortIndex) {
         currentShortIndex = newIndex;
@@ -270,22 +303,15 @@ shortsContainer.addEventListener('scroll', () => {
 window.addEventListener('resize', () => {
     // Esto asegura que la página se "ajuste" al short actual después de un redimensionamiento,
     // manteniendo la experiencia de un short por pantalla.
-    shortsContainer.scrollTop = currentShortIndex * window.innerHeight;
+    if (shortsContainer.children.length > 0) { // Asegura que haya shorts cargados
+        // scrolls al inicio del short actual, ajustando por la altura del header/footer
+        shortsContainer.scrollTop = currentShortIndex * shortsContainer.clientHeight;
+    }
 });
 
 // Carga el script de la API de YouTube al cargar el DOM.
 // La función `onYouTubeIframeAPIReady` será llamada por la API una vez que esté lista.
 document.addEventListener("DOMContentLoaded", () => {
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    // La etiqueta <script src="https://www.youtube.com/iframe_api"></script> ya está en shorts.html
+    // La función onYouTubeIframeAPIReady se llamará automáticamente.
 });
-
-// Si por alguna razón la API ya estaba cargada antes de que el DOM terminara (menos común),
-// esto asegura que loadShorts() se llama.
-// window.addEventListener('load', () => {
-//     if (typeof YT !== 'undefined' && YT.Player && !isShortsLoading && shortsContainer.children.length === 0) {
-//         loadShorts();
-//     }
-// });
