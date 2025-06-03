@@ -5,14 +5,16 @@
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
 // Sin una clave válida, la búsqueda de videos NO FUNCIONARÁ.
 // ======================================================================
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
+const apiKey = "TU_CLAVE_API_DE_YOUTUBE"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
 
 // ======================================================================
 // Elementos del DOM para la página de Shorts (shorts.html)
 // ======================================================================
 const shortsContainer = document.getElementById("shorts-container");
 const shortsLoadingIndicator = document.getElementById("shorts-loading");
-const initialLoadingMessage = shortsContainer.querySelector('.initial-loading-message');
+// Importante: Referenciar el mensaje de carga inicial que ya existe en el HTML
+const initialLoadingMessage = document.querySelector('#shorts-container .initial-loading-message');
+
 
 let shortsPlayers = {}; // Objeto para almacenar instancias de reproductores de YouTube (videoId: playerInstance)
 let currentShortIndex = 0; // Índice del short actualmente visible
@@ -37,17 +39,14 @@ async function loadShorts(pageToken = '') {
 
     if (!pageToken) {
         initialLoadingMessage.style.display = 'flex'; // Mostrar spinner y texto para la primera carga
-        shortsContainer.innerHTML = `<div class="initial-loading-message">
-                                        <div class="spinner"></div>
-                                        Cargando Shorts...
-                                     </div>`; // Restablecer el mensaje inicial
+        // No limpiar shortsContainer.innerHTML aquí, ya que eliminaría el initialLoadingMessage.
+        // Los nuevos shorts se añadirán después de este mensaje.
     } else {
         shortsLoadingIndicator.style.display = 'flex'; // Mostrar spinner de carga de más shorts
     }
 
     // Estrategia de búsqueda mejorada para Shorts:
     // Buscar por términos generales de "niños cristianos" y filtrar por duración corta.
-    // La clave es "videoDuration=short". YouTube categoriza esto como "Shorts" internamente.
     const query = "videos cristianos infantiles"; // Query más amplia
     const maxResults = 10; // Número de resultados por solicitud
 
@@ -72,10 +71,7 @@ async function loadShorts(pageToken = '') {
         if (data.items && data.items.length > 0) {
             if (!pageToken) {
                 // Eliminar el mensaje de carga inicial antes de añadir videos si es la primera carga
-                const currentInitialMessage = shortsContainer.querySelector('.initial-loading-message');
-                if (currentInitialMessage) {
-                    currentInitialMessage.remove();
-                }
+                initialLoadingMessage.style.display = 'none';
             }
             data.items.forEach(item => {
                 if (item.id.videoId) {
@@ -84,7 +80,6 @@ async function loadShorts(pageToken = '') {
             });
 
             // Si es la primera carga y hay videos, reproduce el primero después de un pequeño retraso
-            // para asegurar que el iframe se haya montado en el DOM y la API esté lista para interactuar.
             if (!pageToken && data.items.length > 0) {
                 // Pausar todos los reproductores existentes antes de reproducir el primero nuevo
                 Object.values(shortsPlayers).forEach(player => {
@@ -95,10 +90,12 @@ async function loadShorts(pageToken = '') {
                 currentShortIndex = 0; // Asegurarse de que el índice es 0 para la primera carga
                 setTimeout(() => {
                     playCurrentShort();
-                }, 500); // Pequeño retraso
+                }, 500); // Pequeño retraso para asegurar que los iframes se rendericen
             }
         } else {
             if (!pageToken) {
+                // Si no hay resultados iniciales, mostramos el mensaje de "no encontrados"
+                initialLoadingMessage.style.display = 'none'; // Asegurarse de ocultar el spinner
                 shortsContainer.innerHTML = "<p class='no-results-message'>No se encontraron shorts para esta búsqueda.</p>";
             } else {
                 console.log("No hay más shorts para cargar.");
@@ -108,12 +105,10 @@ async function loadShorts(pageToken = '') {
 
     } catch (error) {
         console.error("Error al buscar shorts:", error);
-        if (!pageToken) {
-            shortsContainer.innerHTML = `<p class='error-message'>Ocurrió un error al cargar los shorts.<br>Verifica tu clave API y conexión.<br>Detalle: ${error.message}</p>`;
-        }
+        initialLoadingMessage.style.display = 'none'; // Asegurarse de ocultar el spinner
+        shortsContainer.innerHTML = `<p class='error-message'>Ocurrió un error al cargar los shorts.<br>Verifica tu clave API y conexión.<br>Detalle: ${error.message}</p>`;
     } finally {
-        initialLoadingMessage.style.display = 'none'; // Siempre ocultar el mensaje inicial al finalizar
-        shortsLoadingIndicator.style.display = 'none'; // Ocultar el indicador de carga
+        shortsLoadingIndicator.style.display = 'none'; // Ocultar el indicador de carga del infinite scroll
         isShortsLoading = false;
     }
 }
@@ -181,14 +176,11 @@ function initializeShortPlayer(videoId) {
             }
         }
         if (event.data === YT.PlayerState.ENDED) {
-            // Si el video termina y loop está activado, se debería reiniciar automáticamente.
-            // Esto solo es para depuración o lógica adicional.
             console.log(`Short ${videoId} ha terminado.`);
         }
       },
       'onError': (event) => {
         console.error(`Error en el reproductor de ${videoId}:`, event.data);
-        // Puedes mostrar un mensaje al usuario aquí si un video no carga
       }
     }
   });
