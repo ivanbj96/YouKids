@@ -16,6 +16,7 @@ const videosContainer = document.getElementById("videos-container");
 const loadingIndicator = document.getElementById("loading-indicator");
 const videoPlayerOverlay = document.getElementById("video-player"); // El div que contiene el iframe y el botón de cerrar
 const closePlayerButton = document.getElementById("close-player-button");
+const youtubeIframeWrapper = document.getElementById("youtube-iframe-wrapper"); // Nuevo contenedor para el iframe
 
 let currentVideoPlayer = null; // Para la instancia del reproductor de YouTube API
 let nextVideosPageToken = null; // Para la paginación de videos de la búsqueda
@@ -167,12 +168,15 @@ function createVideoCard(videoId, title, thumbnailUrl) {
 function playVideo(videoId) {
   videoPlayerOverlay.classList.add('active'); // Añade la clase 'active' para mostrar el overlay
 
+  // Limpiar el contenido del wrapper antes de crear un nuevo iframe
+  youtubeIframeWrapper.innerHTML = '';
+
   if (currentVideoPlayer) {
     currentVideoPlayer.destroy(); // Destruye la instancia anterior del reproductor si existe
   }
 
-  // Crea un nuevo reproductor de YouTube dentro del elemento 'youtube-iframe'
-  currentVideoPlayer = new YT.Player('youtube-iframe', {
+  // Crea un nuevo reproductor de YouTube dentro del elemento 'youtube-iframe-wrapper'
+  currentVideoPlayer = new YT.Player(youtubeIframeWrapper, { // Pasa el elemento DOM directamente
     videoId: videoId,
     playerVars: {
       'autoplay': 1,      // Inicia la reproducción automáticamente
@@ -192,6 +196,9 @@ closePlayerButton.addEventListener("click", () => {
   videoPlayerOverlay.classList.remove('active'); // Elimina la clase 'active' para ocultar el overlay
   if (currentVideoPlayer) {
     currentVideoPlayer.stopVideo(); // Detiene el video
+    currentVideoPlayer.destroy(); // Opcional: destruir para liberar recursos
+    currentVideoPlayer = null;
+    youtubeIframeWrapper.innerHTML = ''; // Limpiar el contenedor del iframe
   }
 });
 
@@ -222,12 +229,8 @@ videosContainer.addEventListener('scroll', () => {
 
 // Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-  // Crea el script para la API de YouTube
-  const tag = document.createElement('script');
-  tag.src = "https://www.youtube.com/iframe_api";
-  const firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+  // La etiqueta <script src="https://www.youtube.com/iframe_api"></script> ya está en index.html
+  // La función onYouTubeIframeAPIReady se llamará automáticamente.
   // Realiza la búsqueda inicial. Esto se ejecutará después de que el DOM esté listo.
-  searchYouTubeVideos("canciones infantiles cristianas");
+  searchYouTubeVideos("canciones infantiles cristianas"); // Búsqueda inicial por defecto
 });
