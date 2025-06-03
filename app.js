@@ -7,435 +7,76 @@
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
 // ======================================================================
 const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡REEMPLAZA ESTO CON TU CLAVE REAL!
-const defaultSearchQuery = "canciones cristianas para niños";
 
-// Elementos del DOM
-const videoListContainer = document.getElementById("video-list");
-const searchButton = document.getElementById("search-button");
-const filterButton = document.getElementById("filter-button");
-const searchModal = document.getElementById("search-modal");
-const filterModal = document.getElementById("filterModal");
 const searchInput = document.getElementById("search-input");
-const applySearchButton = document.getElementById("apply-search");
-const cancelSearchButton = document.getElementById("cancel-search");
-const closeFilterButton = document.getElementById("closeFilter");
-const applyFiltersButton = document.getElementById("applyFilters");
-const installButton = document.getElementById("installBtn");
-const playerSection = document.getElementById("player-section"); // Nueva sección del reproductor
+const searchButton = document.getElementById("search-button");
+const videosContainer = document.getElementById("videos-container");
+const loadingIndicator = document.getElementById("loading-indicator");
+const videoPlayer = document.getElementById("video-player");
+const closePlayerButton = document.getElementById("close-player-button");
 
-// Elementos de control del reproductor
-const playPauseButton = document.getElementById("play-pause-button");
-const muteButton = document.getElementById("mute-button");
-const playPauseIcon = playPauseButton.querySelector('.material-icons');
-const muteIcon = muteButton.querySelector('.material-icons');
-const autoplayToggleButton = document.getElementById("autoplay-toggle-button"); // Nuevo botón
-const previousVideoButton = document.getElementById("previous-video-button"); // Nuevo botón
-const nextVideoButton = document.getElementById("next-video-button"); // Nuevo botón
-const fullscreenButton = document.getElementById("fullscreen-button"); // Nuevo botón
-const autoplayToggleIcon = autoplayToggleButton.querySelector('.material-icons'); // Icono para autoplay
+let currentVideoPlayer = null; // Para el reproductor de YouTube API
+let nextVideosPageToken = null; // Para la paginación de videos de la búsqueda
+let isLoading = false; // Para controlar la carga de videos
 
-// Elementos del modal de filtros
-const regionFilter = document.getElementById("regionFilter");
-const videoGenreFilter = document.getElementById("videoGenreFilter");
-const musicGenreFilter = document.getElementById("musicGenreFilter");
-const religionFilter = document.getElementById("religionFilter");
-const blockedChannelsInput = document.getElementById("blockedChannels");
+// ======================================================================
+// Lógica para el botón de instalación de la PWA
+// ======================================================================
+let deferredPrompt;
+const installButtonContainer = document.getElementById('install-button-container');
+const installButton = document.getElementById('install-button');
 
-let deferredPrompt; // Para el evento de instalación de PWA
-let player; // Variable global para el reproductor de YouTube
-let currentVideoId = null; // ID del video actualmente reproduciéndose
-let currentVideoIndex = -1; // Índice del video actual en loadedVideosData
-let loadedVideosData = []; // Array de videos cargados desde la API
-let isAutoplayEnabled = false; // Estado de la reproducción automática
-
-// --- Funciones de Utilidad ---
-
-/**
- * Muestra u oculta un modal añadiendo/quitando la clase 'show'.
- * @param {HTMLElement} modalElement - El elemento del modal a mostrar/ocultar.
- * @param {boolean} show - True para mostrar, false para ocultar.
- */
-function toggleModal(modalElement, show) {
-  if (show) {
-    modalElement.classList.add("show");
-  } else {
-    modalElement.classList.remove("show");
+// Este evento se dispara cuando el navegador detecta que la PWA es instalable.
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Previene que el navegador muestre su propio mini-infobar por defecto.
+  e.preventDefault();
+  // Guarda el evento para que podamos dispararlo más tarde con un clic de usuario.
+  deferredPrompt = e;
+  // Muestra tu botón de instalación personalizado.
+  if (installButtonContainer) {
+    installButtonContainer.style.display = 'flex'; // O 'block' si no usas flexbox para centrar
+    console.log('Evento beforeinstallprompt disparado. Botón de instalación visible.');
   }
-}
+});
 
-/**
- * Guarda las preferencias del usuario en localStorage.
- */
-function savePreferences() {
-  const preferences = {
-    region: regionFilter.value,
-    videoGenre: videoGenreFilter.value,
-    musicGenre: musicGenreFilter.value,
-    religion: religionFilter.value,
-    blockedChannels: blockedChannelsInput.value,
-    isAutoplayEnabled: isAutoplayEnabled // Guardar estado de autoplay
-  };
-  localStorage.setItem('youkidsPreferences', JSON.stringify(preferences));
-  console.log("Preferencias guardadas:", preferences);
-}
-
-/**
- * Carga las preferencias del usuario de localStorage.
- */
-function loadPreferences() {
-  const savedPreferences = localStorage.getItem('youkidsPreferences');
-  if (savedPreferences) {
-    const preferences = JSON.parse(savedPreferences);
-    regionFilter.value = preferences.region || '';
-    videoGenreFilter.value = preferences.videoGenre || '';
-    musicGenreFilter.value = preferences.musicGenre || '';
-    religionFilter.value = preferences.religion || '';
-    blockedChannelsInput.value = preferences.blockedChannels || '';
-    isAutoplayEnabled = preferences.isAutoplayEnabled || false; // Cargar estado de autoplay
-    updateAutoplayButtonIcon(); // Actualizar icono al cargar preferencias
-    console.log("Preferencias cargadas:", preferences);
-  }
-}
-
-// --- Lógica del Reproductor de YouTube ---
-
-/**
- * Esta función es llamada automáticamente por el IFrame Player API de YouTube
- * cuando el código del reproductor ha sido cargado.
- */
-function onYouTubeIframeAPIReady() {
-  console.log("YouTube IFrame API Ready.");
-  initializePlayer();
-}
-
-/**
- * Inicializa el reproductor de YouTube.
- */
-function initializePlayer() {
-  if (player) return; // Solo inicializa una vez
-
-  player = new YT.Player('player', {
-    height: '360',
-    width: '640',
-    videoId: '', // Se carga un video vacío inicialmente
-    playerVars: {
-      'autoplay': 0,
-      'controls': 0, // No mostrar controles nativos de YouTube
-      'modestbranding': 1,
-      'rel': 0,
-      'playsinline': 1 // Permite que se reproduzca en línea en iOS
-    },
-    events: {
-      'onReady': onPlayerReady,
-      'onStateChange': onPlayerStateChange
-    }
-  });
-}
-
-/**
- * Llamado cuando el reproductor de YouTube está listo.
- * @param {Object} event - El evento onReady.
- */
-function onPlayerReady(event) {
-  console.log('Reproductor de YouTube listo!');
-}
-
-/**
- * Llamado cuando el estado del reproductor cambia.
- * @param {Object} event - El evento onStateChange.
- */
-function onPlayerStateChange(event) {
-  const playerState = event.data;
-
-  // Actualizar icono de play/pause
-  if (playerState === YT.PlayerState.PLAYING) {
-    playPauseIcon.textContent = 'pause';
-  } else if (playerState === YT.PlayerState.PAUSED || playerState === YT.PlayerState.ENDED) {
-    playPauseIcon.textContent = 'play_arrow';
-  }
-
-  // Si el video termina y la reproducción automática está activa, ir al siguiente
-  if (playerState === YT.PlayerState.ENDED && isAutoplayEnabled) {
-    playNextVideo();
-  }
-  updateMuteButtonIcon(); // Asegurar que el icono de mute esté correcto
-}
-
-/**
- * Carga y reproduce un video específico en el reproductor.
- * @param {string} videoId - El ID del video de YouTube a cargar.
- * @param {number} index - El índice del video en loadedVideosData.
- */
-function loadAndPlayVideo(videoId, index) {
-  if (player && typeof player.loadVideoById === 'function') {
-    player.loadVideoById(videoId);
-    currentVideoId = videoId;
-    currentVideoIndex = index;
-    playerSection.style.display = 'block'; // Mostrar la sección del reproductor
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Desplazarse al inicio para ver el reproductor
-    playPauseIcon.textContent = 'pause'; // Asumir que empezará a reproducir
-    console.log(`Cargando y reproduciendo: ${videoId}, Index: ${index}`);
-  } else {
-    console.error("El reproductor de YouTube no está inicializado correctamente.");
-    openYouTubeVideo(videoId); // Fallback: abrir en YouTube
-  }
-}
-
-/**
- * Alterna entre reproducir y pausar el video.
- */
-function togglePlayPause() {
-  if (!player || typeof player.getPlayerState !== 'function') return;
-
-  const state = player.getPlayerState();
-  if (state === YT.PlayerState.PLAYING) {
-    player.pauseVideo();
-  } else {
-    player.playVideo();
-  }
-}
-
-/**
- * Alterna entre silenciar y desilenciar el video.
- */
-function toggleMute() {
-  if (!player || typeof player.isMuted !== 'function') return;
-
-  if (player.isMuted()) {
-    player.unMute();
-  } else {
-    player.mute();
-  }
-  updateMuteButtonIcon();
-}
-
-/**
- * Actualiza el icono del botón de silencio/desilencio.
- */
-function updateMuteButtonIcon() {
-  if (!player || typeof player.isMuted !== 'function') return;
-  muteIcon.textContent = player.isMuted() ? 'volume_off' : 'volume_up';
-}
-
-/**
- * Alterna el estado de la reproducción automática y actualiza el icono.
- */
-function toggleAutoplay() {
-  isAutoplayEnabled = !isAutoplayEnabled;
-  updateAutoplayButtonIcon();
-  savePreferences(); // Guardar el nuevo estado de autoplay
-}
-
-/**
- * Actualiza el icono del botón de reproducción automática.
- */
-function updateAutoplayButtonIcon() {
-  autoplayToggleIcon.textContent = isAutoplayEnabled ? 'loop' : 'autoplay'; // 'loop' o 'repeat' para activado
-  autoplayToggleIcon.style.color = isAutoplayEnabled ? 'lightgreen' : 'white';
-}
-
-/**
- * Reproduce el siguiente video en la lista.
- */
-function playNextVideo() {
-  if (loadedVideosData.length === 0) return;
-
-  let nextIndex = currentVideoIndex + 1;
-  if (nextIndex >= loadedVideosData.length) {
-    nextIndex = 0; // Vuelve al inicio de la lista si se llega al final
-    console.log("Fin de la lista de videos, volviendo al inicio.");
-  }
-
-  const nextVideo = loadedVideosData[nextIndex];
-  loadAndPlayVideo(nextVideo.id.videoId, nextIndex);
-}
-
-/**
- * Reproduce el video anterior en la lista.
- */
-function playPreviousVideo() {
-  if (loadedVideosData.length === 0) return;
-
-  let prevIndex = currentVideoIndex - 1;
-  if (prevIndex < 0) {
-    prevIndex = loadedVideosData.length - 1; // Va al final de la lista si se llega al inicio
-    console.log("Inicio de la lista de videos, yendo al final.");
-  }
-
-  const prevVideo = loadedVideosData[prevIndex];
-  loadAndPlayVideo(prevVideo.id.videoId, prevIndex);
-}
-
-/**
- * Alterna el modo de pantalla completa para el reproductor de YouTube.
- */
-function toggleFullscreen() {
-  if (!player || typeof player.getIframe !== 'function') return;
-
-  const iframe = player.getIframe();
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else if (iframe.requestFullscreen) {
-    iframe.requestFullscreen();
-  } else if (iframe.mozRequestFullScreen) { /* Firefox */
-    iframe.mozRequestFullScreen();
-  } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-    iframe.webkitRequestFullscreen();
-  } else if (iframe.msRequestFullscreen) { /* IE/Edge */
-    iframe.msRequestFullscreen();
-  }
-}
-
-// --- Lógica de Carga y Filtrado de Videos (API de YouTube) ---
-
-/**
- * Carga videos de YouTube usando la API y los muestra en la lista.
- * Aplica filtros si se proporcionan.
- * @param {Object} options - Objeto con opciones de búsqueda y filtrado.
- */
-async function loadVideos({
-  query = defaultSearchQuery,
-  region = '',
-  videoGenre = '',
-  musicGenre = '',
-  religion = '',
-  blockedChannels = []
-} = {}) {
-
-  let fullQuery = query;
-  if (videoGenre) fullQuery += ` ${videoGenre}`;
-  if (musicGenre) fullQuery += ` ${musicGenre}`;
-  if (religion) fullQuery += ` ${religion}`;
-
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(fullQuery)}&type=video&maxResults=20&key=${apiKey}`;
-
-  if (region) {
-    url += `&regionCode=${region}`;
-  }
-
-  videoListContainer.innerHTML = "<p style='text-align: center; margin-top: 20px;'>Cargando videos...</p>";
-
-  try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      const errorBody = await res.json().catch(() => ({ message: res.statusText }));
-      throw new Error(`Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'}`);
-    }
-    const data = await res.json();
-
-    loadedVideosData = data.items || []; // Almacenar todos los videos para navegación
-
-    videoListContainer.innerHTML = ""; // Limpiar videos existentes
-    let filteredItems = loadedVideosData;
-
-    // Filtrado de canales bloqueados (client-side)
-    if (blockedChannels.length > 0) {
-      const lowercasedBlockedChannels = blockedChannels.map(c => c.toLowerCase());
-      filteredItems = filteredItems.filter(item => {
-        return !lowercasedBlockedChannels.includes(item.snippet.channelTitle.toLowerCase());
-      });
+// Listener para el clic en tu botón de instalación personalizado.
+if (installButton) {
+  installButton.addEventListener('click', async () => {
+    // Oculta el botón una vez que el usuario intenta instalar.
+    if (installButtonContainer) {
+      installButtonContainer.style.display = 'none';
     }
 
-    if (filteredItems.length > 0) {
-      filteredItems.forEach((item, index) => {
-        if (!item.id || !item.id.videoId) {
-          console.warn("Item no es un video o no tiene videoId:", item);
-          return;
-        }
+    if (deferredPrompt) {
+      // Muestra el prompt de instalación del navegador.
+      deferredPrompt.prompt();
+      // Espera a que el usuario responda al prompt.
+      const { outcome } = await deferredPrompt.userChoice;
 
-        const videoCard = document.createElement("div");
-        videoCard.className = "video-card";
-        // Al hacer clic, carga y reproduce en el reproductor embebido
-        videoCard.onclick = () => loadAndPlayVideo(item.id.videoId, loadedVideosData.indexOf(item));
+      console.log(`Respuesta del usuario al prompt de instalación: ${outcome}`);
 
-        const channelAvatarUrl = `https://www.google.com/s2/favicons?domain=youtube.com&sz=64`;
+      // El prompt solo se puede usar una vez. Si el usuario lo ignora, necesitará reiniciar la página
+      // o usar la opción "Añadir a pantalla de inicio" del navegador.
+      deferredPrompt = null;
 
-        videoCard.innerHTML = `
-          <img class="video-thumbnail" src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
-          <div class="video-info">
-            <img class="channel-img" src="${channelAvatarUrl}" alt="Canal">
-            <div class="video-details">
-              <div class="video-title">${item.snippet.title}</div>
-              <div class="channel-name">${item.snippet.channelTitle}</div>
-            </div>
-          </div>
-        `;
-        videoListContainer.appendChild(videoCard);
-      });
+      if (outcome === 'accepted') {
+        console.log('YouKids PWA fue instalada con éxito!');
+      } else {
+        console.log('Instalación de YouKids PWA fue cancelada.');
+      }
     } else {
-      videoListContainer.innerHTML = "<p style='text-align: center; margin-top: 20px;'>No se encontraron videos para esta búsqueda y filtros.</p>";
+      console.warn('El deferredPrompt es nulo. No se pudo mostrar el prompt de instalación.');
+      alert('Para instalar YouKids, usa la opción "Añadir a pantalla de inicio" en el menú de tu navegador (normalmente en los 3 puntos o el icono de compartir).');
     }
-
-  } catch (error) {
-    console.error("Error al cargar videos:", error);
-    videoListContainer.innerHTML = `<p style='text-align: center; margin-top: 20px; color: red;'>Ocurrió un error al cargar los videos.<br>Por favor, verifica tu clave API y conexión a internet.<br>Detalle: ${error.message}</p>`;
-  }
-}
-
-/**
- * Recoge los valores de los filtros y el término de búsqueda, y llama a loadVideos.
- * Guarda las preferencias después de aplicar.
- */
-function applyFiltersAndSearch() {
-  const currentSearchTerm = searchInput.value.trim();
-  const blockedChannels = blockedChannelsInput.value.split(',').map(ch => ch.trim()).filter(ch => ch !== '');
-
-  loadVideos({
-    query: currentSearchTerm || defaultSearchQuery,
-    region: regionFilter.value,
-    videoGenre: videoGenreFilter.value,
-    musicGenre: musicGenreFilter.value,
-    religion: religionFilter.value,
-    blockedChannels: blockedChannels
   });
-
-  savePreferences(); // Guardar las preferencias del usuario
-
-  toggleModal(searchModal, false);
-  toggleModal(filterModal, false);
 }
 
-
-// --- Event Listeners para la UI ---
-
-searchButton.addEventListener("click", () => {
-  toggleModal(searchModal, true);
-  searchInput.focus();
-});
-applySearchButton.addEventListener("click", applyFiltersAndSearch);
-cancelSearchButton.addEventListener("click", () => {
-  toggleModal(searchModal, false);
-});
-searchInput.addEventListener("keypress", (event) => {
-  if (event.key === "Enter") {
-    applyFiltersAndSearch();
-  }
-});
-
-filterButton.addEventListener("click", () => {
-  toggleModal(filterModal, true);
-});
-closeFilterButton.addEventListener("click", () => {
-  toggleModal(filterModal, false);
-});
-applyFiltersButton.addEventListener("click", applyFiltersAndSearch);
-
-// Controles del reproductor
-playPauseButton.addEventListener('click', togglePlayPause);
-muteButton.addEventListener('click', toggleMute);
-autoplayToggleButton.addEventListener('click', toggleAutoplay); // Nuevo listener
-previousVideoButton.addEventListener('click', playPreviousVideo); // Nuevo listener
-nextVideoButton.addEventListener('click', playNextVideo); // Nuevo listener
-fullscreenButton.addEventListener('click', toggleFullscreen); // Nuevo listener
-
-// --- Lógica del Service Worker y PWA Install ---
-
+// ======================================================================
 // Registro del Service Worker
-// ... tu código existente de app.js ...
-
+// ======================================================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js') // <-- ¡CAMBIADO AQUÍ!
+    navigator.serviceWorker.register('sw.js') // <-- ¡CAMBIADO A 'sw.js'!
       .then(registration => {
         console.log('Service Worker registrado con éxito:', registration);
       })
@@ -445,48 +86,134 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ... el resto de tu código existente ...
+// ======================================================================
+// Lógica de búsqueda de videos (lo que ya tenías)
+// ======================================================================
+
+function loadYouTubeIframeAPI() {
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+function onYouTubeIframeAPIReady() {
+  console.log("YouTube IFrame API Ready for main app.");
+  // No hay un reproductor inicial aquí, solo cuando se selecciona un video.
+}
+
+async function searchYouTubeVideos(query, pageToken = '') {
+  if (isLoading) return;
+  isLoading = true;
+  loadingIndicator.style.display = 'block';
+
+  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoCategoryId=15&maxResults=10&key=${apiKey}`; // Categoría 15 es 'Pets & Animals', no 'Kids'
+  // Considera usar una categoría más relevante si existe o confiar solo en la query.
+  // Para niños, podría ser "20 - Gaming" si son videos de juegos, o simplemente sin categoryId.
+  // La categoría "Education" (27) o "Howto & Style" (26) a veces tienen contenido infantil.
+  // Si buscas niños cristianos, solo la query es lo más fiable.
+  url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${apiKey}`;
 
 
-// Evento beforeinstallprompt para el botón de instalación de PWA
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installButton.style.display = 'block';
-});
+  if (pageToken) {
+    url += `&pageToken=${pageToken}`;
+  }
 
-// Manejador de clic para el botón de instalación
-installButton.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    installButton.style.display = 'none';
-    console.log(`El usuario ${outcome} el prompt de instalación.`);
+  console.log(`Buscando videos con URL: ${url}`);
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      const errorBody = await res.json().catch(() => ({ message: res.statusText }));
+      throw new Error(`Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'}`);
+    }
+    const data = await res.json();
+
+    nextVideosPageToken = data.nextPageToken || null;
+
+    if (data.items && data.items.length > 0) {
+      if (!pageToken) { // Clear existing videos only for a new search
+        videosContainer.innerHTML = '';
+      }
+      data.items.forEach(item => {
+        if (item.id.videoId) {
+          createVideoCard(item.id.videoId, item.snippet.title, item.snippet.thumbnails.high.url);
+        }
+      });
+    } else {
+      if (!pageToken) {
+        videosContainer.innerHTML = "<p class='no-results-message'>No se encontraron videos para esta búsqueda.</p>";
+      } else {
+        console.log("No hay más videos para cargar.");
+      }
+      nextVideosPageToken = null;
+    }
+
+  } catch (error) {
+    console.error("Error al buscar videos:", error);
+    videosContainer.innerHTML = `<p class='error-message'>Ocurrió un error al cargar los videos.<br>Verifica tu clave API y conexión.<br>Detalle: ${error.message}</p>`;
+  } finally {
+    loadingIndicator.style.display = 'none';
+    isLoading = false;
+  }
+}
+
+function createVideoCard(videoId, title, thumbnailUrl) {
+  const videoCard = document.createElement("div");
+  videoCard.className = "video-card";
+  videoCard.innerHTML = `
+    <img src="${thumbnailUrl}" alt="${title}" class="video-thumbnail">
+    <h3 class="video-title">${title}</h3>
+  `;
+  videoCard.addEventListener("click", () => playVideo(videoId));
+  videosContainer.appendChild(videoCard);
+}
+
+function playVideo(videoId) {
+  videoPlayer.style.display = 'flex'; // Muestra el contenedor del reproductor
+
+  if (currentVideoPlayer) {
+    currentVideoPlayer.destroy(); // Destruye la instancia anterior del reproductor
+  }
+
+  currentVideoPlayer = new YT.Player('youtube-iframe', {
+    videoId: videoId,
+    playerVars: {
+      'autoplay': 1,
+      'controls': 1,
+      'modestbranding': 1,
+      'rel': 0
+    },
+    events: {
+      'onReady': (event) => event.target.playVideo(),
+      'onError': (event) => console.error('Error de YouTube Player:', event.data)
+    }
+  });
+}
+
+closePlayerButton.addEventListener("click", () => {
+  videoPlayer.style.display = 'none';
+  if (currentVideoPlayer) {
+    currentVideoPlayer.stopVideo(); // Detiene el video al cerrar
   }
 });
 
-// Ocultar el botón de instalación si la app ya está instalada o en modo standalone
-window.addEventListener('appinstalled', () => {
-  installButton.style.display = 'none';
-  console.log('YouKids PWA instalada con éxito!');
+searchButton.addEventListener("click", () => {
+  const query = searchInput.value.trim();
+  if (query) {
+    searchYouTubeVideos(query);
+  }
 });
 
-// --- Inicialización ---
+// Implementación de Infinite Scroll para la búsqueda principal
+videosContainer.addEventListener('scroll', () => {
+  if (videosContainer.scrollTop + videosContainer.clientHeight >= videosContainer.scrollHeight - 100 && !isLoading && nextVideosPageToken) {
+    searchYouTubeVideos(searchInput.value.trim(), nextVideosPageToken);
+  }
+});
 
-// Cargar preferencias y videos al iniciar la página
+// Cargar la API de YouTube al cargar la página principal
 document.addEventListener("DOMContentLoaded", () => {
-  loadPreferences(); // Cargar preferencias guardadas, incluyendo autoplay
-  // Usar las preferencias cargadas para la búsqueda inicial
-  const initialQuery = searchInput.value.trim() || defaultSearchQuery;
-  const blockedChannels = blockedChannelsInput.value.split(',').map(ch => ch.trim()).filter(ch => ch !== '');
-
-  loadVideos({
-    query: initialQuery,
-    region: regionFilter.value,
-    videoGenre: videoGenreFilter.value,
-    musicGenre: musicGenreFilter.value,
-    religion: religionFilter.value,
-    blockedChannels: blockedChannels
-  });
+  loadYouTubeIframeAPI();
+  searchYouTubeVideos("videos niños cristianos"); // Búsqueda inicial por defecto
 });
