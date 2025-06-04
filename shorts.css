@@ -207,6 +207,15 @@ main#main-content {
     100% { transform: rotate(360deg); }
 }
 
+/* Mensajes de No Resultados/Error específicos de Shorts */
+.no-results-message, .error-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--text-color);
+    padding: 20px;
+    margin: auto; /* Centrarlo verticalmente */
+}
+
 /* Navegación del Pie de Página (footer) - Compartido con style.css, pero se repite si no se importa */
 #main-footer {
     position: sticky; /* Sticky para que se quede en la parte inferior si el contenido es pequeño */
