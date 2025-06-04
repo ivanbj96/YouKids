@@ -1,14 +1,19 @@
 /* --- Global CSS Variables (se recomienda importar style.css primero para heredar variables) --- */
 /* Repetimos solo las variables de color para que este archivo sea más autónomo */
 :root {
-    --bg-color: #f9f9f9;
+    /* Lila como color principal */
+    --primary-color: #a020f0; /* Lila vibrante */
+    --primary-darker: #7a18be; /* Lila más oscuro para hover/active */
+    --accent-youtube-red: #ff0000; /* Rojo de YouTube para elementos interactivos clave */
+
+    /* Colores para Modo Claro */
+    --bg-color: #f0f2f5;
     --text-color: #333;
     --header-bg: #fff;
     --footer-bg: #fff;
-    --border-color: #ddd;
-    --accent-color: #ff0000;
+    --border-color: #e0e0e0;
     --icon-color: #606060;
-    --active-nav-color: #ff0000;
+    --active-nav-color: var(--primary-color);
 
     /* Específicos de Shorts */
     --shorts-control-bg: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente para controles */
@@ -17,14 +22,13 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
+        /* Colores para Modo Oscuro */
         --bg-color: #0f0f0f;
         --text-color: #f0f0f0;
         --header-bg: #212121;
         --footer-bg: #212121;
         --border-color: #383838;
-        --accent-color: #ff0000;
         --icon-color: #aaaaaa;
-        --active-nav-color: #ff0000;
 
         --shorts-control-bg: rgba(0, 0, 0, 0.7);
         --shorts-control-icon-color: #fff;
@@ -50,10 +54,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Encabezado Principal (compartido, estilos básicos para no depender de style.css) */
+/* Encabezado Principal (compartido) */
 #main-header {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     height: 56px;
     padding: 0 15px;
@@ -80,6 +84,21 @@ body {
     color: var(--text-color);
     margin: 0;
     line-height: 1;
+}
+
+.header-button {
+    background: none;
+    border: none;
+    color: var(--icon-color);
+    cursor: pointer;
+    font-size: 1.8em;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header-button:hover {
+    background-color: var(--border-color);
 }
 
 /* Contenido Principal de Shorts */
@@ -194,7 +213,7 @@ main#main-content {
 /* Spinner de Carga */
 .spinner {
     border: 4px solid rgba(255,255,255,0.3);
-    border-top: 4px solid var(--accent-color);
+    border-top: 4px solid var(--primary-color); /* Usamos el lila para el spinner */
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -259,28 +278,130 @@ main#main-content {
 }
 
 .footer-item:hover {
-    color: var(--accent-color);
+    color: var(--accent-youtube-red); /* Rojo de YouTube en hover */
 }
 
 /* Ajuste del botón de instalación en shorts.html */
-#install-button-container { /* Cambiado de class a id para mayor especificidad */
+#install-button-container {
     bottom: 56px; /* Se ajusta para estar encima del footer de shorts */
     padding: 10px 0; /* Un poco menos de padding vertical que en la página principal */
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #main-header h1 {
-        font-size: 1.1em;
-    }
-    .app-logo {
-        height: 22px;
-    }
-    #install-button-container {
-        padding: 10px 0;
-    }
-    .short-card {
-        /* Reajusta la altura de los shorts para pantallas más pequeñas */
-        height: calc(100vh - 56px - 56px); /* Mantiene la misma lógica */
-    }
+/* Modal de Preferencias */
+.modal { /* Asegúrate de que los estilos del modal se carguen */
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Cubre toda la pantalla */
+    z-index: 2000; /* Por encima de todo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--modal-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--modal-content-bg);
+    margin: auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 90%;
+    animation: fadeInScale 0.3s ease-out forwards;
+    color: var(--text-color);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group select,
+.form-group textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 5px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-color);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group small {
+    display: block;
+    font-size: 0.8em;
+    color: var(--secondary-text-color);
+    margin-top: 5px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.button-primary, .button-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.button-primary {
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+}
+
+.button-primary:hover {
+    background-color: var(--primary-darker);
+    transform: translateY(-1px);
+}
+
+.button-secondary {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.button-secondary:hover {
+    background-color: var(--secondary-text-color);
+    color: #fff;
 }
