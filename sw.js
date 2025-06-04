@@ -1,4 +1,4 @@
-const CACHE_NAME = 'youkids-pwa-cache-v1.1.0'; // ¡Versión incrementada para forzar una nueva caché!
+const CACHE_NAME = 'youkids-pwa-cache-v2.0.0'; // ¡Nueva versión de caché para el nuevo código!
 const urlsToCache = [
   '/',
   '/index.html',
@@ -7,8 +7,7 @@ const urlsToCache = [
   '/shorts.css',
   '/app.js',
   '/shorts.js',
-  '/YouKids.png', // Asegúrate de que esta imagen existe en tu raíz
-  // Material Icons y Roboto (cargados directamente del CDN, Service Worker los cacheará si no hay errores)
+  '/YouKids.png',
   'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
   'https://fonts.googleapis.com/icon?family=Material+Icons'
 ];
