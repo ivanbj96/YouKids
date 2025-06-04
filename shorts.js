@@ -6,7 +6,7 @@
 // Por ahora, para pruebas locales, reemplaza "TU_CLAVE_API_DE_YOUTUBE" con tu clave real.
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
 // ======================================================================
-const apiKey = "TU_CLAVE_API_DE_YOUTUBE"; // <-- ¡REEMPLAZA ESTO CON TU CLAVE REAL!
+const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡REEMPLAZA ESTO CON TU CLAVE REAL!
 const shortsQuery = "youtube shorts niños cristianos"; // Query para videos verticales/cortos
 const shortsContainer = document.getElementById("shorts-container");
 const initialLoadingMessage = shortsContainer.querySelector('.initial-loading-message');
