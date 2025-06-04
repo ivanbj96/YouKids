@@ -1,0 +1,22 @@
+{
+  "name": "YouKids",
+  "short_name": "YouKids",
+  "description": "Videos cristianos infantiles de YouTube, para ver sin anuncios ni distracciones.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#a020f0",
+  "icons": [
+    {
+      "src": "YouKids.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "YouKids.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "orientation": "portrait"
+}
