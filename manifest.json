@@ -5,7 +5,7 @@
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ff0000",
+  "theme_color": "#a020f0",
   "icons": [
     {
       "src": "YouKids.png",
