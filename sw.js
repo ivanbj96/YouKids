@@ -1,8 +1,8 @@
-const CACHE_NAME = 'youkids-pwa-cache-v2.0.2'; // ¡Nueva versión de caché!
+const CACHE_NAME = 'youkids-pwa-cache-v2.0.3'; // ¡Nueva versión de caché!
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/shorts.html',
+  '/', // Esto podría necesitar ser ajustado si la app se sirve desde una subcarpeta
+  '/index.html', // Esto también podría necesitar ser ajustado a /YouKids/index.html
+  '/shorts.html', // Lo mismo
   '/style.css',
   '/shorts.css',
   '/common.js',
@@ -18,6 +18,15 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('Opened cache');
+        // Para GitHub Pages con base tag, las URLs deben incluir el nombre del repo
+        // Si tu repo es 'YouKids', las URLs en cache.addAll deberían ser:
+        // const ghPagesUrlsToCache = urlsToCache.map(url => {
+        //   if (url.startsWith('/')) return '/YouKids' + url;
+        //   return url;
+        // });
+        // return cache.addAll(ghPagesUrlsToCache);
+        // Por ahora, lo mantenemos simple asumiendo que el Service Worker se activa en el scope correcto.
+        // La base tag en HTML ayudará a la resolución de rutas en el cliente.
         return cache.addAll(urlsToCache);
       })
       .catch(error => {
