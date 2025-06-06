@@ -1,6 +1,6 @@
 const CACHE_NAME = 'youkids-pwa-cache-v2.0.3'; // ¡Nueva versión de caché!
 const urlsToCache = [
-  '/', // Esto podría necesitar ser ajustado si la app se sirve desde una subcarpeta
+  './', // Esto podría necesitar ser ajustado si la app se sirve desde una subcarpeta
   '/index.html', // Esto también podría necesitar ser ajustado a /YouKids/index.html
   '/shorts.html', // Lo mismo
   '/style.css',
