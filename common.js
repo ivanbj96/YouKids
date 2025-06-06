@@ -4,7 +4,7 @@
 // ¡¡REEMPLAZA ESTO CON TU CLAVE REAL DE LA API DE YOUTUBE!!
 // Asegúrate de que la "YouTube Data API v3" esté habilitada en tu proyecto de Google Cloud Console.
 // ======================================================================
-const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
+const apiKey = "TU_CLAVE_API_DE_YOUTUBE"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
 
 // Hacemos que apiKey esté disponible globalmente para app.js y shorts.js
 window.apiKey = apiKey;
