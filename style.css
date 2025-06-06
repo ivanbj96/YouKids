@@ -11,7 +11,7 @@
     --text-color: #333; /* Texto principal oscuro */
     --header-bg: #fff; /* Fondo del encabezado blanco */
     --footer-bg: #fff; /* Fondo del pie de página blanco */
-    --card-bg: #fff; /* Fondo de tarjetas blanco */
+    --card-bg: #fff; /* Fondo de las tarjetas de video */
     --border-color: #e0e0e0; /* Borde suave */
     --input-bg: #f8f8f8; /* Fondo de input claro */
     --input-border: #ccc; /* Borde de input */
@@ -19,6 +19,7 @@
     --icon-color: #606060; /* Color de iconos por defecto */
     --active-nav-color: var(--primary-color); /* Ítem de navegación activo */
     --secondary-text-color: #6a6a6a; /* Texto secundario */
+    --player-overlay-bg: rgba(0, 0, 0, 0.8); /* Fondo del overlay del reproductor */
     --modal-bg: rgba(0, 0, 0, 0.7); /* Fondo de modal */
     --modal-content-bg: #fff; /* Contenido de modal blanco */
 }
@@ -36,6 +37,7 @@
         --input-border: #555; /* Borde de búsqueda más oscuro */
         --icon-color: #aaaaaa; /* Iconos más claros */
         --secondary-text-color: #aaaaaa;
+        --player-overlay-bg: rgba(0, 0, 0, 0.9); /* Overlay más oscuro */
         --modal-bg: rgba(0, 0, 0, 0.9); /* Fondo de modal más oscuro */
         --modal-content-bg: #212121; /* Contenido de modal oscuro */
     }
@@ -43,65 +45,64 @@
 
 /* Estilos Globales para HTML y Body */
 html, body {
-    height: 100%; /* Asegura que html y body ocupen el 100% de la altura */
+    height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Controla el scroll del body de manera general */
+    overflow: hidden;
 }
 
 body {
-    font-family: 'Roboto', sans-serif; /* Fuente de YouTube */
+    font-family: 'Roboto', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
     display: flex;
-    flex-direction: column; /* Organiza header, main, footer verticalmente */
-    min-height: 100vh; /* Asegura que ocupe al menos la altura completa del viewport */
-    -webkit-font-smoothing: antialiased; /* Mejorar el renderizado de la fuente */
+    flex-direction: column;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Contenido Principal (excluyendo header/footer para scroll independiente) */
 main#main-content {
-    flex-grow: 1; /* Ocupa todo el espacio disponible entre header y footer */
-    overflow-y: auto; /* Habilita el scroll solo en el contenido principal */
-    padding-bottom: 20px; /* Espacio extra al final del scroll */
-    padding-top: 10px; /* Espacio entre el header y el contenido */
-    display: flex; /* Para flexbox dentro del main */
-    flex-direction: column; /* Organiza search-container y videos-container verticalmente */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Encabezado Principal */
 #main-header {
     display: flex;
-    justify-content: space-between; /* Espacio entre logo y botón de ajustes */
+    justify-content: space-between;
     align-items: center;
-    height: 56px; /* Altura estándar de header de YouTube */
-    padding: 0 15px; /* Padding horizontal */
+    height: 56px;
+    padding: 0 15px;
     background-color: var(--header-bg);
     border-bottom: 1px solid var(--border-color);
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil */
-    flex-shrink: 0; /* No permite que el header se encoja */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    flex-shrink: 0;
 }
 
 .header-logo {
     display: flex;
     align-items: center;
-    cursor: pointer; /* Indica que el logo puede ser clickeable (ej. para ir a inicio) */
+    cursor: pointer;
 }
 
 .app-logo {
-    height: 25px; /* Tamaño del logo */
+    height: 25px;
     margin-right: 8px;
 }
 
 #main-header h1 {
-    font-size: 1.25em; /* Tamaño de fuente del título */
-    font-weight: 700; /* Más negrita para el título */
+    font-size: 1.25em;
+    font-weight: 700;
     color: var(--text-color);
     margin: 0;
-    line-height: 1; /* Elimina espacio extra de la línea */
+    line-height: 1;
 }
 
 .header-button {
@@ -109,9 +110,9 @@ main#main-content {
     border: none;
     color: var(--icon-color);
     cursor: pointer;
-    font-size: 1.8em; /* Tamaño del icono */
+    font-size: 1.8em;
     padding: 5px;
-    border-radius: 50%; /* Redondeado para botones de icono */
+    border-radius: 50%;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -119,38 +120,46 @@ main#main-content {
     background-color: var(--border-color);
 }
 
-/* Contenedor de Búsqueda */
+/* Contenedor de Búsqueda - Estilo YouTube */
 .search-container {
     display: flex;
     width: 100%;
-    max-width: 600px; /* Ancho máximo para la barra de búsqueda */
-    margin: 20px auto; /* Centrar y dar margen */
-    padding: 0 15px; /* Padding a los lados */
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0 15px;
+    box-sizing: border-box; /* Asegura que el padding no exceda el ancho */
 }
 
 #search-input {
-    flex-grow: 1; /* Ocupa el espacio disponible */
-    padding: 10px 15px;
+    flex-grow: 1;
+    padding: 9px 12px; /* Ajuste de padding */
     border: 1px solid var(--input-border);
-    border-radius: 20px 0 0 20px; /* Bordes redondeados a la izquierda */
+    border-radius: 4px 0 0 4px; /* Bordes menos redondeados */
     font-size: 1em;
     background-color: var(--input-bg);
     color: var(--text-color);
-    outline: none; /* Eliminar el contorno al enfocar */
+    outline: none;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 #search-input:focus {
-    border-color: var(--primary-color); /* Borde acentuado al enfocar */
+    border-color: #000; /* Borde oscuro al enfocar */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+@media (prefers-color-scheme: dark) {
+    #search-input:focus {
+        border-color: #ccc;
+    }
 }
 
+
 #search-button {
-    background-color: var(--input-bg);
+    background-color: var(--input-bg); /* Mismo fondo que el input */
     color: var(--icon-color);
     border: 1px solid var(--input-border);
-    border-left: none; /* Elimina el borde izquierdo para que se fusione con el input */
-    border-radius: 0 20px 20px 0; /* Bordes redondeados a la derecha */
-    padding: 10px 15px;
+    border-left: none; /* Elimina el borde izquierdo */
+    border-radius: 0 4px 4px 0; /* Bordes menos redondeados */
+    padding: 9px 18px; /* Más padding para el botón */
     cursor: pointer;
     font-size: 1.2em;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -160,17 +169,23 @@ main#main-content {
 }
 
 #search-button:hover {
-    background-color: var(--border-color);
+    background-color: #f0f0f0; /* Ligero cambio de color en hover */
 }
+@media (prefers-color-scheme: dark) {
+    #search-button:hover {
+        background-color: #404040;
+    }
+}
+
 
 /* Contenedor de Videos - Grid Responsive */
 #videos-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Más ancho para miniaturas */
-    gap: 18px; /* Espacio entre videos */
-    padding: 0 15px; /* Padding a los lados del contenedor */
-    max-width: 1300px; /* Ancho máximo para el grid centralizado */
-    margin: 0 auto; /* Centrar el grid */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+    padding: 0 15px;
+    max-width: 1300px;
+    margin: 0 auto;
 }
 
 .video-card {
@@ -181,7 +196,7 @@ main#main-content {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
-    flex-direction: column; /* Organiza imagen y título verticalmente */
+    flex-direction: column;
 }
 
 .video-card:hover {
@@ -191,22 +206,22 @@ main#main-content {
 
 .video-thumbnail {
     width: 100%;
-    aspect-ratio: 16 / 9; /* Relación de aspecto 16:9 */
+    aspect-ratio: 16 / 9;
     object-fit: cover;
     display: block;
-    border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior */
+    border-radius: 8px 8px 0 0;
 }
 
 .video-title {
-    font-size: 1.05em; /* Ligeramente más grande */
+    font-size: 1.05em;
     font-weight: 500;
-    margin: 10px 10px 5px; /* Ajuste de margen para el título */
+    margin: 10px 10px 5px;
     color: var(--text-color);
     line-height: 1.4;
-    flex-grow: 1; /* Permite que el título ocupe espacio disponible */
-    overflow: hidden; /* Oculta el desbordamiento de texto */
-    display: -webkit-box; /* Para limitar a un número de líneas */
-    -webkit-line-clamp: 2; /* Limita a 2 líneas */
+    flex-grow: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -216,7 +231,7 @@ main#main-content {
     margin: 0 10px 10px;
 }
 
-/* Overlay del Reproductor de Video */
+/* Overlay del Reproductor de Video - Responsivo */
 #video-player-overlay {
     position: fixed;
     top: 0;
@@ -234,6 +249,8 @@ main#main-content {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 10px; /* Padding para evitar que el reproductor toque los bordes */
+    box-sizing: border-box;
 }
 
 #video-player-overlay.active {
@@ -242,15 +259,21 @@ main#main-content {
 }
 
 #youtube-iframe-container {
-    width: 90%;
+    width: 100%; /* Ocupa el ancho disponible dentro del padding del overlay */
     max-width: 900px; /* Ancho máximo para el reproductor */
-    height: calc(90vw * 9 / 16); /* Mantiene la relación de aspecto 16:9 */
-    max-height: 500px; /* Altura máxima */
-    background-color: black;
     position: relative;
+    /* Truco para mantener la relación de aspecto 16:9 */
+    padding-bottom: 56.25%; /* 9 / 16 = 0.5625 */
+    height: 0; /* Reinicia la altura para que padding-bottom la defina */
+    background-color: black;
+    border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior del reproductor */
+    overflow: hidden; /* Para que el iframe no se salga de los bordes redondeados */
 }
 
 #youtube-iframe-container iframe {
+    position: absolute; /* Posicionamiento absoluto para llenar el contenedor */
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     border: none;
@@ -258,8 +281,8 @@ main#main-content {
 
 #close-player-button {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px;
+    right: 10px;
     background: none;
     border: none;
     color: white;
@@ -276,17 +299,17 @@ main#main-content {
 
 /* Controles personalizados del reproductor */
 #custom-player-controls {
-    width: 90%;
+    width: 100%;
     max-width: 900px;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 10px 15px;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 8px 8px; /* Bordes redondeados en la parte inferior */
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    box-sizing: border-box; /* Incluir padding en el ancho */
+    box-sizing: border-box;
 }
 
 .progress-bar-container {
@@ -310,14 +333,14 @@ main#main-content {
     align-items: center;
     gap: 15px;
     width: 100%;
-    justify-content: space-between; /* Distribuye el espacio */
+    justify-content: space-between;
 }
 
 #custom-player-controls button {
     background: none;
     border: none;
     color: white;
-    font-size: 1.8em; /* Iconos más grandes */
+    font-size: 1.8em;
     cursor: pointer;
     padding: 5px;
     transition: transform 0.2s ease;
@@ -329,17 +352,17 @@ main#main-content {
 
 #current-time, #duration {
     font-size: 0.9em;
-    min-width: 45px; /* Asegura espacio para tiempo */
+    min-width: 45px;
     text-align: center;
 }
 
 #autoplay-toggle-btn .material-icons {
-    font-size: 1.6em; /* Un poco más pequeño que play/mute */
+    font-size: 1.6em;
     color: rgba(255, 255, 255, 0.7);
 }
 
 #autoplay-toggle-btn.active .material-icons {
-    color: var(--primary-color); /* Lila cuando está activo */
+    color: var(--primary-color);
 }
 
 
@@ -348,8 +371,8 @@ main#main-content {
     text-align: center;
     padding: 20px;
     color: var(--text-color);
-    display: none; /* Oculto por defecto, mostrado por JS */
-    grid-column: 1 / -1; /* Ocupa todo el ancho en el grid si se muestra allí */
+    display: none;
+    grid-column: 1 / -1;
     margin-top: 20px;
 }
 
@@ -359,26 +382,26 @@ main#main-content {
     font-size: 1.2em;
     color: var(--text-color);
     padding: 20px;
-    grid-column: 1 / -1; /* Ocupa todas las columnas en el grid */
-    margin: auto; /* Centrarlo verticalmente si es el único contenido */
+    grid-column: 1 / -1;
+    margin: auto;
 }
 
 /* Navegación del Pie de Página (footer) */
 #main-footer {
-    position: sticky; /* Sticky para que se quede en la parte inferior si el contenido es pequeño */
+    position: sticky;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 56px; /* Altura estándar de footer de YouTube móvil */
+    height: 56px;
     background-color: var(--footer-bg);
     border-top: 1px solid var(--border-color);
     display: flex;
-    justify-content: space-around; /* Distribuye los elementos uniformemente */
+    justify-content: space-around;
     align-items: center;
     z-index: 1500;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-    flex-shrink: 0; /* No permite que el footer se encoja */
-    margin-top: auto; /* Empuja el footer hacia abajo en un flex column */
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 .footer-item {
@@ -388,16 +411,16 @@ main#main-content {
     justify-content: center;
     text-decoration: none;
     color: var(--icon-color);
-    font-size: 0.7em; /* Tamaño de texto para el nombre del ítem */
+    font-size: 0.7em;
     font-weight: 500;
     transition: color 0.3s ease;
     padding: 5px;
-    flex: 1; /* Distribuye el espacio equitativamente */
-    min-width: 50px; /* Ancho mínimo para el botón */
+    flex: 1;
+    min-width: 50px;
 }
 
 .footer-item .material-icons {
-    font-size: 24px; /* Tamaño estándar de icono */
+    font-size: 24px;
     margin-bottom: 2px;
 }
 
@@ -412,14 +435,14 @@ main#main-content {
 /* Botón de Instalación PWA */
 #install-button-container {
     position: fixed;
-    bottom: 56px; /* Ajustado para estar encima del footer */
+    bottom: 56px;
     left: 0;
     width: 100%;
     background-color: var(--header-bg);
     padding: 15px 0;
     box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
     z-index: 999;
-    display: none; /* Oculto por defecto, JS lo muestra */
+    display: none;
     justify-content: center;
     align-items: center;
     border-top: 1px solid var(--border-color);
@@ -461,9 +484,9 @@ main#main-content {
 
 /* Modal de Preferencias */
 .modal {
-    display: none; /* Oculto por defecto */
-    position: fixed; /* Cubre toda la pantalla */
-    z-index: 2000; /* Por encima de todo */
+    display: none;
+    position: fixed;
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
@@ -519,7 +542,7 @@ main#main-content {
 
 .form-group select,
 .form-group textarea {
-    width: calc(100% - 20px); /* Ajusta por padding */
+    width: calc(100% - 20px);
     padding: 10px;
     border: 1px solid var(--input-border);
     border-radius: 5px;
@@ -536,7 +559,7 @@ main#main-content {
 }
 
 .form-group textarea {
-    resize: vertical; /* Permite redimensionar verticalmente */
+    resize: vertical;
     min-height: 80px;
 }
 
@@ -593,49 +616,53 @@ main#main-content {
         height: 22px;
     }
     .search-container {
-        flex-direction: column; /* La barra de búsqueda se apila en móvil */
+        flex-direction: column;
         margin: 10px auto;
     }
     #search-input, #search-button {
-        border-radius: 20px; /* Bordes totalmente redondeados en móvil */
+        border-radius: 4px; /* Bordes menos redondeados en móvil también */
         border: 1px solid var(--input-border);
-        margin-bottom: 10px; /* Espacio entre input y botón */
+        margin-bottom: 10px;
     }
     #search-button {
         margin-bottom: 0;
     }
     #videos-container {
-        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+        grid-template-columns: 1fr;
         padding: 0 10px;
     }
     .video-thumbnail {
-        height: auto; /* Permite que el aspecto se mantenga sin altura fija */
+        height: auto;
     }
     #video-player-overlay {
-        padding: 10px; /* Más padding en móvil */
+        padding: 0; /* Sin padding en móvil para maximizar el reproductor */
     }
     #youtube-iframe-container {
-        width: 100%; /* Ocupa el ancho completo */
-        height: calc(100vw * 9 / 16); /* Ajusta altura por ancho del viewport */
-        max-height: 250px; /* Límite para pantallas pequeñas */
+        width: 100vw; /* Ocupa todo el ancho del viewport */
+        padding-bottom: 56.25vw; /* Relación de aspecto del viewport */
+        border-radius: 0; /* Sin bordes redondeados en móvil */
+        max-width: unset; /* Desactiva el max-width */
+        max-height: unset; /* Desactiva el max-height */
     }
     #close-player-button {
-        top: 10px;
-        right: 10px;
+        top: 5px;
+        right: 5px;
         font-size: 1.8em;
     }
     #custom-player-controls {
-        width: 100%;
+        width: 100vw; /* Ocupa todo el ancho del viewport */
         padding: 8px 10px;
+        border-radius: 0; /* Sin bordes redondeados en móvil */
+        max-width: unset; /* Desactiva el max-width */
     }
     .control-buttons {
-        gap: 10px;
+        gap: 8px;
     }
     #custom-player-controls button {
         font-size: 1.5em;
     }
     #install-button-container {
-        bottom: 56px; /* Para estar encima del footer móvil */
+        bottom: 56px;
         padding: 10px 0;
     }
     #install-button {
