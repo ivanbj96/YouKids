@@ -22,7 +22,7 @@ const playShortObserver = new IntersectionObserver((entries) => {
     let player = allShortPlayers[videoId];
 
     if (!player || typeof player.playVideo !== 'function' || typeof player.pauseVideo !== 'function') {
-      if (!player) {
+      if (!player) { 
           player = initializeShortPlayer(videoId);
       }
       setTimeout(() => {
@@ -30,8 +30,8 @@ const playShortObserver = new IntersectionObserver((entries) => {
           if (recheckedPlayer && typeof recheckedPlayer.playVideo === 'function' && entry.isIntersecting && entry.intersectionRatio >= 0.8) {
               handleShortVisibility(entry);
           }
-      }, 100);
-      return;
+      }, 100); 
+      return; 
     }
 
     handleShortVisibility(entry);
@@ -61,7 +61,7 @@ function handleShortVisibility(entry) {
 
       setTimeout(() => {
         if (player.getPlayerState() === YT.PlayerState.PLAYING && player.getCurrentTime() > 5) {
-            markVideoAsViewed(videoId);
+            markVideoAsViewed(videoId); 
             console.log(`Short ${videoId} marcado como visto (por reproducción).`);
         }
       }, 5000);
@@ -124,19 +124,19 @@ async function loadShorts(pageToken = '') {
                 try { allShortPlayers[videoId].destroy(); } catch (e) { console.warn("Error destroying player:", e); }
                 delete allShortPlayers[videoId];
             }
-            playShortObserver.unobserve(card);
+            playShortObserver.unobserve(card); 
             card.remove();
         });
-        currentActiveShortId = null;
+        currentActiveShortId = null; 
     } else {
         shortsLoadingIndicator.style.display = 'flex';
     }
 
-    const prefs = getPreferences();
-    const viewedVideos = getViewedVideos().videos;
+    const prefs = getPreferences(); 
+    const viewedVideos = getViewedVideos().videos; 
 
-    // Adjusted query to emphasize vertical videos and exclude horizontal formats
-    let baseQuery = "videos cristianos infantiles animados verticales populares clips"; 
+    // Query más específica para shorts, evitando contenido horizontal y centrándose en "verticales"
+    let baseQuery = "videos cristianos infantiles animados verticales shorts"; 
     let channelIdsParam = '';
 
     if (prefs.preferredChannels && prefs.preferredChannels.length > 0) {
@@ -174,9 +174,9 @@ async function loadShorts(pageToken = '') {
                 createShortCard(item.id.videoId);
             });
 
-            if (!pageToken) {
+            if (!pageToken) { 
                 initialLoadingMessage.style.display = 'none';
-                shortsContainer.scrollTop = 0;
+                shortsContainer.scrollTop = 0; 
             }
         } else {
             if (!pageToken) {
@@ -214,7 +214,7 @@ function createShortCard(videoId) {
     </div>
   `;
   shortsContainer.appendChild(shortCard);
-  playShortObserver.observe(shortCard);
+  playShortObserver.observe(shortCard); 
 }
 
 function initializeShortPlayer(videoId) {
@@ -234,13 +234,14 @@ function initializeShortPlayer(videoId) {
       'autoplay': 0,
       'controls': 0,
       'disablekb': 1,
-      'fs': 0,
+      'fs': 0, // No necesitas el botón de fullscreen en shorts por el UX
       'iv_load_policy': 3,
       'loop': 1,
       'modestbranding': 1,
       'playlist': videoId,
       'rel': 0,
-      'showinfo': 0
+      'showinfo': 0,
+      'origin': window.location.origin // ¡¡¡SOLUCIÓN CLAVE para el error de postMessage en shorts!!!
     },
     events: {
       'onReady': (event) => {
@@ -256,23 +257,31 @@ function initializeShortPlayer(videoId) {
       },
       'onError': (event) => {
         console.error(`Error en el reproductor de ${videoId}:`, event.data);
-        if (event.data === 100 || event.data === 101 || event.data === 150 || event.data === 2) {
-            console.log(`Eliminando short ${videoId} por error de reproducción o incrustación.`);
-            markVideoAsViewed(videoId);
+        if (event.data === 100 || event.data === 101 || event.data === 150) {
+            console.warn(`Short ${videoId} no disponible o no incrustable. Eliminando tarjeta.`);
+            markVideoAsViewed(videoId); 
             const shortCardToRemove = document.querySelector(`.short-card[data-video-id="${videoId}"]`);
             if (shortCardToRemove) {
-                playShortObserver.unobserve(shortCardToRemove);
-                shortCardToRemove.remove();
-
-                // Trigger scroll to refresh IntersectionObserver or load more
-                shortsContainer.dispatchEvent(new Event('scroll'));
-                // Si no quedan shorts, cargar más explícitamente
-                if (shortsContainer.children.length === 0 && !isLoadingShorts) {
-                    loadShorts(nextShortsPageToken || '');
+                playShortObserver.unobserve(shortCardToRemove); 
+                shortCardToRemove.remove(); 
+                if (shortsContainer.children.length > 0) {
+                    if (videoId === currentActiveShortId) {
+                        const nextCard = shortsContainer.children[0]; 
+                        if (nextCard) {
+                            shortsContainer.scrollTop = nextCard.offsetTop;
+                            currentActiveShortId = null; 
+                        }
+                    } else { 
+                        if (currentActiveShortId && allShortPlayers[currentActiveShortId]) {
+                             allShortPlayers[currentActiveShortId].playVideo();
+                        }
+                    }
+                } else {
+                    loadShorts(nextShortsPageToken || ''); 
                 }
             }
             if (allShortPlayers[videoId]) {
-                try { allShortPlayers[videoId].destroy(); } catch (e) { console.warn("Error al destruir player:", e); }
+                try { allShortPlayers[videoId].destroy(); } catch (e) { console.warn("Error destroying player:", e); }
                 delete allShortPlayers[videoId];
             }
         }
@@ -282,6 +291,7 @@ function initializeShortPlayer(videoId) {
   return allShortPlayers[videoId];
 }
 
+// Manejo de eventos de clic en los botones de control de cada short
 if (shortsContainer) {
     shortsContainer.addEventListener('click', (event) => {
         const playPauseBtn = event.target.closest('.short-play-pause-btn');
@@ -312,6 +322,7 @@ if (shortsContainer) {
     });
 }
 
+// Lógica de Infinite Scroll (detección para cargar más shorts)
 if (shortsContainer) {
     shortsContainer.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = shortsContainer;
@@ -323,6 +334,7 @@ if (shortsContainer) {
     });
 }
 
+// Evento para ajustar la vista al redimensionar la ventana (ej. cambio de orientación del móvil)
 window.addEventListener('resize', () => {
     if (shortsContainer && currentActiveShortId) {
         const currentCard = shortsContainer.querySelector(`[data-video-id="${currentActiveShortId}"]`);
@@ -332,14 +344,21 @@ window.addEventListener('resize', () => {
     }
 });
 
+// Click en el logo para ir a inicio
 const headerLogoShorts = document.querySelector('.header-logo');
 if (headerLogoShorts) {
     headerLogoShorts.addEventListener('click', () => {
-        window.location.href = 'index.html';
+        window.location.href = 'index.html'; 
     });
 }
 
+// Listener para el evento `preferencesUpdated` del common.js
 window.addEventListener('preferencesUpdated', () => {
     console.log('Preferencias actualizadas, recargando shorts.');
-    loadShorts('');
+    loadShorts(''); 
+});
+
+// Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    // onYouTubeIframeAPIReady se llamará automáticamente cuando la API esté lista.
 });
