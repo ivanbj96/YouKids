@@ -21,20 +21,17 @@ const playShortObserver = new IntersectionObserver((entries) => {
     const videoId = shortCard.dataset.videoId;
     let player = allShortPlayers[videoId];
 
-    // Si el reproductor no existe o no está listo, intentar inicializarlo
     if (!player || typeof player.playVideo !== 'function' || typeof player.pauseVideo !== 'function') {
-      if (!player) { // Solo inicializar si aún no se ha creado la instancia
+      if (!player) {
           player = initializeShortPlayer(videoId);
       }
-      // Reintentar manejar la visibilidad después de un corto retraso
-      // para dar tiempo al reproductor a inicializarse completamente
       setTimeout(() => {
           const recheckedPlayer = allShortPlayers[videoId];
           if (recheckedPlayer && typeof recheckedPlayer.playVideo === 'function' && entry.isIntersecting && entry.intersectionRatio >= 0.8) {
               handleShortVisibility(entry);
           }
-      }, 100); // Aumentado a 100ms
-      return; // Salir, se reintentará en el setTimeout
+      }, 100);
+      return;
     }
 
     handleShortVisibility(entry);
@@ -50,7 +47,6 @@ function handleShortVisibility(entry) {
 
     if (entry.isIntersecting && entry.intersectionRatio >= 0.8) {
       if (currentActiveShortId && currentActiveShortId !== videoId && allShortPlayers[currentActiveShortId]) {
-        // Pausar y reiniciar el short anterior si es diferente
         allShortPlayers[currentActiveShortId].pauseVideo();
         allShortPlayers[currentActiveShortId].seekTo(0);
         updateShortControls(currentActiveShortId, YT.PlayerState.PAUSED, allShortPlayers[currentActiveShortId].isMuted());
@@ -63,10 +59,9 @@ function handleShortVisibility(entry) {
       currentActiveShortId = videoId;
       console.log(`Reproduciendo: ${videoId}`);
 
-      // Marcar como visto después de 5 segundos de reproducción
       setTimeout(() => {
         if (player.getPlayerState() === YT.PlayerState.PLAYING && player.getCurrentTime() > 5) {
-            markVideoAsViewed(videoId); // `markVideoAsViewed` viene de common.js
+            markVideoAsViewed(videoId);
             console.log(`Short ${videoId} marcado como visto (por reproducción).`);
         }
       }, 5000);
@@ -123,26 +118,25 @@ async function loadShorts(pageToken = '') {
 
     if (!pageToken) {
         initialLoadingMessage.style.display = 'flex';
-        // Quitar todos los shorts existentes para una recarga limpia
         shortsContainer.querySelectorAll('.short-card').forEach(card => {
             const videoId = card.dataset.videoId;
             if (allShortPlayers[videoId]) {
                 try { allShortPlayers[videoId].destroy(); } catch (e) { console.warn("Error destroying player:", e); }
                 delete allShortPlayers[videoId];
             }
-            playShortObserver.unobserve(card); // Dejar de observar la tarjeta
+            playShortObserver.unobserve(card);
             card.remove();
         });
-        currentActiveShortId = null; // Reiniciar el short activo
+        currentActiveShortId = null;
     } else {
         shortsLoadingIndicator.style.display = 'flex';
     }
 
-    const prefs = getPreferences(); // `getPreferences` viene de common.js
-    const viewedVideos = getViewedVideos().videos; // `getViewedVideos` viene de common.js
+    const prefs = getPreferences();
+    const viewedVideos = getViewedVideos().videos;
 
-    // Query más específica para shorts, evitando contenido horizontal
-    let baseQuery = "videos cristianos infantiles animados verticales shorts";
+    // Adjusted query to emphasize vertical videos and exclude horizontal formats
+    let baseQuery = "videos cristianos infantiles animados verticales populares clips"; 
     let channelIdsParam = '';
 
     if (prefs.preferredChannels && prefs.preferredChannels.length > 0) {
@@ -177,14 +171,12 @@ async function loadShorts(pageToken = '') {
 
         if (newShortsItems.length > 0) {
             newShortsItems.forEach(item => {
-                // No se crea el iframe de inmediato, solo el contenedor del short
-                // El iframe se creará e inicializará cuando el IntersectionObserver lo detecte
                 createShortCard(item.id.videoId);
             });
 
             if (!pageToken) {
                 initialLoadingMessage.style.display = 'none';
-                shortsContainer.scrollTop = 0; // Asegurar que el primer short es visible al inicio
+                shortsContainer.scrollTop = 0;
             }
         } else {
             if (!pageToken) {
@@ -222,8 +214,7 @@ function createShortCard(videoId) {
     </div>
   `;
   shortsContainer.appendChild(shortCard);
-  // No llamamos initializeShortPlayer aquí, el IntersectionObserver lo hará cuando el short sea visible.
-  playShortObserver.observe(shortCard); // Observar la nueva tarjeta
+  playShortObserver.observe(shortCard);
 }
 
 function initializeShortPlayer(videoId) {
@@ -265,26 +256,18 @@ function initializeShortPlayer(videoId) {
       },
       'onError': (event) => {
         console.error(`Error en el reproductor de ${videoId}:`, event.data);
-        // Códigos de error comunes:
-        // 2: Parámetro de video inválido
-        // 100: Video no encontrado o privado
-        // 101/150: El propietario del video no permite la reproducción en reproductores incrustados
-        if (event.data === 100 || event.data === 101 || event.data === 150) {
+        if (event.data === 100 || event.data === 101 || event.data === 150 || event.data === 2) {
             console.log(`Eliminando short ${videoId} por error de reproducción o incrustación.`);
-            markVideoAsViewed(videoId); // Marcar como visto para que no aparezca de nuevo hoy
+            markVideoAsViewed(videoId);
             const shortCardToRemove = document.querySelector(`.short-card[data-video-id="${videoId}"]`);
             if (shortCardToRemove) {
-                playShortObserver.unobserve(shortCardToRemove); // Dejar de observar
-                shortCardToRemove.remove(); // Eliminar del DOM
-                // Asegurarse de que el IntersectionObserver vuelva a evaluar los elementos visibles
-                // Esto forzará el siguiente short a reproducirse si es necesario
-                if (shortsContainer.children.length > 0) {
-                    const firstVisibleCard = shortsContainer.children[0];
-                    if (firstVisibleCard) {
-                        playShortObserver.observe(firstVisibleCard); // O forzar un scroll
-                    }
-                } else {
-                    // Si no quedan shorts, cargar más
+                playShortObserver.unobserve(shortCardToRemove);
+                shortCardToRemove.remove();
+
+                // Trigger scroll to refresh IntersectionObserver or load more
+                shortsContainer.dispatchEvent(new Event('scroll'));
+                // Si no quedan shorts, cargar más explícitamente
+                if (shortsContainer.children.length === 0 && !isLoadingShorts) {
                     loadShorts(nextShortsPageToken || '');
                 }
             }
@@ -299,7 +282,6 @@ function initializeShortPlayer(videoId) {
   return allShortPlayers[videoId];
 }
 
-// Manejo de eventos de clic en los botones de control de cada short
 if (shortsContainer) {
     shortsContainer.addEventListener('click', (event) => {
         const playPauseBtn = event.target.closest('.short-play-pause-btn');
@@ -330,7 +312,6 @@ if (shortsContainer) {
     });
 }
 
-// Lógica de Infinite Scroll (detección para cargar más shorts)
 if (shortsContainer) {
     shortsContainer.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = shortsContainer;
@@ -342,10 +323,7 @@ if (shortsContainer) {
     });
 }
 
-// Evento para ajustar la vista al redimensionar la ventana (ej. cambio de orientación del móvil)
 window.addEventListener('resize', () => {
-    // Si hay shorts cargados, ajusta el scroll para que el short actual esté en la vista
-    // Esto es importante para mantener la experiencia de "snap" después de un resize
     if (shortsContainer && currentActiveShortId) {
         const currentCard = shortsContainer.querySelector(`[data-video-id="${currentActiveShortId}"]`);
         if (currentCard) {
@@ -354,22 +332,14 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Click en el logo para ir a inicio
 const headerLogoShorts = document.querySelector('.header-logo');
 if (headerLogoShorts) {
     headerLogoShorts.addEventListener('click', () => {
-        window.location.href = 'index.html'; // Redirige a la página principal
+        window.location.href = 'index.html';
     });
 }
 
-
-// Listener para el evento `preferencesUpdated` del common.js
 window.addEventListener('preferencesUpdated', () => {
     console.log('Preferencias actualizadas, recargando shorts.');
-    loadShorts(''); // Recarga desde el inicio para aplicar nuevas preferencias
-});
-
-// Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
-document.addEventListener("DOMContentLoaded", () => {
-    // onYouTubeIframeAPIReady se llamará automáticamente cuando la API esté lista.
+    loadShorts('');
 });
