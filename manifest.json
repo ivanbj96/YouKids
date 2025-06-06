@@ -1,12 +1,11 @@
 {
   "name": "YouKids",
   "short_name": "YouKids",
-  "description": "Videos cristianos infantiles de YouTube, para ver sin anuncios ni distracciones.",
-  "start_url": ".",  
-  "scope": ".",      
+  "description": "Una aplicación web progresiva para videos cristianos para niños.",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#a020f0",
+  "theme_color": "#ff0000",
   "icons": [
     {
       "src": "YouKids.png",
@@ -18,6 +17,7 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "orientation": "portrait"
+  ]
+  // Se ha eliminado la sección "screenshots"
+  // "orientation": "portrait" (puedes añadir esto si lo deseas, pero no es crítico para la instalabilidad básica)
 }
