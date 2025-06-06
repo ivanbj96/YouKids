@@ -1,11 +1,11 @@
-const CACHE_NAME = 'youkids-pwa-cache-v2.0.0'; // ¡Nueva versión de caché para el nuevo código!
+const CACHE_NAME = 'youkids-pwa-cache-v2.0.1'; // ¡Versión incrementada para forzar una nueva caché!
 const urlsToCache = [
   '/',
   '/index.html',
   '/shorts.html',
-  '/manifest.json',
   '/style.css',
   '/shorts.css',
+  '/common.js', // ¡Nuevo archivo a cachear!
   '/app.js',
   '/shorts.js',
   '/YouKids.png',
