@@ -12,8 +12,9 @@ const youtubeIframeContainer = document.getElementById("youtube-iframe-container
 // Custom Player Controls
 const playerPlayPauseBtn = document.getElementById('player-play-pause-btn');
 const playerMuteBtn = document.getElementById('player-mute-btn');
+const playerNextBtn = document.getElementById('player-next-btn'); // Nuevo botón
 const autoplayToggleBtn = document.getElementById('autoplay-toggle-btn');
-const progressBarContainer = document.querySelector('#custom-player-controls .progress-bar-container'); // Contenedor para el clic en la barra
+const progressBarContainer = document.querySelector('#custom-player-controls .progress-bar-container');
 const progressBar = document.querySelector('#custom-player-controls .progress-bar');
 const currentTimeSpan = document.getElementById('current-time');
 const durationSpan = document.getElementById('duration');
@@ -23,6 +24,7 @@ let nextVideosPageToken = null;
 let isLoadingVideos = false;
 let currentVideoId = null;
 let autoPlayEnabled = false; // Se inicializa desde getPreferences()
+let currentQuery = "canciones infantiles cristianas"; // Almacena la última consulta
 
 // ======================================================================
 // Funciones de la API de YouTube y Reproducción
@@ -37,7 +39,7 @@ function onYouTubeIframeAPIReady() {
   if (autoplayToggleBtn) {
       autoplayToggleBtn.classList.toggle('active', autoPlayEnabled);
   }
-  searchYouTubeVideos("canciones infantiles cristianas"); // Búsqueda inicial por defecto
+  searchYouTubeVideos(currentQuery); // Búsqueda inicial por defecto
 }
 
 // Formatear tiempo (ej. 150 -> 2:30)
@@ -67,10 +69,8 @@ function updateProgressBar() {
 
             if (autoPlayEnabled) {
                 console.log("Autoplay ON: buscando siguiente video...");
-                closePlayerButton.click(); // Cierra el reproductor
-                // Recargar la página principal para una nueva lista de videos frescos
-                // Podríamos buscar el siguiente video de forma más inteligente aquí.
-                searchYouTubeVideos(searchInput.value.trim() || "canciones infantiles cristianas", '');
+                // Esto simulará el botón "Siguiente" al final del video
+                playerNextBtn.click(); 
             } else {
                 // Si autoplay no está activo, simplemente cierra el reproductor.
                 closePlayerButton.click();
@@ -109,14 +109,15 @@ async function searchYouTubeVideos(query, pageToken = '') {
   isLoadingVideos = true;
   loadingIndicator.style.display = 'block';
 
+  currentQuery = query; // Actualiza la consulta actual
+
   const prefs = getPreferences(); // `getPreferences` viene de common.js
   const viewedVideos = getViewedVideos().videos; // `getViewedVideos` viene de common.js
 
   // Generar un sufijo aleatorio basado en el día para la "aleatoriedad"
-  // Esto no es un parámetro real de YT API, pero puede influir en los resultados si la query cambia.
   const today = new Date();
   const dailySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const randomSuffix = `&_dailySeed=${dailySeed}`; // Solo para cambiar la URL y evitar caché, no es un param de YT
+  const randomSuffix = `&_dailySeed=${dailySeed}`; // Solo para variar la URL y evitar caché, no es un param de YT
 
   let finalQuery = `${query} para niños cristianos canciones biblicas historias animadas`;
   let channelIdsParam = '';
@@ -126,7 +127,7 @@ async function searchYouTubeVideos(query, pageToken = '') {
       console.log(`Buscando en canales preferidos: ${prefs.preferredChannels.join(', ')}`);
   }
 
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(finalQuery)}&type=video&maxResults=20&key=${window.apiKey}&relevanceLanguage=${prefs.language}`; // Usamos window.apiKey
+  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(finalQuery)}&type=video&maxResults=20&key=${window.apiKey}&relevanceLanguage=${prefs.language}`;
 
   if (channelIdsParam) {
       url += channelIdsParam;
@@ -216,12 +217,13 @@ function playVideo(videoId) {
           updatePlayerControls(event.data, event.target.isMuted());
           if (event.data === YT.PlayerState.ENDED) {
               // La lógica de "visto" y "autoplay" se maneja en updateProgressBar
-              // para asegurar que se registre el final de la reproducción.
           }
       },
       'onError': (event) => {
           console.error('Error de YouTube Player:', event.data);
           stopProgressBarUpdates();
+          // Intentar cargar el siguiente video si hay un error
+          playerNextBtn.click();
       }
     }
   });
@@ -277,13 +279,23 @@ if (autoplayToggleBtn) {
     });
 }
 
+// Lógica para el botón "Siguiente"
+if (playerNextBtn) {
+    playerNextBtn.addEventListener('click', () => {
+        console.log("Botón Siguiente clickeado.");
+        closePlayerButton.click(); // Cierra el reproductor actual
+        searchYouTubeVideos(currentQuery, nextVideosPageToken || ''); // Carga más videos o una nueva búsqueda
+    });
+}
 
 // Event listener para el botón de búsqueda
 if (searchButton) {
     searchButton.addEventListener("click", () => {
         const query = searchInput.value.trim();
         if (query) {
-            searchYouTubeVideos(query, '');
+            searchYouTubeVideos(query, ''); // Inicia una nueva búsqueda
+        } else {
+            searchYouTubeVideos("canciones infantiles cristianas", ''); // Búsqueda predeterminada si el campo está vacío
         }
     });
 }
@@ -305,7 +317,6 @@ if (headerLogo) {
     });
 }
 
-
 // Cierra el reproductor y detiene el video
 if (closePlayerButton) {
     closePlayerButton.addEventListener("click", () => {
@@ -326,7 +337,7 @@ if (videosContainer) {
     videosContainer.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = videosContainer;
         if (scrollTop + clientHeight >= scrollHeight - 300 && !isLoadingVideos && nextVideosPageToken) {
-            searchYouTubeVideos(searchInput.value.trim() || "canciones infantiles cristianas", nextVideosPageToken);
+            searchYouTubeVideos(currentQuery, nextVideosPageToken);
         }
     });
 }
@@ -334,17 +345,9 @@ if (videosContainer) {
 // Listener para el evento `preferencesUpdated` del common.js
 window.addEventListener('preferencesUpdated', () => {
     console.log('Preferencias actualizadas, recargando videos en la página principal.');
-    // Reaplicar configuración de autoplay inmediatamente
     autoPlayEnabled = getPreferences().autoplay;
     if (autoplayToggleBtn) {
         autoplayToggleBtn.classList.toggle('active', autoPlayEnabled);
     }
-    // Volver a cargar la búsqueda para aplicar el nuevo idioma/canales
-    searchYouTubeVideos(searchInput.value.trim() || "canciones infantiles cristianas", '');
-});
-
-// Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
-document.addEventListener("DOMContentLoaded", () => {
-    // onYouTubeIframeAPIReady se llamará automáticamente cuando la API esté lista.
-    // La búsqueda inicial se ha movido dentro de onYouTubeIframeAPIReady.
+    searchYouTubeVideos(currentQuery, ''); // Volver a cargar la búsqueda para aplicar el nuevo idioma/canales
 });
