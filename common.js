@@ -6,11 +6,11 @@
 // ======================================================================
 const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <-- ¡¡VERIFICA Y REEMPLAZA!!
 
-// Hacemos que apiKey esté disponible globalmente (no ideal para apps muy grandes, pero simple para esta PWA)
+// Hacemos que apiKey esté disponible globalmente para app.js y shorts.js
 window.apiKey = apiKey;
 
 // ======================================================================
-// Registro del Service Worker (Solo se registra una vez)
+// Registro del Service Worker
 // ======================================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -31,31 +31,37 @@ let deferredPrompt;
 const installButtonContainer = document.getElementById('install-button-container');
 const installButton = document.getElementById('install-button');
 
+// Este evento se dispara cuando el navegador detecta que la PWA es instalable.
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     if (installButtonContainer) {
-        installButtonContainer.style.display = 'flex';
+        installButtonContainer.style.display = 'flex'; // Muestra el botón de instalación
         console.log('Evento beforeinstallprompt disparado. Botón de instalación visible.');
     }
 });
 
+// Listener para el clic en tu botón de instalación personalizado.
 if (installButton) {
     installButton.addEventListener('click', async () => {
         if (installButtonContainer) {
-            installButtonContainer.style.display = 'none';
+            installButtonContainer.style.display = 'none'; // Oculta el botón una vez que se intenta instalar
         }
+
         if (deferredPrompt) {
-            deferredPrompt.prompt();
+            deferredPrompt.prompt(); // Muestra el prompt de instalación del navegador
             const { outcome } = await deferredPrompt.userChoice;
             console.log(`Respuesta del usuario al prompt de instalación: ${outcome}`);
-            deferredPrompt = null;
+            deferredPrompt = null; // El prompt solo se puede usar una vez
+
             if (outcome === 'accepted') {
                 console.log('YouKids PWA fue instalada con éxito!');
             } else {
                 console.log('Instalación de YouKids PWA fue cancelada.');
             }
         } else {
+            console.warn('El deferredPrompt es nulo. No se pudo mostrar el prompt de instalación. (¿Ya instalada o no cumple criterios?)');
+            // Fallback para iOS o navegadores que no soportan beforeinstallprompt directamente
             alert('Para instalar YouKids, usa la opción "Añadir a pantalla de inicio" en el menú de tu navegador (normalmente en los 3 puntos o el icono de compartir).');
         }
     });
@@ -63,7 +69,6 @@ if (installButton) {
 
 // ======================================================================
 // Preferencias de Usuario (Idioma, Canales Preferidos, Videos Vistos)
-// Estas funciones serán llamadas desde app.js y shorts.js
 // ======================================================================
 const PREFS_KEY = 'youkids_preferences';
 const VIEWED_VIDEOS_KEY = 'youkids_viewed_videos';
@@ -127,39 +132,36 @@ const savePreferencesButton = document.getElementById('save-preferences-btn');
 const languageSelect = document.getElementById('language-select');
 const channelIdsInput = document.getElementById('channel-ids-input');
 
-if (settingsButton) { // Asegurarse de que el botón exista en la página actual
-    settingsButton.addEventListener('click', () => {
-        const prefs = getPreferences();
-        languageSelect.value = prefs.language;
-        channelIdsInput.value = prefs.preferredChannels.join(', ');
-        preferencesModal.classList.add('active');
-    });
-}
+// Solo añadir listeners si los elementos existen en la página
+document.addEventListener('DOMContentLoaded', () => {
+    if (settingsButton) {
+        settingsButton.addEventListener('click', () => {
+            const prefs = getPreferences();
+            languageSelect.value = prefs.language;
+            channelIdsInput.value = prefs.preferredChannels.join(', ');
+            preferencesModal.classList.add('active');
+        });
+    }
 
-if (closePreferencesModalButton) {
-    closePreferencesModalButton.addEventListener('click', () => {
-        preferencesModal.classList.remove('active');
-    });
-}
+    if (closePreferencesModalButton) {
+        closePreferencesModalButton.addEventListener('click', () => {
+            preferencesModal.classList.remove('active');
+        });
+    }
 
-if (savePreferencesButton) {
-    savePreferencesButton.addEventListener('click', () => {
-        const newPrefs = {
-            language: languageSelect.value,
-            preferredChannels: channelIdsInput.value.split(',').map(id => id.trim()).filter(id => id.length > 0),
-            autoplay: getPreferences().autoplay // El autoplay se gestiona solo en app.js pero se guarda con las prefs generales
-        };
-        savePreferences(newPrefs);
-        preferencesModal.classList.remove('active');
+    if (savePreferencesButton) {
+        savePreferencesButton.addEventListener('click', () => {
+            const newPrefs = {
+                language: languageSelect.value,
+                preferredChannels: channelIdsInput.value.split(',').map(id => id.trim()).filter(id => id.length > 0),
+                autoplay: getPreferences().autoplay // El autoplay se gestiona en app.js pero se guarda con las prefs generales
+            };
+            savePreferences(newPrefs);
+            preferencesModal.classList.remove('active');
 
-        // Disparar un evento personalizado para que app.js/shorts.js sepan que las preferencias cambiaron
-        const event = new Event('preferencesUpdated');
-        window.dispatchEvent(event);
-    });
-}
-
-// Asegurarse de que el Service Worker se registra al cargar el DOM.
-document.addEventListener("DOMContentLoaded", () => {
-    // La función onYouTubeIframeAPIReady se llamará automáticamente cuando la API esté lista.
-    // Pero aquí solo gestionamos cosas comunes, no la lógica de YouTube player en sí.
+            // Disparar un evento personalizado para que app.js/shorts.js sepan que las preferencias cambiaron
+            const event = new Event('preferencesUpdated');
+            window.dispatchEvent(event);
+        });
+    }
 });
