@@ -28,7 +28,6 @@
 
     <main id="main-content">
         <div id="shorts-container">
-            <!-- Los shorts se cargarán aquí por shorts.js -->
             <div class="initial-loading-message">
                 <div class="spinner"></div>
                 Cargando Shorts...
@@ -88,7 +87,7 @@
 
     <!-- Scripts de la aplicación -->
     <script src="https://www.youtube.com/iframe_api"></script>
-    <script src="app.js"></script> <!-- Importa app.js para Service Worker, PWA y Modal de preferencias -->
-    <script src="shorts.js"></script> <!-- Lógica específica de los shorts -->
+    <script src="common.js"></script> <!-- ¡NUEVO! Cargar primero el archivo común -->
+    <script src="shorts.js"></script>
 </body>
 </html>
