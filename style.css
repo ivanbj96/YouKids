@@ -43,12 +43,13 @@
     }
 }
 
-/* Estilos Globales para HTML y Body */
+/* Base CSS */
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    box-sizing: border-box; /* Incluye padding y border en el tamaño total */
+    overflow: hidden; /* Controla el scroll del body de manera general */
 }
 
 body {
@@ -63,16 +64,18 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Main Content Area */
 main#main-content {
     flex-grow: 1;
-    overflow-y: auto;
+    overflow-y: auto; /* Habilita el scroll solo en el contenido principal */
     padding-bottom: 20px;
     padding-top: 10px;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
-/* Encabezado Principal */
+/* Header */
 #main-header {
     display: flex;
     justify-content: space-between;
@@ -84,6 +87,7 @@ main#main-content {
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .header-logo {
@@ -120,30 +124,30 @@ main#main-content {
     background-color: var(--border-color);
 }
 
-/* Contenedor de Búsqueda - Estilo YouTube */
+/* Search Container - YouTube-like Styling */
 .search-container {
     display: flex;
     width: 100%;
     max-width: 600px;
     margin: 20px auto;
     padding: 0 15px;
-    box-sizing: border-box; /* Asegura que el padding no exceda el ancho */
+    box-sizing: border-box;
 }
 
 #search-input {
     flex-grow: 1;
-    padding: 9px 12px; /* Ajuste de padding */
+    padding: 9px 12px;
     border: 1px solid var(--input-border);
-    border-radius: 4px 0 0 4px; /* Bordes menos redondeados */
+    border-radius: 4px 0 0 4px;
     font-size: 1em;
     background-color: var(--input-bg);
     color: var(--text-color);
     outline: none;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #search-input:focus {
-    border-color: #000; /* Borde oscuro al enfocar */
+    border-color: #000;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 @media (prefers-color-scheme: dark) {
@@ -152,14 +156,13 @@ main#main-content {
     }
 }
 
-
 #search-button {
-    background-color: var(--input-bg); /* Mismo fondo que el input */
+    background-color: var(--input-bg);
     color: var(--icon-color);
     border: 1px solid var(--input-border);
-    border-left: none; /* Elimina el borde izquierdo */
-    border-radius: 0 4px 4px 0; /* Bordes menos redondeados */
-    padding: 9px 18px; /* Más padding para el botón */
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    padding: 9px 18px;
     cursor: pointer;
     font-size: 1.2em;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -169,7 +172,7 @@ main#main-content {
 }
 
 #search-button:hover {
-    background-color: #f0f0f0; /* Ligero cambio de color en hover */
+    background-color: #f0f0f0;
 }
 @media (prefers-color-scheme: dark) {
     #search-button:hover {
@@ -177,8 +180,7 @@ main#main-content {
     }
 }
 
-
-/* Contenedor de Videos - Grid Responsive */
+/* Video Grid Container */
 #videos-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -186,6 +188,7 @@ main#main-content {
     padding: 0 15px;
     max-width: 1300px;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .video-card {
@@ -231,7 +234,7 @@ main#main-content {
     margin: 0 10px 10px;
 }
 
-/* Overlay del Reproductor de Video - Responsivo */
+/* Video Player Overlay - FULLY RESPONSIVE */
 #video-player-overlay {
     position: fixed;
     top: 0;
@@ -259,19 +262,19 @@ main#main-content {
 }
 
 #youtube-iframe-container {
-    width: 100%; /* Ocupa el ancho disponible dentro del padding del overlay */
-    max-width: 900px; /* Ancho máximo para el reproductor */
+    width: 100%;
+    max-width: 900px; /* Max width for desktop */
     position: relative;
-    /* Truco para mantener la relación de aspecto 16:9 */
-    padding-bottom: 56.25%; /* 9 / 16 = 0.5625 */
-    height: 0; /* Reinicia la altura para que padding-bottom la defina */
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio (9/16 = 0.5625) */
+    height: 0; /* Important for aspect ratio trick */
     background-color: black;
-    border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior del reproductor */
-    overflow: hidden; /* Para que el iframe no se salga de los bordes redondeados */
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 #youtube-iframe-container iframe {
-    position: absolute; /* Posicionamiento absoluto para llenar el contenedor */
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -297,14 +300,14 @@ main#main-content {
     transform: scale(1.1);
 }
 
-/* Controles personalizados del reproductor */
+/* Custom Player Controls */
 #custom-player-controls {
     width: 100%;
     max-width: 900px;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 10px 15px;
-    border-radius: 0 0 8px 8px; /* Bordes redondeados en la parte inferior */
+    border-radius: 0 0 8px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -316,16 +319,18 @@ main#main-content {
     width: 100%;
     height: 5px;
     background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 5px;
+    border-radius: 50px; /* Más redondeado */
     cursor: pointer;
     position: relative;
+    overflow: hidden; /* Asegura que la barra de progreso no se salga */
 }
 
 .progress-bar {
     height: 100%;
     width: 0%;
     background-color: var(--accent-youtube-red);
-    border-radius: 5px;
+    border-radius: 50px; /* Más redondeado */
+    transition: width 0.1s linear; /* Suaviza el movimiento de la barra */
 }
 
 .control-buttons {
@@ -354,9 +359,11 @@ main#main-content {
     font-size: 0.9em;
     min-width: 45px;
     text-align: center;
+    font-weight: 500;
 }
 
-#autoplay-toggle-btn .material-icons {
+#autoplay-toggle-btn .material-icons,
+#player-fullscreen-btn .material-icons { /* Estilo para el nuevo botón */
     font-size: 1.6em;
     color: rgba(255, 255, 255, 0.7);
 }
@@ -364,9 +371,12 @@ main#main-content {
 #autoplay-toggle-btn.active .material-icons {
     color: var(--primary-color);
 }
+#player-fullscreen-btn.active .material-icons {
+    color: var(--primary-color); /* Podrías cambiar el color si está en fullscreen */
+}
 
 
-/* Indicador de Carga */
+/* Loading Indicators */
 #loading-indicator {
     text-align: center;
     padding: 20px;
@@ -376,7 +386,7 @@ main#main-content {
     margin-top: 20px;
 }
 
-/* Mensajes de No Resultados/Error */
+/* No Results/Error Messages */
 .no-results-message, .error-message {
     text-align: center;
     font-size: 1.2em;
@@ -386,9 +396,9 @@ main#main-content {
     margin: auto;
 }
 
-/* Navegación del Pie de Página (footer) */
+/* Footer Navigation */
 #main-footer {
-    position: sticky;
+    position: sticky; /* Se mantiene en la parte inferior del viewport */
     bottom: 0;
     left: 0;
     width: 100%;
@@ -401,7 +411,8 @@ main#main-content {
     z-index: 1500;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
     flex-shrink: 0;
-    margin-top: auto;
+    margin-top: auto; /* Empuja el footer hacia abajo en un flex column */
+    box-sizing: border-box;
 }
 
 .footer-item {
@@ -432,7 +443,7 @@ main#main-content {
     color: var(--accent-color);
 }
 
-/* Botón de Instalación PWA */
+/* PWA Install Button */
 #install-button-container {
     position: fixed;
     bottom: 56px;
@@ -447,6 +458,7 @@ main#main-content {
     align-items: center;
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 #install-button {
@@ -482,7 +494,7 @@ main#main-content {
   font-size: 1.3em;
 }
 
-/* Modal de Preferencias */
+/* Preferences Modal */
 .modal {
     display: none;
     position: fixed;
@@ -499,6 +511,7 @@ main#main-content {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    box-sizing: border-box;
 }
 
 .modal.active {
@@ -516,6 +529,7 @@ main#main-content {
     width: 90%;
     animation: fadeInScale 0.3s ease-out forwards;
     color: var(--text-color);
+    box-sizing: border-box;
 }
 
 @keyframes fadeInScale {
@@ -551,6 +565,7 @@ main#main-content {
     font-size: 1em;
     outline: none;
     transition: border-color 0.2s ease;
+    box-sizing: border-box;
 }
 
 .form-group select:focus,
@@ -607,7 +622,7 @@ main#main-content {
 }
 
 
-/* Ajustes Responsivos */
+/* Responsive Adjustments */
 @media (max-width: 768px) {
     #main-header h1 {
         font-size: 1.1em;
@@ -620,7 +635,7 @@ main#main-content {
         margin: 10px auto;
     }
     #search-input, #search-button {
-        border-radius: 4px; /* Bordes menos redondeados en móvil también */
+        border-radius: 4px;
         border: 1px solid var(--input-border);
         margin-bottom: 10px;
     }
@@ -635,14 +650,14 @@ main#main-content {
         height: auto;
     }
     #video-player-overlay {
-        padding: 0; /* Sin padding en móvil para maximizar el reproductor */
+        padding: 0; /* No padding on mobile to maximize player area */
     }
     #youtube-iframe-container {
-        width: 100vw; /* Ocupa todo el ancho del viewport */
-        padding-bottom: 56.25vw; /* Relación de aspecto del viewport */
-        border-radius: 0; /* Sin bordes redondeados en móvil */
-        max-width: unset; /* Desactiva el max-width */
-        max-height: unset; /* Desactiva el max-height */
+        width: 100vw; /* Occupy full viewport width */
+        padding-bottom: 56.25vw; /* Maintain 16:9 aspect ratio relative to viewport width */
+        border-radius: 0;
+        max-width: unset;
+        max-height: unset;
     }
     #close-player-button {
         top: 5px;
@@ -650,10 +665,10 @@ main#main-content {
         font-size: 1.8em;
     }
     #custom-player-controls {
-        width: 100vw; /* Ocupa todo el ancho del viewport */
+        width: 100vw; /* Occupy full viewport width */
         padding: 8px 10px;
-        border-radius: 0; /* Sin bordes redondeados en móvil */
-        max-width: unset; /* Desactiva el max-width */
+        border-radius: 0;
+        max-width: unset;
     }
     .control-buttons {
         gap: 8px;
