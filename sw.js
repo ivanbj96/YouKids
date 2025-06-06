@@ -1,11 +1,11 @@
-const CACHE_NAME = 'youkids-pwa-cache-v2.0.1'; // ¡Versión incrementada para forzar una nueva caché!
+const CACHE_NAME = 'youkids-pwa-cache-v2.0.2'; // ¡Nueva versión de caché!
 const urlsToCache = [
   '/',
   '/index.html',
   '/shorts.html',
   '/style.css',
   '/shorts.css',
-  '/common.js', // ¡Nuevo archivo a cachear!
+  '/common.js',
   '/app.js',
   '/shorts.js',
   '/YouKids.png',
@@ -27,32 +27,22 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Ignora las peticiones a la API de YouTube y a la API de IFrame para que siempre se busquen en red
-  // Esto es crucial para tener resultados actualizados y que el reproductor cargue.
   if (event.request.url.includes('www.googleapis.com/youtube/v3/') || event.request.url.includes('youtube.com/iframe_api')) {
     return fetch(event.request);
   }
 
-  // Para el resto de los recursos (HTML, CSS, JS, imágenes, fuentes)
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Devuelve el recurso de la caché si está disponible
         if (response) {
           return response;
         }
-        // Si no está en caché, va a la red
         return fetch(event.request).then(
           (response) => {
-            // Comprueba si hemos recibido una respuesta válida
             if (!response || response.status !== 200 || response.type !== 'basic') {
               return response;
             }
-
-            // Clona la respuesta. Una respuesta es un stream y solo puede ser consumida una vez.
-            // Necesitamos consumirla para el navegador y para la caché.
             const responseToCache = response.clone();
-
             caches.open(CACHE_NAME)
               .then((cache) => {
                 cache.put(event.request, responseToCache);
@@ -60,15 +50,10 @@ self.addEventListener('fetch', (event) => {
               .catch(error => {
                 console.error('Failed to cache response:', error);
               });
-
             return response;
           }
         ).catch(error => {
           console.error('Fetch failed:', error);
-          // Opcional: Podrías devolver una página offline si es un HTML
-          // if (event.request.mode === 'navigate') {
-          //   return caches.match('/offline.html');
-          // }
         });
       })
   );
