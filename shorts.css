@@ -1,12 +1,9 @@
 /* --- Global CSS Variables (se recomienda importar style.css primero para heredar variables) --- */
-/* Repetimos solo las variables de color para que este archivo sea más autónomo */
 :root {
-    /* Lila como color principal */
-    --primary-color: #a020f0; /* Lila vibrante */
-    --primary-darker: #7a18be; /* Lila más oscuro para hover/active */
-    --accent-youtube-red: #ff0000; /* Rojo de YouTube para elementos interactivos clave */
+    --primary-color: #a020f0;
+    --primary-darker: #7a18be;
+    --accent-youtube-red: #ff0000;
 
-    /* Colores para Modo Claro */
     --bg-color: #f0f2f5;
     --text-color: #333;
     --header-bg: #fff;
@@ -15,14 +12,12 @@
     --icon-color: #606060;
     --active-nav-color: var(--primary-color);
 
-    /* Específicos de Shorts */
-    --shorts-control-bg: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente para controles */
-    --shorts-control-icon-color: #fff; /* Iconos blancos para contraste */
+    --shorts-control-bg: rgba(0, 0, 0, 0.6);
+    --shorts-control-icon-color: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        /* Colores para Modo Oscuro */
         --bg-color: #0f0f0f;
         --text-color: #f0f0f0;
         --header-bg: #212121;
@@ -40,7 +35,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Evita el scroll del body en general */
+    overflow: hidden;
 }
 
 body {
@@ -48,7 +43,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
-    flex-direction: column; /* Permite header, main, footer fijos y main con scroll */
+    flex-direction: column;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -103,22 +98,22 @@ body {
 
 /* Contenido Principal de Shorts */
 main#main-content {
-    flex-grow: 1; /* Ocupa todo el espacio entre header y footer */
-    display: flex; /* Para que el contenedor de shorts ocupe el 100% de alto */
+    flex-grow: 1;
+    display: flex;
     flex-direction: column;
-    overflow: hidden; /* Importante para que #shorts-container maneje su propio scroll */
-    position: relative; /* Para que los mensajes de carga absoluta se posicionen correctamente */
+    overflow: hidden;
+    position: relative;
 }
 
 /* Contenedor de Shorts (donde se desplazan los videos) */
 #shorts-container {
-    flex-grow: 1; /* Ocupa el 100% de la altura de main-content */
+    flex-grow: 1;
     width: 100%;
-    overflow-y: scroll; /* Habilita el scroll vertical */
-    scroll-snap-type: y mandatory; /* Scroll con "snap" para ir de short en short */
-    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
-    position: relative; /* Para posicionar elementos internos de cada short */
-    background-color: black; /* Fondo negro detrás de los shorts, como YouTube */
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    background-color: black;
 }
 
 .initial-loading-message, #shorts-loading {
@@ -129,34 +124,30 @@ main#main-content {
     justify-content: center;
     align-items: center;
     width: 100%;
-    /* Altura completa del viewport, ajustada por header/footer en el body flex */
     height: 100%;
     font-size: 1.2em;
-    background-color: var(--bg-color); /* Fondo para el mensaje de carga */
-    position: absolute; /* Para que no afecte el scroll snap */
+    background-color: var(--bg-color);
+    position: absolute;
     top: 0; left: 0;
-    z-index: 50; /* Por encima de los videos iniciales si se están cargando */
+    z-index: 50;
 }
 
-/* Ocultar el indicador de carga para el infinite scroll por defecto */
 #shorts-loading {
     display: none;
 }
 
-/* Tarjeta de Short (cada video individual) */
+/* Tarjeta de Short (cada video individual) - Ocupa toda la altura disponible */
 .short-card {
     width: 100%;
-    /* Calculamos la altura para que cada short ocupe exactamente el espacio visible */
-    /* 100vh (viewport height) - 56px (header) - 56px (footer) */
-    height: calc(100vh - 56px - 56px);
+    height: calc(100vh - 56px - 56px); /* 100vh - header - footer */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Centra el video verticalmente */
+    justify-content: center;
     align-items: center;
     position: relative;
-    scroll-snap-align: start; /* Se ajusta al inicio de cada tarjeta */
-    background-color: black; /* Fondo detrás del video si la relación de aspecto no coincide */
-    overflow: hidden;
+    scroll-snap-align: start;
+    background-color: black;
+    overflow: hidden; /* Muy importante para que el video no se desborde */
 }
 
 /* Contenedor del Reproductor de Short */
@@ -168,27 +159,25 @@ main#main-content {
     align-items: center;
 }
 
-/* El iframe de YouTube real */
+/* El iframe de YouTube real - Asegura que ocupe todo el espacio */
 .short-player-wrapper iframe {
     width: 100%;
     height: 100%;
     border: none;
-    /* object-fit: contain; para que se vea el video completo sin cortar */
-    /* object-fit: cover; para que el video llene el contenedor (cortará si la relación de aspecto no coincide) */
-    object-fit: cover; /* Más fiel a YouTube Shorts */
+    object-fit: cover; /* El video llena el contenedor, se recorta si es necesario */
 }
 
-/* Controles de Short - ¡MÁS PEQUEÑOS Y COMPACTOS! */
+/* Controles de Short */
 .short-controls {
     position: absolute;
-    bottom: 20px; /* Posicionado cerca del borde inferior del short */
-    left: 15px; /* Alineado a la izquierda */
-    display: flex; /* Para organizar los botones horizontalmente */
-    gap: 5px; /* Pequeño espacio entre botones */
-    background-color: var(--shorts-control-bg); /* Fondo semi-transparente */
-    border-radius: 12px; /* Esquinas más redondeadas */
-    padding: 3px 8px; /* Padding reducido alrededor de los botones */
-    z-index: 10; /* Asegura que los controles estén encima del video */
+    bottom: 20px;
+    left: 15px;
+    display: flex;
+    gap: 5px;
+    background-color: var(--shorts-control-bg);
+    border-radius: 12px;
+    padding: 3px 8px;
+    z-index: 10;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
@@ -197,8 +186,8 @@ main#main-content {
     border: none;
     color: var(--shorts-control-icon-color);
     cursor: pointer;
-    padding: 5px; /* Padding minimal */
-    font-size: 1.5em; /* Tamaño de icono reducido */
+    padding: 5px;
+    font-size: 1.5em;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -213,7 +202,7 @@ main#main-content {
 /* Spinner de Carga */
 .spinner {
     border: 4px solid rgba(255,255,255,0.3);
-    border-top: 4px solid var(--primary-color); /* Usamos el lila para el spinner */
+    border-top: 4px solid var(--primary-color);
     border-radius: 50%;
     width: 30px;
     height: 30px;
@@ -232,12 +221,12 @@ main#main-content {
     font-size: 1.2em;
     color: var(--text-color);
     padding: 20px;
-    margin: auto; /* Centrarlo verticalmente */
+    margin: auto;
 }
 
-/* Navegación del Pie de Página (footer) - Compartido con style.css, pero se repite si no se importa */
+/* Navegación del Pie de Página (footer) */
 #main-footer {
-    position: sticky; /* Sticky para que se quede en la parte inferior si el contenido es pequeño */
+    position: sticky;
     bottom: 0;
     left: 0;
     width: 100%;
@@ -250,7 +239,7 @@ main#main-content {
     z-index: 1500;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
     flex-shrink: 0;
-    margin-top: auto; /* Empuja el footer hacia abajo en un flex column */
+    margin-top: auto;
 }
 
 .footer-item {
@@ -278,20 +267,20 @@ main#main-content {
 }
 
 .footer-item:hover {
-    color: var(--accent-youtube-red); /* Rojo de YouTube en hover */
+    color: var(--accent-youtube-red);
 }
 
 /* Ajuste del botón de instalación en shorts.html */
 #install-button-container {
-    bottom: 56px; /* Se ajusta para estar encima del footer de shorts */
-    padding: 10px 0; /* Un poco menos de padding vertical que en la página principal */
+    bottom: 56px;
+    padding: 10px 0;
 }
 
-/* Modal de Preferencias */
-.modal { /* Asegúrate de que los estilos del modal se carguen */
-    display: none; /* Oculto por defecto */
-    position: fixed; /* Cubre toda la pantalla */
-    z-index: 2000; /* Por encima de todo */
+/* Modal de Preferencias (estilos copiados de style.css para consistencia) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
@@ -321,6 +310,11 @@ main#main-content {
     width: 90%;
     animation: fadeInScale 0.3s ease-out forwards;
     color: var(--text-color);
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .modal-content h2 {
