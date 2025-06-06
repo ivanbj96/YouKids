@@ -30,12 +30,11 @@
     }
 }
 
-/* Base CSS */
+/* Estilos Globales para Shorts */
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Incluye padding y border en el tamaño total */
     overflow: hidden;
 }
 
@@ -50,7 +49,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Header (Shared) */
+/* Encabezado Principal (compartido) */
 #main-header {
     display: flex;
     justify-content: space-between;
@@ -62,7 +61,6 @@ body {
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     flex-shrink: 0;
-    box-sizing: border-box;
 }
 
 .header-logo {
@@ -98,17 +96,16 @@ body {
     background-color: var(--border-color);
 }
 
-/* Main Content for Shorts */
+/* Contenido Principal de Shorts */
 main#main-content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    box-sizing: border-box;
 }
 
-/* Shorts Container */
+/* Contenedor de Shorts (donde se desplazan los videos) */
 #shorts-container {
     flex-grow: 1;
     width: 100%;
@@ -139,7 +136,7 @@ main#main-content {
     display: none;
 }
 
-/* Short Card - Occupies full available height */
+/* Tarjeta de Short (cada video individual) - Ocupa toda la altura disponible */
 .short-card {
     width: 100%;
     height: calc(100vh - 56px - 56px); /* 100vh - header - footer */
@@ -151,10 +148,9 @@ main#main-content {
     scroll-snap-align: start;
     background-color: black;
     overflow: hidden;
-    box-sizing: border-box;
 }
 
-/* Short Player Wrapper */
+/* Contenedor del Reproductor de Short */
 .short-player-wrapper {
     width: 100%;
     height: 100%;
@@ -163,15 +159,15 @@ main#main-content {
     align-items: center;
 }
 
-/* YouTube Iframe - Ensure it fills the container */
+/* El iframe de YouTube real - Asegura que ocupe todo el espacio */
 .short-player-wrapper iframe {
     width: 100%;
     height: 100%;
     border: none;
-    object-fit: cover; /* Video fills container, might crop horizontal videos */
+    object-fit: cover;
 }
 
-/* Short Controls */
+/* Controles de Short */
 .short-controls {
     position: absolute;
     bottom: 20px;
@@ -203,7 +199,7 @@ main#main-content {
     opacity: 0.9;
 }
 
-/* Spinner */
+/* Spinner de Carga */
 .spinner {
     border: 4px solid rgba(255,255,255,0.3);
     border-top: 4px solid var(--primary-color);
@@ -219,7 +215,7 @@ main#main-content {
     100% { transform: rotate(360deg); }
 }
 
-/* No Results/Error Messages for Shorts */
+/* Mensajes de No Resultados/Error específicos de Shorts */
 .no-results-message, .error-message {
     text-align: center;
     font-size: 1.2em;
@@ -228,9 +224,9 @@ main#main-content {
     margin: auto;
 }
 
-/* Footer Navigation (Shared styles, copied for standalone Shorts page) */
+/* Navegación del Pie de Página (footer) */
 #main-footer {
-    position: sticky;
+    position: fixed; /* Cambiado de sticky a fixed para mayor consistencia en móvil */
     bottom: 0;
     left: 0;
     width: 100%;
@@ -243,8 +239,6 @@ main#main-content {
     z-index: 1500;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
     flex-shrink: 0;
-    margin-top: auto;
-    box-sizing: border-box;
 }
 
 .footer-item {
@@ -275,13 +269,13 @@ main#main-content {
     color: var(--accent-youtube-red);
 }
 
-/* Install Button for Shorts page */
+/* Ajuste del botón de instalación en shorts.html */
 #install-button-container {
     bottom: 56px;
     padding: 10px 0;
 }
 
-/* Preferences Modal (styles copied for consistency) */
+/* Modal de Preferencias (estilos copiados de style.css para consistencia) */
 .modal {
     display: none;
     position: fixed;
@@ -298,7 +292,6 @@ main#main-content {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    box-sizing: border-box;
 }
 
 .modal.active {
@@ -316,7 +309,6 @@ main#main-content {
     width: 90%;
     animation: fadeInScale 0.3s ease-out forwards;
     color: var(--text-color);
-    box-sizing: border-box;
 }
 
 @keyframes fadeInScale {
@@ -352,7 +344,6 @@ main#main-content {
     font-size: 1em;
     outline: none;
     transition: border-color 0.2s ease;
-    box-sizing: border-box;
 }
 
 .form-group select:focus,
