@@ -1,452 +1,430 @@
 /* --- Global CSS Variables (Temática Lila y Modo Oscuro) --- */
 :root {
-    /* Lila como color principal */
-    --primary-color: #a020f0; /* Lila vibrante */
-    --primary-darker: #7a18be; /* Lila más oscuro para hover/active */
-    --accent-youtube-red: #ff0000; /* Rojo de YouTube para elementos interactivos clave */
-    --accent-youtube-red-darker: #cc0000;
+	/* Lila como color principal */
+	--primary-color: #a020f0; /* Lila vibrante */
+	--primary-darker: #7a18be; /* Lila más oscuro para hover/active */
+	--accent-youtube-red: #ff0000; /* Rojo de YouTube para elementos interactivos clave */
+	--accent-youtube-red-darker: #cc0000;
 
-    /* Colores para Modo Claro */
-    --bg-color: #f0f2f5; /* Fondo general claro, suave */
-    --text-color: #333; /* Texto principal oscuro */
-    --header-bg: #fff; /* Fondo del encabezado blanco */
-    --footer-bg: #fff; /* Fondo del pie de página blanco */
-    --card-bg: #fff; /* Fondo de las tarjetas de video */
-    --border-color: #e0e0e0; /* Borde suave */
-    --input-bg: #f8f8f8; /* Fondo de input claro */
-    --input-border: #ccc; /* Borde de input */
-    --button-text-color: #fff; /* Texto de botón blanco */
-    --icon-color: #606060; /* Color de iconos por defecto */
-    --active-nav-color: var(--primary-color); /* Ítem de navegación activo */
-    --secondary-text-color: #6a6a6a; /* Texto secundario */
-    --player-overlay-bg: rgba(0, 0, 0, 0.8); /* Fondo del overlay del reproductor */
-    --modal-bg: rgba(0, 0, 0, 0.7); /* Fondo de modal */
-    --modal-content-bg: #fff; /* Contenido de modal blanco */
+	/* Colores para Modo Claro */
+	--bg-color: #f0f2f5; /* Fondo general claro, suave */
+	--text-color: #333; /* Texto principal oscuro */
+	--header-bg: #fff; /* Fondo del encabezado blanco */
+	--footer-bg: #fff; /* Fondo del pie de página blanco */
+	--card-bg: #fff; /* Fondo de tarjetas blanco */
+	--border-color: #e0e0e0; /* Borde suave */
+
+--input-bg: #f8f8f8; /* Fondo de input claro */
+	--input-border: #ccc; /* Borde de input */
+	--button-text-color: #fff; /* Texto de botón blanco */
+	--icon-color: #606060; /* Color de iconos por defecto */
+	--active-nav-color: var(--primary-color); /* Ítem de navegación activo */
+	--secondary-text-color: #6a6a6a; /* Texto secundario */
+	--modal-bg: rgba(0, 0, 0, 0.7); /* Fondo de modal */
+	--modal-content-bg: #fff; /* Contenido de modal blanco */
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        /* Colores para Modo Oscuro */
-        --bg-color: #0f0f0f; /* Fondo muy oscuro como YouTube */
-        --text-color: #f0f0f0; /* Texto claro */
-        --header-bg: #212121; /* Encabezado oscuro */
-        --footer-bg: #212121; /* Pie de página oscuro */
-        --card-bg: #282828; /* Fondo de tarjetas oscuro */
-        --border-color: #383838; /* Bordes más oscuros */
-        --input-bg: #383838; /* Fondo de búsqueda oscuro */
-        --input-border: #555; /* Borde de búsqueda más oscuro */
-        --icon-color: #aaaaaa; /* Iconos más claros */
-        --secondary-text-color: #aaaaaa;
-        --player-overlay-bg: rgba(0, 0, 0, 0.9); /* Overlay más oscuro */
-        --modal-bg: rgba(0, 0, 0, 0.9); /* Fondo de modal más oscuro */
-        --modal-content-bg: #212121; /* Contenido de modal oscuro */
-    }
+	:root {
+    	/* Colores para Modo Oscuro */
+    	--bg-color: #0f0f0f; /* Fondo muy oscuro como YouTube */
+    	--text-color: #f0f0f0; /* Texto claro */
+    	--header-bg: #212121; /* Encabezado oscuro */
+    	--footer-bg: #212121; /* Pie de página oscuro */
+    	--card-bg: #282828; /* Fondo de tarjetas oscuro */
+    	--border-color: #383838; /* Bordes más oscuros */
+    	--input-bg: #383838; /* Fondo de búsqueda oscuro */
+    	--input-border: #555; /* Borde de búsqueda más oscuro */
+    	--icon-color: #aaaaaa; /* Iconos más claros */
+    	--secondary-text-color: #aaaaaa;
+    	--modal-bg: rgba(0, 0, 0, 0.9); /* Fondo de modal más oscuro */
+    	--modal-content-bg: #212121; /* Contenido de modal oscuro */
+	}
 }
 
 /* Estilos Globales para HTML y Body */
 html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+	height: 100%; /* Asegura que html y body ocupen el 100% de la altura */
+	margin: 0;
+	padding: 0;
+	overflow: hidden; /* Controla el scroll del body de manera general */
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+	font-family: 'Roboto', sans-serif; /* Fuente de YouTube */
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	transition: background-color 0.3s ease, color 0.3s ease;
+	display: flex;
+	flex-direction: column; /* Organiza header, main, footer verticalmente */
+	min-height: 100vh; /* Asegura que ocupe al menos la altura completa del viewport */
+	-webkit-font-smoothing: antialiased; /* Mejorar el renderizado de la fuente */
+	-moz-osx-font-smoothing: grayscale;
 }
 
+/* Contenido Principal (excluyendo header/footer para scroll independiente) */
 main#main-content {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding-bottom: 20px;
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
+	flex-grow: 1; /* Ocupa todo el espacio disponible entre header y footer */
+	overflow-y: auto; /* Habilita el scroll solo en el contenido principal */
+	padding-bottom: 20px; /* Espacio extra al final del scroll */
+	padding-top: 10px; /* Espacio entre el header y el contenido */
+	display: flex; /* Para flexbox dentro del main */
+	flex-direction: column; /* Organiza search-container y videos-container verticalmente */
 }
 
 /* Encabezado Principal */
 #main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 56px;
-    padding: 0 15px;
-    background-color: var(--header-bg);
-    border-bottom: 1px solid var(--border-color);
-    z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    flex-shrink: 0;
+	display: flex;
+	justify-content: space-between; /* Espacio entre logo y botón de ajustes */
+	align-items: center;
+	height: 56px; /* Altura estándar de header de YouTube */
+	padding: 0 15px; /* Padding horizontal */
+	background-color: var(--header-bg);
+	border-bottom: 1px solid var(--border-color);
+	z-index: 1000;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil */
+	flex-shrink: 0; /* No permite que el header se encoja */
 }
 
 .header-logo {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+	display: flex;
+	align-items: center;
+	cursor: pointer; /* Indica que el logo puede ser clickeable (ej. para ir a inicio) */
 }
 
 .app-logo {
-    height: 25px;
-    margin-right: 8px;
+	height: 25px; /* Tamaño del logo */
+	margin-right: 8px;
 }
 
 #main-header h1 {
-    font-size: 1.25em;
-    font-weight: 700;
-    color: var(--text-color);
-    margin: 0;
-    line-height: 1;
+	font-size: 1.25em; /* Tamaño de fuente del título */
+	font-weight: 700; /* Más negrita para el título */
+	color: var(--text-color);
+	margin: 0;
+	line-height: 1; /* Elimina espacio extra de la línea */
 }
 
 .header-button {
-    background: none;
-    border: none;
-    color: var(--icon-color);
-    cursor: pointer;
-    font-size: 1.8em;
-    padding: 5px;
-    border-radius: 50%;
-    transition: background-color 0.2s ease, color 0.2s ease;
+	background: none;
+	border: none;
+	color: var(--icon-color);
+	cursor: pointer;
+	font-size: 1.8em; /* Tamaño del icono */
+	padding: 5px;
+	border-radius: 50%; /* Redondeado para botones de icono */
+	transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .header-button:hover {
-    background-color: var(--border-color);
+	background-color: var(--border-color);
 }
 
-/* Contenedor de Búsqueda - Estilo YouTube */
+/* Contenedor de Búsqueda */
 .search-container {
-    display: flex;
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 0 15px;
-    box-sizing: border-box; /* Asegura que el padding no exceda el ancho */
+	display: flex;
+	width: 100%;
+	max-width: 600px; /* Ancho máximo para la barra de búsqueda */
+	margin: 20px auto; /* Centrar y dar margen */
+	padding: 0 15px; /* Padding a los lados */
 }
 
 #search-input {
-    flex-grow: 1;
-    padding: 9px 12px; /* Ajuste de padding */
-    border: 1px solid var(--input-border);
-    border-radius: 4px 0 0 4px; /* Bordes menos redondeados */
-    font-size: 1em;
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    outline: none;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+	flex-grow: 1; /* Ocupa el espacio disponible */
+	padding: 10px 15px;
+	border: 1px solid var(--input-border);
+	border-radius: 20px 0 0 20px; /* Bordes redondeados a la izquierda */
+	font-size: 1em;
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	outline: none; /* Eliminar el contorno al enfocar */
+	transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 #search-input:focus {
-    border-color: #000; /* Borde oscuro al enfocar */
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+	border-color: var(--primary-color); /* Borde acentuado al enfocar */
 }
-@media (prefers-color-scheme: dark) {
-    #search-input:focus {
-        border-color: #ccc;
-    }
-}
-
 
 #search-button {
-    background-color: var(--input-bg); /* Mismo fondo que el input */
-    color: var(--icon-color);
-    border: 1px solid var(--input-border);
-    border-left: none; /* Elimina el borde izquierdo */
-    border-radius: 0 4px 4px 0; /* Bordes menos redondeados */
-    padding: 9px 18px; /* Más padding para el botón */
-    cursor: pointer;
-    font-size: 1.2em;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	background-color: var(--input-bg);
+	color: var(--icon-color);
+	border: 1px solid var(--input-border);
+	border-left: none; /* Elimina el borde izquierdo para que se fusione con el input */
+	border-radius: 0 20px 20px 0; /* Bordes redondeados a la derecha */
+	padding: 10px 15px;
+	cursor: pointer;
+	font-size: 1.2em;
+	transition: background-color 0.2s ease, color 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 #search-button:hover {
-    background-color: #f0f0f0; /* Ligero cambio de color en hover */
+	background-color: var(--border-color);
 }
-@media (prefers-color-scheme: dark) {
-    #search-button:hover {
-        background-color: #404040;
-    }
-}
-
 
 /* Contenedor de Videos - Grid Responsive */
 #videos-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 18px;
-    padding: 0 15px;
-    max-width: 1300px;
-    margin: 0 auto;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Más ancho para miniaturas */
+	gap: 18px; /* Espacio entre videos */
+	padding: 0 15px; /* Padding a los lados del contenedor */
+	max-width: 1300px; /* Ancho máximo para el grid centralizado */
+	margin: 0 auto; /* Centrar el grid */
 }
 
 .video-card {
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
+	background-color: var(--card-bg);
+	border-radius: 8px;
+	overflow: hidden;
+	cursor: pointer;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	display: flex;
+	flex-direction: column; /* Organiza imagen y título verticalmente */
 }
 
 .video-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+	transform: translateY(-5px);
+	box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .video-thumbnail {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    display: block;
-    border-radius: 8px 8px 0 0;
+	width: 100%;
+	aspect-ratio: 16 / 9; /* Relación de aspecto 16:9 */
+	object-fit: cover;
+	display: block;
+	border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior */
 }
 
 .video-title {
-    font-size: 1.05em;
-    font-weight: 500;
-    margin: 10px 10px 5px;
-    color: var(--text-color);
-    line-height: 1.4;
-    flex-grow: 1;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+	font-size: 1.05em; /* Ligeramente más grande */
+	font-weight: 500;
+	margin: 10px 10px 5px; /* Ajuste de margen para el título */
+	color: var(--text-color);
+	line-height: 1.4;
+	flex-grow: 1; /* Permite que el título ocupe espacio disponible */
+	overflow: hidden; /* Oculta el desbordamiento de texto */
+	display: -webkit-box; /* Para limitar a un número de líneas */
+	-webkit-line-clamp: 2; /* Limita a 2 líneas */
+	-webkit-box-orient: vertical;
 }
 
 .video-details {
-    font-size: 0.85em;
-    color: var(--secondary-text-color);
-    margin: 0 10px 10px;
+	font-size: 0.85em;
+	color: var(--secondary-text-color);
+	margin: 0 10px 10px;
 }
 
-/* Overlay del Reproductor de Video - Responsivo */
+/* Overlay del Reproductor de Video */
 #video-player-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--player-overlay-bg);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 10px; /* Padding para evitar que el reproductor toque los bordes */
-    box-sizing: border-box;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: var(--player-overlay-bg);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 2000;
+	backdrop-filter: blur(5px);
+	-webkit-backdrop-filter: blur(5px);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 #video-player-overlay.active {
-    opacity: 1;
-    visibility: visible;
+	opacity: 1;
+	visibility: visible;
 }
 
 #youtube-iframe-container {
-    width: 100%; /* Ocupa el ancho disponible dentro del padding del overlay */
-    max-width: 900px; /* Ancho máximo para el reproductor */
-    position: relative;
-    /* Truco para mantener la relación de aspecto 16:9 */
-    padding-bottom: 56.25%; /* 9 / 16 = 0.5625 */
-    height: 0; /* Reinicia la altura para que padding-bottom la defina */
-    background-color: black;
-    border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior del reproductor */
-    overflow: hidden; /* Para que el iframe no se salga de los bordes redondeados */
+	width: 90%;
+	max-width: 900px; /* Ancho máximo para el reproductor */
+	height: calc(90vw * 9 / 16); /* Mantiene la relación de aspecto 16:9 */
+	max-height: 500px; /* Altura máxima */
+	background-color: black;
+	position: relative;
 }
 
 #youtube-iframe-container iframe {
-    position: absolute; /* Posicionamiento absoluto para llenar el contenedor */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
+	width: 100%;
+	height: 100%;
+	border: none;
 }
 
 #close-player-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2.2em;
-    cursor: pointer;
-    z-index: 2001;
-    text-shadow: 0 0 5px rgba(0,0,0,0.5);
-    transition: transform 0.2s ease;
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: none;
+	border: none;
+	color: white;
+	font-size: 2.2em;
+	cursor: pointer;
+	z-index: 2001;
+	text-shadow: 0 0 5px rgba(0,0,0,0.5);
+	transition: transform 0.2s ease;
 }
 
 #close-player-button:hover {
-    transform: scale(1.1);
+	transform: scale(1.1);
 }
 
 /* Controles personalizados del reproductor */
 #custom-player-controls {
-    width: 100%;
-    max-width: 900px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 0 0 8px 8px; /* Bordes redondeados en la parte inferior */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    box-sizing: border-box;
+	width: 90%;
+	max-width: 900px;
+	background-color: rgba(0, 0, 0, 0.7);
+	color: white;
+	padding: 10px 15px;
+	border-radius: 0 0 8px 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	box-sizing: border-box; /* Incluir padding en el ancho */
 }
 
 .progress-bar-container {
-    width: 100%;
-    height: 5px;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 5px;
-    cursor: pointer;
-    position: relative;
+	width: 100%;
+	height: 5px;
+	background-color: rgba(255, 255, 255, 0.3);
+	border-radius: 5px;
+	cursor: pointer;
+	position: relative;
 }
 
 .progress-bar {
-    height: 100%;
-    width: 0%;
-    background-color: var(--accent-youtube-red);
-    border-radius: 5px;
+	height: 100%;
+	width: 0%;
+	background-color: var(--accent-youtube-red);
+	border-radius: 5px;
 }
 
 .control-buttons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-    justify-content: space-between;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	width: 100%;
+	justify-content: space-between; /* Distribuye el espacio */
 }
 
 #custom-player-controls button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8em;
-    cursor: pointer;
-    padding: 5px;
-    transition: transform 0.2s ease;
+	background: none;
+	border: none;
+	color: white;
+	font-size: 1.8em; /* Iconos más grandes */
+	cursor: pointer;
+	padding: 5px;
+	transition: transform 0.2s ease;
 }
 
 #custom-player-controls button:hover {
-    transform: scale(1.1);
+	transform: scale(1.1);
 }
 
 #current-time, #duration {
-    font-size: 0.9em;
-    min-width: 45px;
-    text-align: center;
+	font-size: 0.9em;
+	min-width: 45px; /* Asegura espacio para tiempo */
+	text-align: center;
 }
 
 #autoplay-toggle-btn .material-icons {
-    font-size: 1.6em;
-    color: rgba(255, 255, 255, 0.7);
+	font-size: 1.6em; /* Un poco más pequeño que play/mute */
+	color: rgba(255, 255, 255, 0.7);
 }
 
 #autoplay-toggle-btn.active .material-icons {
-    color: var(--primary-color);
+	color: var(--primary-color); /* Lila cuando está activo */
 }
 
 
 /* Indicador de Carga */
 #loading-indicator {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-color);
-    display: none;
-    grid-column: 1 / -1;
-    margin-top: 20px;
+	text-align: center;
+	padding: 20px;
+	color: var(--text-color);
+	display: none; /* Oculto por defecto, mostrado por JS */
+	grid-column: 1 / -1; /* Ocupa todo el ancho en el grid si se muestra allí */
+	margin-top: 20px;
 }
 
 /* Mensajes de No Resultados/Error */
 .no-results-message, .error-message {
-    text-align: center;
-    font-size: 1.2em;
-    color: var(--text-color);
-    padding: 20px;
-    grid-column: 1 / -1;
-    margin: auto;
+	text-align: center;
+	font-size: 1.2em;
+	color: var(--text-color);
+	padding: 20px;
+	grid-column: 1 / -1; /* Ocupa todas las columnas en el grid */
+	margin: auto; /* Centrarlo verticalmente si es el único contenido */
 }
 
 /* Navegación del Pie de Página (footer) */
 #main-footer {
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 56px;
-    background-color: var(--footer-bg);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 1500;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-    flex-shrink: 0;
-    margin-top: auto;
+	position: sticky; /* Sticky para que se quede en la parte inferior si el contenido es pequeño */
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 56px; /* Altura estándar de footer de YouTube móvil */
+	background-color: var(--footer-bg);
+	border-top: 1px solid var(--border-color);
+	display: flex;
+	justify-content: space-around; /* Distribuye los elementos uniformemente */
+	align-items: center;
+	z-index: 1500;
+	box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+	flex-shrink: 0; /* No permite que el footer se encoja */
+	margin-top: auto; /* Empuja el footer hacia abajo en un flex column */
 }
 
 .footer-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    color: var(--icon-color);
-    font-size: 0.7em;
-    font-weight: 500;
-    transition: color 0.3s ease;
-    padding: 5px;
-    flex: 1;
-    min-width: 50px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	color: var(--icon-color);
+	font-size: 0.7em; /* Tamaño de texto para el nombre del ítem */
+	font-weight: 500;
+	transition: color 0.3s ease;
+	padding: 5px;
+	flex: 1; /* Distribuye el espacio equitativamente */
+	min-width: 50px; /* Ancho mínimo para el botón */
 }
 
 .footer-item .material-icons {
-    font-size: 24px;
-    margin-bottom: 2px;
+	font-size: 24px; /* Tamaño estándar de icono */
+	margin-bottom: 2px;
 }
 
 .footer-item.active {
-    color: var(--active-nav-color);
+	color: var(--active-nav-color);
 }
 
 .footer-item:hover {
-    color: var(--accent-color);
+	color: var(--accent-color);
 }
 
 /* Botón de Instalación PWA */
 #install-button-container {
-    position: fixed;
-    bottom: 56px;
-    left: 0;
-    width: 100%;
-    background-color: var(--header-bg);
-    padding: 15px 0;
-    box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
-    z-index: 999;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    flex-shrink: 0;
+	position: fixed;
+	bottom: 56px; /* Ajustado para estar encima del footer */
+	left: 0;
+	width: 100%;
+	background-color: var(--header-bg);
+	padding: 15px 0;
+	box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+	z-index: 999;
+	display: none; /* Oculto por defecto, JS lo muestra */
+	justify-content: center;
+	align-items: center;
+	border-top: 1px solid var(--border-color);
+	flex-shrink: 0;
 }
 
 #install-button {
@@ -484,200 +462,195 @@ main#main-content {
 
 /* Modal de Preferencias */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: var(--modal-bg);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+	display: none; /* Oculto por defecto */
+	position: fixed; /* Cubre toda la pantalla */
+	z-index: 2000; /* Por encima de todo */
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: var(--modal-bg);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .modal.active {
-    opacity: 1;
-    visibility: visible;
+	opacity: 1;
+	visibility: visible;
 }
 
 .modal-content {
-    background-color: var(--modal-content-bg);
-    margin: auto;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    max-width: 500px;
-    width: 90%;
-    animation: fadeInScale 0.3s ease-out forwards;
-    color: var(--text-color);
+	background-color: var(--modal-content-bg);
+	margin: auto;
+	padding: 30px;
+	border-radius: 10px;
+	box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+	max-width: 500px;
+	width: 90%;
+	animation: fadeInScale 0.3s ease-out forwards;
+	color: var(--text-color);
 }
 
 @keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+	from { opacity: 0; transform: scale(0.9); }
+	to { opacity: 1; transform: scale(1); }
 }
 
 .modal-content h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: var(--primary-color);
-    text-align: center;
+	margin-top: 0;
+	margin-bottom: 20px;
+	color: var(--primary-color);
+	text-align: center;
 }
 
 .form-group {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
+	display: block;
+	margin-bottom: 5px;
+	font-weight: 500;
 }
 
 .form-group select,
 .form-group textarea {
-    width: calc(100% - 20px);
-    padding: 10px;
-    border: 1px solid var(--input-border);
-    border-radius: 5px;
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    outline: none;
-    transition: border-color 0.2s ease;
+	width: calc(100% - 20px); /* Ajusta por padding */
+	padding: 10px;
+	border: 1px solid var(--input-border);
+	border-radius: 5px;
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	font-size: 1em;
+	outline: none;
+	transition: border-color 0.2s ease;
 }
 
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: var(--primary-color);
+	border-color: var(--primary-color);
 }
 
 .form-group textarea {
-    resize: vertical;
-    min-height: 80px;
+	resize: vertical; /* Permite redimensionar verticalmente */
+	min-height: 80px;
 }
 
 .form-group small {
-    display: block;
-    font-size: 0.8em;
-    color: var(--secondary-text-color);
-    margin-top: 5px;
+	display: block;
+	font-size: 0.8em;
+	color: var(--secondary-text-color);
+	margin-top: 5px;
 }
 
 .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 25px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 25px;
 }
 
 .button-primary, .button-secondary {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 20px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 20px;
+	font-size: 1em;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .button-primary {
-    background-color: var(--primary-color);
-    color: var(--button-text-color);
+	background-color: var(--primary-color);
+	color: var(--button-text-color);
 }
 
 .button-primary:hover {
-    background-color: var(--primary-darker);
-    transform: translateY(-1px);
+	background-color: var(--primary-darker);
+	transform: translateY(-1px);
 }
 
 .button-secondary {
-    background-color: var(--border-color);
-    color: var(--text-color);
+	background-color: var(--border-color);
+	color: var(--text-color);
 }
 
 .button-secondary:hover {
-    background-color: var(--secondary-text-color);
-    color: #fff;
+	background-color: var(--secondary-text-color);
+	color: #fff;
 }
-
 
 /* Ajustes Responsivos */
 @media (max-width: 768px) {
-    #main-header h1 {
-        font-size: 1.1em;
-    }
-    .app-logo {
-        height: 22px;
-    }
-    .search-container {
-        flex-direction: column;
-        margin: 10px auto;
-    }
-    #search-input, #search-button {
-        border-radius: 4px; /* Bordes menos redondeados en móvil también */
-        border: 1px solid var(--input-border);
-        margin-bottom: 10px;
-    }
-    #search-button {
-        margin-bottom: 0;
-    }
-    #videos-container {
-        grid-template-columns: 1fr;
-        padding: 0 10px;
-    }
-    .video-thumbnail {
-        height: auto;
-    }
-    #video-player-overlay {
-        padding: 0; /* Sin padding en móvil para maximizar el reproductor */
-    }
-    #youtube-iframe-container {
-        width: 100vw; /* Ocupa todo el ancho del viewport */
-        padding-bottom: 56.25vw; /* Relación de aspecto del viewport */
-        border-radius: 0; /* Sin bordes redondeados en móvil */
-        max-width: unset; /* Desactiva el max-width */
-        max-height: unset; /* Desactiva el max-height */
-    }
-    #close-player-button {
-        top: 5px;
-        right: 5px;
-        font-size: 1.8em;
-    }
-    #custom-player-controls {
-        width: 100vw; /* Ocupa todo el ancho del viewport */
-        padding: 8px 10px;
-        border-radius: 0; /* Sin bordes redondeados en móvil */
-        max-width: unset; /* Desactiva el max-width */
-    }
-    .control-buttons {
-        gap: 8px;
-    }
-    #custom-player-controls button {
-        font-size: 1.5em;
-    }
-    #install-button-container {
-        bottom: 56px;
-        padding: 10px 0;
-    }
-    #install-button {
-        padding: 10px 20px;
-        font-size: 1em;
-    }
-    .modal-content {
-        padding: 20px;
-        width: 95%;
-    }
+	#main-header h1 {
+    	font-size: 1.1em;
+	}
+	.app-logo {
+    	height: 22px;
+	}
+	.search-container {
+    	flex-direction: column; /* La barra de búsqueda se apila en móvil */
+    	margin: 10px auto;
+	}
+	#search-input, #search-button {
+    	border-radius: 20px; /* Bordes totalmente redondeados en móvil */
+    	border: 1px solid var(--input-border);
+    	margin-bottom: 10px; /* Espacio entre input y botón */
+	}
+	#search-button {
+    	margin-bottom: 0;
+	}
+	#videos-container {
+    	grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    	padding: 0 10px;
+	}
+	.video-thumbnail {
+    	height: auto; /* Permite que el aspecto se mantenga sin altura fija */
+	}
+	#video-player-overlay {
+    	padding: 10px; /* Más padding en móvil */
+	}
+	#youtube-iframe-container {
+    	width: 100%; /* Ocupa el ancho completo */
+    	height: calc(100vw * 9 / 16); /* Ajusta altura por ancho del viewport */
+    	max-height: 250px; /* Límite para pantallas pequeñas */
+	}
+	#close-player-button {
+    	top: 10px;
+    	right: 10px;
+    	font-size: 1.8em;
+	}
+	#custom-player-controls {
+    	width: 100%;
+    	padding: 8px 10px;
+	}
+	.control-buttons {
+    	gap: 10px;
+	}
+	#custom-player-controls button {
+    	font-size: 1.5em;
+	}
+	#install-button-container {
+    	bottom: 56px; /* Para estar encima del footer móvil */
+    	padding: 10px 0;
+	}
+	#install-button {
+    	padding: 10px 20px;
+    	font-size: 1em;
+	}
+	.modal-content {
+    	padding: 20px;
+    	width: 95%;
+	}
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-    #videos-container {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-    }
+	#videos-container {
+    	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    	gap: 15px;
+	}
 }
