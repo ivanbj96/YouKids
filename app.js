@@ -2,6 +2,7 @@
 // Elementos del DOM para la página principal (index.html)
 // ======================================================================
 // Desktop Search Elements
+const desktopSearchContainer = document.getElementById("desktop-search-container");
 const desktopSearchInput = document.getElementById("desktop-search-input");
 const desktopSearchButton = document.getElementById("desktop-search-button");
 const desktopSuggestionsList = document.getElementById("desktop-suggestions-list");
@@ -329,6 +330,7 @@ if (playerFullscreenBtn) {
     playerFullscreenBtn.addEventListener('click', () => {
         const iframe = youtubeIframeContainer.querySelector('iframe');
         if (iframe) {
+            // Utiliza la API de Fullscreen del navegador en el iframe
             if (iframe.requestFullscreen) {
                 iframe.requestFullscreen();
             } else if (iframe.mozRequestFullScreen) { // Firefox
@@ -370,7 +372,11 @@ const fetchSuggestions = async (inputElement, suggestionsListElement) => {
         const response = await fetch(`https://clients1.google.com/complete/search?client=youtube&hl=${getPreferences().language}&gs_ri=youtube&ds=yt&q=${encodeURIComponent(query)}`);
         const text = await response.text();
         // La respuesta es un String que parece JSONP, necesitamos parsearlo manualmente.
-        const data = JSON.parse(text.substring(text.indexOf('[') + 0, text.lastIndexOf(']') + 1));
+        // Google devuelve algo como "/*O_o*/google.youtube.suggest.lhnr( ... JSON ... )"
+        const startIndex = text.indexOf('(');
+        const endIndex = text.lastIndexOf(')');
+        const jsonString = text.substring(startIndex + 1, endIndex);
+        const data = JSON.parse(jsonString);
 
         suggestionsListElement.innerHTML = '';
         if (data && data[0] && data[0].length > 0) {
@@ -401,7 +407,8 @@ const fetchSuggestions = async (inputElement, suggestionsListElement) => {
 };
 
 // --- Desktop Search ---
-if (desktopSearchInput) {
+// Solo si los elementos existen (para evitar errores en móvil donde no están)
+if (desktopSearchInput && desktopSearchButton && desktopSuggestionsList) {
     desktopSearchInput.addEventListener('input', debounce(() => {
         fetchSuggestions(desktopSearchInput, desktopSuggestionsList);
     }, 300));
@@ -423,29 +430,29 @@ if (desktopSearchInput) {
 
     // Ocultar sugerencias al hacer click fuera
     document.addEventListener('click', (event) => {
-        if (!desktopSearchInput.contains(event.target) && !desktopSuggestionsList.contains(event.target)) {
+        if (!desktopSearchContainer.contains(event.target)) { // Clic fuera del contenedor de búsqueda
             desktopSuggestionsList.classList.add('hidden');
         }
     });
 }
 
 // --- Mobile Search ---
-if (mobileSearchIconBtn) {
+// Solo si los elementos existen (para evitar errores en desktop donde no están)
+if (mobileSearchIconBtn && mobileExpandedSearchContainer && mobileSearchCloseBtn && mobileSearchInput && mobileSearchSubmitBtn && mobileSuggestionsList) {
     mobileSearchIconBtn.addEventListener('click', () => {
         mobileExpandedSearchContainer.classList.add('active');
         mobileSearchInput.focus();
     });
-}
 
-if (mobileSearchCloseBtn) {
     mobileSearchCloseBtn.addEventListener('click', () => {
         mobileExpandedSearchContainer.classList.remove('active');
         mobileSearchInput.value = ''; // Limpiar input
         mobileSuggestionsList.classList.add('hidden'); // Ocultar sugerencias
+        // Restaurar scroll del main content si es necesario (el overlay lo oculta)
+        document.body.style.overflow = '';
+        mainContent.style.overflowY = 'auto'; // mainContent ya existe en este scope
     });
-}
 
-if (mobileSearchInput) {
     mobileSearchInput.addEventListener('input', debounce(() => {
         fetchSuggestions(mobileSearchInput, mobileSuggestionsList);
     }, 300));
@@ -456,18 +463,61 @@ if (mobileSearchInput) {
             mobileSuggestionsList.classList.add('hidden'); // Ocultar sugerencias al buscar
         }
     });
-}
 
-if (mobileSearchSubmitBtn) {
     mobileSearchSubmitBtn.addEventListener('click', () => {
         const query = mobileSearchInput.value.trim();
         if (query) {
             searchYouTubeVideos(query, '');
             mobileExpandedSearchContainer.classList.remove('active'); // Cerrar barra de búsqueda
+            mobileSearchInput.value = ''; // Limpiar input después de buscar
+            mobileSuggestionsList.classList.add('hidden');
+            // Restaurar scroll del main content
+            document.body.style.overflow = '';
+            mainContent.style.overflowY = 'auto';
         }
-        mobileSuggestionsList.classList.add('hidden');
+    });
+
+    // Ocultar el scroll del body y habilitar en el contenedor de búsqueda móvil al expandir
+    mobileExpandedSearchContainer.addEventListener('transitionend', () => {
+        if (mobileExpandedSearchContainer.classList.contains('active')) {
+            document.body.style.overflow = 'hidden'; // Evita el scroll del body
+            mobileSuggestionsList.style.overflowY = 'auto'; // Solo la lista de sugerencias debe scrollear
+        } else {
+            document.body.style.overflow = ''; // Restaurar el scroll del body
+            mobileSuggestionsList.style.overflowY = '';
+        }
+    });
+
+    // Referencia a mainContent para restaurar el scroll
+    const mainContent = document.getElementById('main-content');
+}
+
+
+// Event listener para el botón de búsqueda original (podría eliminarse si el nuevo diseño lo reemplaza completamente)
+// Esto se ha integrado en los eventos de los nuevos botones de búsqueda.
+/*
+if (searchButton) {
+    searchButton.addEventListener("click", () => {
+        const query = searchInput.value.trim();
+        if (query) {
+            searchYouTubeVideos(query, ''); 
+        } else {
+            searchYouTubeVideos("canciones infantiles cristianas", ''); 
+        }
     });
 }
+*/
+
+// Event listener para la tecla Enter en el campo de búsqueda original (reemplazado por los nuevos inputs)
+/*
+if (searchInput) {
+    searchInput.addEventListener("keypress", (event) => {
+        if (event.key === "Enter") {
+            searchButton.click();
+        }
+    });
+}
+*/
 
 // Click en el logo para ir a inicio y recargar videos predeterminados
 const headerLogo = document.querySelector('.header-logo');
@@ -479,6 +529,21 @@ if (headerLogo) {
             mobileExpandedSearchContainer.classList.remove('active');
             mobileSearchInput.value = '';
             mobileSuggestionsList.classList.add('hidden');
+        }
+    });
+}
+
+// Cierra el reproductor y detiene el video
+if (closePlayerButton) {
+    closePlayerButton.addEventListener("click", () => {
+        videoPlayerOverlay.classList.remove('active');
+        if (currentVideoPlayer) {
+            currentVideoPlayer.stopVideo();
+            currentVideoPlayer.destroy();
+            currentVideoPlayer = null;
+            youtubeIframeContainer.innerHTML = '';
+            stopProgressBarUpdates();
+            currentVideoId = null;
         }
     });
 }
