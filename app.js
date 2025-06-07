@@ -12,9 +12,8 @@ const youtubeIframeContainer = document.getElementById("youtube-iframe-container
 // Custom Player Controls
 const playerPlayPauseBtn = document.getElementById('player-play-pause-btn');
 const playerMuteBtn = document.getElementById('player-mute-btn');
-const playerNextBtn = document.getElementById('player-next-btn'); // Nuevo botón
 const autoplayToggleBtn = document.getElementById('autoplay-toggle-btn');
-const progressBarContainer = document.querySelector('#custom-player-controls .progress-bar-container');
+const progressBarContainer = document.querySelector('#custom-player-controls .progress-bar-container'); // Contenedor para el clic en la barra
 const progressBar = document.querySelector('#custom-player-controls .progress-bar');
 const currentTimeSpan = document.getElementById('current-time');
 const durationSpan = document.getElementById('duration');
@@ -24,7 +23,6 @@ let nextVideosPageToken = null;
 let isLoadingVideos = false;
 let currentVideoId = null;
 let autoPlayEnabled = false; // Se inicializa desde getPreferences()
-let currentQuery = "canciones infantiles cristianas"; // Almacena la última consulta
 
 // ======================================================================
 // Funciones de la API de YouTube y Reproducción
@@ -34,12 +32,12 @@ let currentQuery = "canciones infantiles cristianas"; // Almacena la última con
 function onYouTubeIframeAPIReady() {
   console.log("YouTube IFrame API Ready for main app.");
   // Inicializa el estado de autoplay al cargar las preferencias
-  const initialPrefs = getPreferences(); // `getPreferences` viene de common.js
+  const initialPrefs = getPreferences(); // getPreferences viene de common.js
   autoPlayEnabled = initialPrefs.autoplay;
   if (autoplayToggleBtn) {
       autoplayToggleBtn.classList.toggle('active', autoPlayEnabled);
   }
-  searchYouTubeVideos(currentQuery); // Búsqueda inicial por defecto
+  searchYouTubeVideos("canciones infantiles cristianas"); // Búsqueda inicial por defecto
 }
 
 // Formatear tiempo (ej. 150 -> 2:30)
@@ -47,7 +45,7 @@ function formatTime(seconds) {
     if (isNaN(seconds) || seconds < 0) return "0:00";
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    return ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds};
 }
 
 // Actualizar barra de progreso y tiempos
@@ -57,20 +55,22 @@ function updateProgressBar() {
         const duration = currentVideoPlayer.getDuration();
         const progress = (currentTime / duration) * 100;
 
-        progressBar.style.width = `${progress}%`;
+        progressBar.style.width = ${progress}%;
         currentTimeSpan.textContent = formatTime(currentTime);
         durationSpan.textContent = formatTime(duration);
 
-        // Marcar como visto si el video ha terminado (aproximadamente)
+// Marcar como visto si el video ha terminado (aproximadamente)
         if (duration > 0 && currentTime / duration > 0.95 && currentVideoId) {
-            markVideoAsViewed(currentVideoId); // `markVideoAsViewed` viene de common.js
-            console.log(`Video ${currentVideoId} marcado como visto.`);
+            markVideoAsViewed(currentVideoId); // markVideoAsViewed viene de common.js
+            console.log(Video ${currentVideoId} marcado como visto.);
             stopProgressBarUpdates(); // Detener el intervalo
 
             if (autoPlayEnabled) {
                 console.log("Autoplay ON: buscando siguiente video...");
-                // Esto simulará el botón "Siguiente" al final del video
-                playerNextBtn.click(); 
+                closePlayerButton.click(); // Cierra el reproductor
+                // Recargar la página principal para una nueva lista de videos frescos
+                // Podríamos buscar el siguiente video de forma más inteligente aquí.
+                searchYouTubeVideos(searchInput.value.trim() || "canciones infantiles cristianas", '');
             } else {
                 // Si autoplay no está activo, simplemente cierra el reproductor.
                 closePlayerButton.click();
@@ -109,25 +109,24 @@ async function searchYouTubeVideos(query, pageToken = '') {
   isLoadingVideos = true;
   loadingIndicator.style.display = 'block';
 
-  currentQuery = query; // Actualiza la consulta actual
-
-  const prefs = getPreferences(); // `getPreferences` viene de common.js
-  const viewedVideos = getViewedVideos().videos; // `getViewedVideos` viene de common.js
+  const prefs = getPreferences(); // getPreferences viene de common.js
+  const viewedVideos = getViewedVideos().videos; // getViewedVideos viene de common.js
 
   // Generar un sufijo aleatorio basado en el día para la "aleatoriedad"
+  // Esto no es un parámetro real de YT API, pero puede influir en los resultados si la query cambia.
   const today = new Date();
   const dailySeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-  const randomSuffix = `&_dailySeed=${dailySeed}`; // Solo para variar la URL y evitar caché, no es un param de YT
+  const randomSuffix = &_dailySeed=${dailySeed}; // Solo para cambiar la URL y evitar caché, no es un param de YT
 
-  let finalQuery = `${query} para niños cristianos canciones biblicas historias animadas`;
+  let finalQuery = ${query} para niños cristianos canciones biblicas historias animadas;
   let channelIdsParam = '';
 
   if (prefs.preferredChannels && prefs.preferredChannels.length > 0) {
-      channelIdsParam = `&channelId=${prefs.preferredChannels.join(',')}`;
-      console.log(`Buscando en canales preferidos: ${prefs.preferredChannels.join(', ')}`);
+      channelIdsParam = &channelId=${prefs.preferredChannels.join(',')};
+      console.log(Buscando en canales preferidos: ${prefs.preferredChannels.join(', ')});
   }
 
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(finalQuery)}&type=video&maxResults=20&key=${window.apiKey}&relevanceLanguage=${prefs.language}`;
+  let url = https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(finalQuery)}&type=video&maxResults=20&key=${window.apiKey}&relevanceLanguage=${prefs.language}; // Usamos window.apiKey
 
   if (channelIdsParam) {
       url += channelIdsParam;
@@ -136,23 +135,23 @@ async function searchYouTubeVideos(query, pageToken = '') {
   }
 
   if (pageToken) {
-    url += `&pageToken=${pageToken}`;
+    url += &pageToken=${pageToken};
   }
 
-  console.log(`Buscando videos con URL: ${url}`);
+  console.log(Buscando videos con URL: ${url});
 
   try {
     const res = await fetch(url);
     if (!res.ok) {
       const errorBody = await res.json().catch(() => ({ message: res.statusText }));
-      throw new Error(`Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'}`);
+      throw new Error(Error HTTP: ${res.status} - ${errorBody.error?.message || errorBody.message || 'Error desconocido de la API.'});
     }
     const data = await res.json();
 
     const newVideos = data.items.filter(item => item.id.videoId && !viewedVideos[item.id.videoId]);
-    console.log(`Videos nuevos encontrados: ${newVideos.length}`);
+    console.log(Videos nuevos encontrados: ${newVideos.length});
 
-    if (newVideos.length > 0) {
+if (newVideos.length > 0) {
       if (!pageToken) {
         videosContainer.innerHTML = '';
       }
@@ -171,7 +170,7 @@ async function searchYouTubeVideos(query, pageToken = '') {
 
   } catch (error) {
     console.error("Error al buscar videos:", error);
-    videosContainer.innerHTML = `<p class='error-message'>Ocurrió un error al cargar los videos.<br>Verifica tu clave API, conexión o preferencias.<br>Detalle: ${error.message}</p>`;
+    videosContainer.innerHTML = <p class='error-message'>Ocurrió un error al cargar los videos.<br>Verifica tu clave API, conexión o preferencias.<br>Detalle: ${error.message}</p>;
   } finally {
     loadingIndicator.style.display = 'none';
     isLoadingVideos = false;
@@ -181,10 +180,10 @@ async function searchYouTubeVideos(query, pageToken = '') {
 function createVideoCard(videoId, title, thumbnailUrl) {
   const videoCard = document.createElement("div");
   videoCard.className = "video-card";
-  videoCard.innerHTML = `
+  videoCard.innerHTML = 
     <img src="${thumbnailUrl}" alt="${title}" class="video-thumbnail">
     <h3 class="video-title">${title}</h3>
-  `;
+  ;
   videoCard.addEventListener("click", () => playVideo(videoId));
   videosContainer.appendChild(videoCard);
 }
@@ -217,13 +216,12 @@ function playVideo(videoId) {
           updatePlayerControls(event.data, event.target.isMuted());
           if (event.data === YT.PlayerState.ENDED) {
               // La lógica de "visto" y "autoplay" se maneja en updateProgressBar
+              // para asegurar que se registre el final de la reproducción.
           }
       },
       'onError': (event) => {
           console.error('Error de YouTube Player:', event.data);
           stopProgressBarUpdates();
-          // Intentar cargar el siguiente video si hay un error
-          playerNextBtn.click();
       }
     }
   });
@@ -279,23 +277,13 @@ if (autoplayToggleBtn) {
     });
 }
 
-// Lógica para el botón "Siguiente"
-if (playerNextBtn) {
-    playerNextBtn.addEventListener('click', () => {
-        console.log("Botón Siguiente clickeado.");
-        closePlayerButton.click(); // Cierra el reproductor actual
-        searchYouTubeVideos(currentQuery, nextVideosPageToken || ''); // Carga más videos o una nueva búsqueda
-    });
-}
 
 // Event listener para el botón de búsqueda
 if (searchButton) {
     searchButton.addEventListener("click", () => {
         const query = searchInput.value.trim();
         if (query) {
-            searchYouTubeVideos(query, ''); // Inicia una nueva búsqueda
-        } else {
-            searchYouTubeVideos("canciones infantiles cristianas", ''); // Búsqueda predeterminada si el campo está vacío
+            searchYouTubeVideos(query, '');
         }
     });
 }
@@ -317,6 +305,7 @@ if (headerLogo) {
     });
 }
 
+
 // Cierra el reproductor y detiene el video
 if (closePlayerButton) {
     closePlayerButton.addEventListener("click", () => {
@@ -337,17 +326,25 @@ if (videosContainer) {
     videosContainer.addEventListener('scroll', () => {
         const { scrollTop, scrollHeight, clientHeight } = videosContainer;
         if (scrollTop + clientHeight >= scrollHeight - 300 && !isLoadingVideos && nextVideosPageToken) {
-            searchYouTubeVideos(currentQuery, nextVideosPageToken);
+            searchYouTubeVideos(searchInput.value.trim() || "canciones infantiles cristianas", nextVideosPageToken);
         }
     });
 }
 
-// Listener para el evento `preferencesUpdated` del common.js
+// Listener para el evento preferencesUpdated del common.js
 window.addEventListener('preferencesUpdated', () => {
     console.log('Preferencias actualizadas, recargando videos en la página principal.');
+    // Reaplicar configuración de autoplay inmediatamente
     autoPlayEnabled = getPreferences().autoplay;
     if (autoplayToggleBtn) {
         autoplayToggleBtn.classList.toggle('active', autoPlayEnabled);
     }
-    searchYouTubeVideos(currentQuery, ''); // Volver a cargar la búsqueda para aplicar el nuevo idioma/canales
+    // Volver a cargar la búsqueda para aplicar el nuevo idioma/canales
+    searchYouTubeVideos(searchInput.value.trim() || "canciones infantiles cristianas", '');
+});
+
+// Cargar la API de YouTube y realizar la búsqueda inicial al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+    // onYouTubeIframeAPIReady se llamará automáticamente cuando la API esté lista.
+    // La búsqueda inicial se ha movido dentro de onYouTubeIframeAPIReady.
 });
