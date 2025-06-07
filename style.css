@@ -11,7 +11,7 @@
     --text-color: #333; /* Texto principal oscuro */
     --header-bg: #fff; /* Fondo del encabezado blanco */
     --footer-bg: #fff; /* Fondo del pie de página blanco */
-    --card-bg: #fff; /* Fondo de las tarjetas de video */
+    --card-bg: #fff; /* Fondo de tarjetas blanco */
     --border-color: #e0e0e0; /* Borde suave */
     --input-bg: #f8f8f8; /* Fondo de input claro */
     --input-border: #ccc; /* Borde de input */
@@ -19,7 +19,6 @@
     --icon-color: #606060; /* Color de iconos por defecto */
     --active-nav-color: var(--primary-color); /* Ítem de navegación activo */
     --secondary-text-color: #6a6a6a; /* Texto secundario */
-    --player-overlay-bg: rgba(0, 0, 0, 0.8); /* Fondo del overlay del reproductor */
     --modal-bg: rgba(0, 0, 0, 0.7); /* Fondo de modal */
     --modal-content-bg: #fff; /* Contenido de modal blanco */
 }
@@ -37,7 +36,6 @@
         --input-border: #555; /* Borde de búsqueda más oscuro */
         --icon-color: #aaaaaa; /* Iconos más claros */
         --secondary-text-color: #aaaaaa;
-        --player-overlay-bg: rgba(0, 0, 0, 0.9); /* Overlay más oscuro */
         --modal-bg: rgba(0, 0, 0, 0.9); /* Fondo de modal más oscuro */
         --modal-content-bg: #212121; /* Contenido de modal oscuro */
     }
@@ -45,64 +43,65 @@
 
 /* Estilos Globales para HTML y Body */
 html, body {
-    height: 100%;
+    height: 100%; /* Asegura que html y body ocupen el 100% de la altura */
     margin: 0;
     padding: 0;
-    /* overflow: hidden; -- Eliminado para evitar conflictos con el scroll de main */
+    overflow: hidden; /* Controla el scroll del body de manera general */
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif; /* Fuente de YouTube */
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
     display: flex;
     flex-direction: column; /* Organiza header, main, footer verticalmente */
     min-height: 100vh; /* Asegura que ocupe al menos la altura completa del viewport */
-    -webkit-font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased; /* Mejorar el renderizado de la fuente */
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Contenido Principal (excluyendo header/footer para scroll independiente) */
 main#main-content {
     flex-grow: 1; /* Ocupa todo el espacio disponible entre header y footer */
     overflow-y: auto; /* Habilita el scroll solo en el contenido principal */
-    padding-bottom: 20px;
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
+    padding-bottom: 20px; /* Espacio extra al final del scroll */
+    padding-top: 10px; /* Espacio entre el header y el contenido */
+    display: flex; /* Para flexbox dentro del main */
+    flex-direction: column; /* Organiza search-container y videos-container verticalmente */
 }
 
 /* Encabezado Principal */
 #main-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Espacio entre logo y botón de ajustes */
     align-items: center;
-    height: 56px;
-    padding: 0 15px;
+    height: 56px; /* Altura estándar de header de YouTube */
+    padding: 0 15px; /* Padding horizontal */
     background-color: var(--header-bg);
     border-bottom: 1px solid var(--border-color);
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    flex-shrink: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil */
+    flex-shrink: 0; /* No permite que el header se encoja */
 }
 
 .header-logo {
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: pointer; /* Indica que el logo puede ser clickeable (ej. para ir a inicio) */
 }
 
 .app-logo {
-    height: 25px;
+    height: 25px; /* Tamaño del logo */
     margin-right: 8px;
 }
 
 #main-header h1 {
-    font-size: 1.25em;
-    font-weight: 700;
+    font-size: 1.25em; /* Tamaño de fuente del título */
+    font-weight: 700; /* Más negrita para el título */
     color: var(--text-color);
     margin: 0;
-    line-height: 1;
+    line-height: 1; /* Elimina espacio extra de la línea */
 }
 
 .header-button {
@@ -110,9 +109,9 @@ main#main-content {
     border: none;
     color: var(--icon-color);
     cursor: pointer;
-    font-size: 1.8em;
+    font-size: 1.8em; /* Tamaño del icono */
     padding: 5px;
-    border-radius: 50%;
+    border-radius: 50%; /* Redondeado para botones de icono */
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
@@ -120,45 +119,38 @@ main#main-content {
     background-color: var(--border-color);
 }
 
-/* Contenedor de Búsqueda - Estilo YouTube */
+/* Contenedor de Búsqueda */
 .search-container {
     display: flex;
     width: 100%;
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 0 15px;
-    box-sizing: border-box;
+    max-width: 600px; /* Ancho máximo para la barra de búsqueda */
+    margin: 20px auto; /* Centrar y dar margen */
+    padding: 0 15px; /* Padding a los lados */
 }
 
 #search-input {
-    flex-grow: 1;
-    padding: 9px 12px;
+    flex-grow: 1; /* Ocupa el espacio disponible */
+    padding: 10px 15px;
     border: 1px solid var(--input-border);
-    border-radius: 4px 0 0 4px; /* Bordes menos redondeados */
+    border-radius: 20px 0 0 20px; /* Bordes redondeados a la izquierda */
     font-size: 1em;
     background-color: var(--input-bg);
     color: var(--text-color);
-    outline: none;
+    outline: none; /* Eliminar el contorno al enfocar */
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 #search-input:focus {
-    border-color: #000; /* Borde oscuro al enfocar */
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-}
-@media (prefers-color-scheme: dark) {
-    #search-input:focus {
-        border-color: #ccc;
-    }
+    border-color: var(--primary-color); /* Borde acentuado al enfocar */
 }
 
 #search-button {
     background-color: var(--input-bg);
     color: var(--icon-color);
     border: 1px solid var(--input-border);
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    padding: 9px 18px;
+    border-left: none; /* Elimina el borde izquierdo para que se fusione con el input */
+    border-radius: 0 20px 20px 0; /* Bordes redondeados a la derecha */
+    padding: 10px 15px;
     cursor: pointer;
     font-size: 1.2em;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -168,23 +160,17 @@ main#main-content {
 }
 
 #search-button:hover {
-    background-color: #f0f0f0;
+    background-color: var(--border-color);
 }
-@media (prefers-color-scheme: dark) {
-    #search-button:hover {
-        background-color: #404040;
-    }
-}
-
 
 /* Contenedor de Videos - Grid Responsive */
 #videos-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 18px;
-    padding: 0 15px;
-    max-width: 1300px;
-    margin: 0 auto;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Más ancho para miniaturas */
+    gap: 18px; /* Espacio entre videos */
+    padding: 0 15px; /* Padding a los lados del contenedor */
+    max-width: 1300px; /* Ancho máximo para el grid centralizado */
+    margin: 0 auto; /* Centrar el grid */
 }
 
 .video-card {
@@ -195,7 +181,7 @@ main#main-content {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Organiza imagen y título verticalmente */
 }
 
 .video-card:hover {
@@ -205,22 +191,22 @@ main#main-content {
 
 .video-thumbnail {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 9; /* Relación de aspecto 16:9 */
     object-fit: cover;
     display: block;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px 8px 0 0; /* Bordes redondeados en la parte superior */
 }
 
 .video-title {
-    font-size: 1.05em;
+    font-size: 1.05em; /* Ligeramente más grande */
     font-weight: 500;
-    margin: 10px 10px 5px;
+    margin: 10px 10px 5px; /* Ajuste de margen para el título */
     color: var(--text-color);
     line-height: 1.4;
-    flex-grow: 1;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
+    flex-grow: 1; /* Permite que el título ocupe espacio disponible */
+    overflow: hidden; /* Oculta el desbordamiento de texto */
+    display: -webkit-box; /* Para limitar a un número de líneas */
+    -webkit-line-clamp: 2; /* Limita a 2 líneas */
     -webkit-box-orient: vertical;
 }
 
@@ -230,7 +216,7 @@ main#main-content {
     margin: 0 10px 10px;
 }
 
-/* Overlay del Reproductor de Video - Responsivo */
+/* Overlay del Reproductor de Video */
 #video-player-overlay {
     position: fixed;
     top: 0;
@@ -248,8 +234,6 @@ main#main-content {
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 10px; /* Padding para evitar que el reproductor toque los bordes en desktop */
-    box-sizing: border-box;
 }
 
 #video-player-overlay.active {
@@ -258,20 +242,15 @@ main#main-content {
 }
 
 #youtube-iframe-container {
-    width: 100%; /* Ocupa el ancho disponible dentro del padding del overlay */
-    max-width: 900px;
-    position: relative;
-    padding-bottom: 56.25%; /* Truco para mantener la relación de aspecto 16:9 */
-    height: 0;
+    width: 90%;
+    max-width: 900px; /* Ancho máximo para el reproductor */
+    height: calc(90vw * 9 / 16); /* Mantiene la relación de aspecto 16:9 */
+    max-height: 500px; /* Altura máxima */
     background-color: black;
-    border-radius: 8px 8px 0 0;
-    overflow: hidden;
+    position: relative;
 }
 
 #youtube-iframe-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     border: none;
@@ -279,8 +258,8 @@ main#main-content {
 
 #close-player-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     background: none;
     border: none;
     color: white;
@@ -297,7 +276,7 @@ main#main-content {
 
 /* Controles personalizados del reproductor */
 #custom-player-controls {
-    width: 100%;
+    width: 90%;
     max-width: 900px;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
@@ -307,7 +286,7 @@ main#main-content {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Incluir padding en el ancho */
 }
 
 .progress-bar-container {
@@ -331,14 +310,14 @@ main#main-content {
     align-items: center;
     gap: 15px;
     width: 100%;
-    justify-content: space-between;
+    justify-content: space-between; /* Distribuye el espacio */
 }
 
 #custom-player-controls button {
     background: none;
     border: none;
     color: white;
-    font-size: 1.8em;
+    font-size: 1.8em; /* Iconos más grandes */
     cursor: pointer;
     padding: 5px;
     transition: transform 0.2s ease;
@@ -350,17 +329,17 @@ main#main-content {
 
 #current-time, #duration {
     font-size: 0.9em;
-    min-width: 45px;
+    min-width: 45px; /* Asegura espacio para tiempo */
     text-align: center;
 }
 
 #autoplay-toggle-btn .material-icons {
-    font-size: 1.6em;
+    font-size: 1.6em; /* Un poco más pequeño que play/mute */
     color: rgba(255, 255, 255, 0.7);
 }
 
 #autoplay-toggle-btn.active .material-icons {
-    color: var(--primary-color);
+    color: var(--primary-color); /* Lila cuando está activo */
 }
 
 
@@ -369,8 +348,8 @@ main#main-content {
     text-align: center;
     padding: 20px;
     color: var(--text-color);
-    display: none;
-    grid-column: 1 / -1;
+    display: none; /* Oculto por defecto, mostrado por JS */
+    grid-column: 1 / -1; /* Ocupa todo el ancho en el grid si se muestra allí */
     margin-top: 20px;
 }
 
@@ -380,26 +359,26 @@ main#main-content {
     font-size: 1.2em;
     color: var(--text-color);
     padding: 20px;
-    grid-column: 1 / -1;
-    margin: auto;
+    grid-column: 1 / -1; /* Ocupa todas las columnas en el grid */
+    margin: auto; /* Centrarlo verticalmente si es el único contenido */
 }
 
-/* Navegación del Pie de Página (footer) - ¡Cambiado a fixed! */
+/* Navegación del Pie de Página (footer) */
 #main-footer {
-    position: fixed; /* Cambiado de sticky a fixed para mayor consistencia en móvil */
+    position: sticky; /* Sticky para que se quede en la parte inferior si el contenido es pequeño */
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 56px;
+    height: 56px; /* Altura estándar de footer de YouTube móvil */
     background-color: var(--footer-bg);
     border-top: 1px solid var(--border-color);
     display: flex;
-    justify-content: space-around;
+    justify-content: space-around; /* Distribuye los elementos uniformemente */
     align-items: center;
     z-index: 1500;
     box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-    flex-shrink: 0;
-    /* margin-top: auto; ya no es necesario con position: fixed */
+    flex-shrink: 0; /* No permite que el footer se encoja */
+    margin-top: auto; /* Empuja el footer hacia abajo en un flex column */
 }
 
 .footer-item {
@@ -409,16 +388,16 @@ main#main-content {
     justify-content: center;
     text-decoration: none;
     color: var(--icon-color);
-    font-size: 0.7em;
+    font-size: 0.7em; /* Tamaño de texto para el nombre del ítem */
     font-weight: 500;
     transition: color 0.3s ease;
     padding: 5px;
-    flex: 1;
-    min-width: 50px;
+    flex: 1; /* Distribuye el espacio equitativamente */
+    min-width: 50px; /* Ancho mínimo para el botón */
 }
 
 .footer-item .material-icons {
-    font-size: 24px;
+    font-size: 24px; /* Tamaño estándar de icono */
     margin-bottom: 2px;
 }
 
@@ -433,14 +412,14 @@ main#main-content {
 /* Botón de Instalación PWA */
 #install-button-container {
     position: fixed;
-    bottom: 56px; /* Ajustado para estar encima del footer fijo */
+    bottom: 56px; /* Ajustado para estar encima del footer */
     left: 0;
     width: 100%;
     background-color: var(--header-bg);
     padding: 15px 0;
     box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
     z-index: 999;
-    display: none;
+    display: none; /* Oculto por defecto, JS lo muestra */
     justify-content: center;
     align-items: center;
     border-top: 1px solid var(--border-color);
@@ -482,9 +461,9 @@ main#main-content {
 
 /* Modal de Preferencias */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Cubre toda la pantalla */
+    z-index: 2000; /* Por encima de todo */
     left: 0;
     top: 0;
     width: 100%;
@@ -540,7 +519,7 @@ main#main-content {
 
 .form-group select,
 .form-group textarea {
-    width: calc(100% - 20px);
+    width: calc(100% - 20px); /* Ajusta por padding */
     padding: 10px;
     border: 1px solid var(--input-border);
     border-radius: 5px;
@@ -557,7 +536,7 @@ main#main-content {
 }
 
 .form-group textarea {
-    resize: vertical;
+    resize: vertical; /* Permite redimensionar verticalmente */
     min-height: 80px;
 }
 
@@ -614,47 +593,43 @@ main#main-content {
         height: 22px;
     }
     .search-container {
-        flex-direction: column;
+        flex-direction: column; /* La barra de búsqueda se apila en móvil */
         margin: 10px auto;
     }
     #search-input, #search-button {
-        border-radius: 4px; /* Bordes menos redondeados en móvil también */
+        border-radius: 20px; /* Bordes totalmente redondeados en móvil */
         border: 1px solid var(--input-border);
-        margin-bottom: 10px;
+        margin-bottom: 10px; /* Espacio entre input y botón */
     }
     #search-button {
         margin-bottom: 0;
     }
     #videos-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
         padding: 0 10px;
     }
     .video-thumbnail {
-        height: auto;
+        height: auto; /* Permite que el aspecto se mantenga sin altura fija */
     }
     #video-player-overlay {
-        padding: 0; /* Sin padding en móvil para maximizar el reproductor */
+        padding: 10px; /* Más padding en móvil */
     }
     #youtube-iframe-container {
-        width: 100vw; /* Ocupa todo el ancho del viewport */
-        padding-bottom: 56.25vw; /* Relación de aspecto del viewport */
-        max-width: unset; /* Desactiva el max-width */
-        max-height: unset; /* Desactiva el max-height */
-        border-radius: 0; /* Sin bordes redondeados en móvil */
+        width: 100%; /* Ocupa el ancho completo */
+        height: calc(100vw * 9 / 16); /* Ajusta altura por ancho del viewport */
+        max-height: 250px; /* Límite para pantallas pequeñas */
     }
     #close-player-button {
-        top: 5px;
-        right: 5px;
+        top: 10px;
+        right: 10px;
         font-size: 1.8em;
     }
     #custom-player-controls {
-        width: 100vw; /* Ocupa todo el ancho del viewport */
+        width: 100%;
         padding: 8px 10px;
-        border-radius: 0; /* Sin bordes redondeados en móvil */
-        max-width: unset; /* Desactiva el max-width */
     }
     .control-buttons {
-        gap: 8px;
+        gap: 10px;
     }
     #custom-player-controls button {
         font-size: 1.5em;
