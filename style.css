@@ -1,55 +1,205 @@
+/* Importar fuente Roboto para un aspecto similar a YouTube */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* Estilos Generales y Reseteo */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-  font-family: sans-serif;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9; /* Un gris claro para el fondo */
+    color: #030303; /* Color de texto principal */
 }
 
-.video-card {
-  border: 1px solid #ccc;
-  margin-bottom: 10px;
-  padding: 10px;
-}
-
-.video-info {
-  display: flex;
-  align-items: center;
-}
-
-.channel-img {
-  width: 50px;
-  height: 50px;
-  margin-right: 10px;
-  border-radius: 50%;
-}
-
+/* Encabezado (Header) */
 .header {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
+    background-color: #ff0000; /* Rojo YouTube */
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px; /* Altura estándar de cabecera */
+    position: sticky; /* Fija el header al hacer scroll */
+    top: 0;
+    z-index: 100; /* Asegura que esté por encima de otros elementos */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.left-header {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.right-header button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.right-header button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
 }
 
 .icon {
-  width: 2em;
-  height: 2em;
+    width: 2em;
+    height: 2em;
+    vertical-align: middle; /* Alinea el SVG con el texto si hubiera */
 }
 
+/* Lista de Videos */
+#video-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Columnas responsivas */
+    gap: 20px;
+    padding: 20px;
+    max-width: 1200px; /* Ancho máximo para el contenido */
+    margin: 0 auto; /* Centrar el contenido */
+}
+
+/* Tarjeta de Video */
+.video-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden; /* Para que el iframe y la imagen no sobresalgan */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.video-card:hover {
+    transform: translateY(-5px); /* Pequeño efecto al pasar el mouse */
+}
+
+.video-card iframe {
+    width: 100%;
+    height: 200px; /* Altura fija para miniaturas de video */
+    display: block; /* Eliminar espacio extra debajo del iframe */
+}
+
+.video-info {
+    padding: 10px;
+    display: flex;
+    align-items: flex-start; /* Alinea la imagen del canal arriba */
+}
+
+.channel-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%; /* Hacer la imagen del canal circular */
+    margin-right: 10px;
+    flex-shrink: 0; /* Prevenir que la imagen se encoja */
+}
+
+.video-info div {
+    flex-grow: 1; /* Permite que el texto ocupe el espacio restante */
+}
+
+.video-info strong {
+    font-size: 0.95em;
+    line-height: 1.3;
+    margin-bottom: 5px;
+    display: block; /* Asegura que el título ocupe su propia línea */
+    color: #030303;
+}
+
+.video-info small {
+    font-size: 0.85em;
+    color: #606060; /* Gris más claro para el nombre del canal */
+    display: block;
+}
+
+/* Modal de Búsqueda */
 #search-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #search-modal.show {
-  display: block;
+    display: flex; /* Mostrar cuando tiene la clase 'show' */
 }
 
 .modal-content {
-  background-color: white;
-  margin: 15% auto;
-  padding: 20px;
-  border-radius: 5px;
-  width: 300px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #030303;
+}
+
+.modal-content input {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.modal-content button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+    background-color: #cc0000;
+}
+
+.modal-content button:last-child {
+    background-color: #606060; /* Color gris para el botón de cancelar */
+}
+
+.modal-content button:last-child:hover {
+    background-color: #333;
+}
+
+/* Botón de instalación de PWA */
+#installBtn {
+    display: none; /* Oculto por defecto, se muestra con JS */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #065fd4; /* Un azul de llamada a la acción */
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 1.1em;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 999;
+}
+
+#installBtn:hover {
+    background-color: #044aac;
 }
