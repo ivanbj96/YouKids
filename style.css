@@ -1,60 +1,55 @@
 body {
-    font-family: sans-serif;
-    margin: 0;
-    background-color: #f0f0f0; /* Color de fondo principal */
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Para que el contenido llene toda la pantalla */
+  font-family: sans-serif;
 }
 
-header {
-    background-color: #d6e4ff; /* Color de la cabecera */
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Centrar verticalmente el contenido */
+.video-card {
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  padding: 10px;
 }
 
-#logo {
-    height: 50px; /* Ajusta el tamaño según tu logo */
+.video-info {
+  display: flex;
+  align-items: center;
 }
 
-#videoContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsivo */
-    grid-gap: 10px;
-    padding: 10px;
+.channel-img {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  border-radius: 50%;
 }
 
-.video-item {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    overflow: hidden;
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
 }
 
-.video-item img {
-    width: 100%;
-    height: auto;
+.icon {
+  width: 2em;
+  height: 2em;
 }
 
+#search-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
 
-/* Estilos para el modal (necesitarás más estilos para hacerlo funcional) */
-.modal {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    z-index: 1; /* Para que esté encima de todo */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Para que se pueda desplazar el contenido */
-    background-color: rgba(0,0,0,0.4); /* Fondo semitransparente */
+#search-modal.show {
+  display: block;
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 300px; /* Ajusta el ancho del modal */
+  background-color: white;
+  margin: 15% auto;
+  padding: 20px;
+  border-radius: 5px;
+  width: 300px;
 }
