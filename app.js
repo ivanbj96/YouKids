@@ -51,12 +51,12 @@ function displayVideos(items) {
         const videoCard = document.createElement('div');
         videoCard.classList.add('video-card');
         videoCard.innerHTML = `
-            <iframe 
-                width="100%" 
-                height="200" 
-                src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            <iframe
+                width="100%"
+                height="200"
+                src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
                 loading="lazy" <!-- Carga perezosa del iframe -->
             ></iframe>
@@ -75,8 +75,8 @@ function displayVideos(items) {
 // --- Funciones del Modal de Búsqueda ---
 function openFilterModal() {
     document.getElementById("search-modal").classList.add("show");
-    document.getElementById("search-input").value = currentKeyword;
-    document.getElementById("search-input").focus();
+    document.getElementById("search-input").value = currentKeyword; // Carga la palabra clave actual
+    document.getElementById("search-input").focus(); // Pone el foco en el input
 }
 
 function applySearch() {
@@ -85,7 +85,7 @@ function applySearch() {
         currentKeyword = input;
         fetchVideos();
     }
-    closeModal();
+    closeModal(); // Asegura que el modal se cierra después de aplicar la búsqueda
 }
 
 function closeModal() {
