@@ -2,28 +2,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 /* Estilos Generales y Reseteo */
-html, body {
-    height: 100%; /* Crucial para ocupar toda la pantalla */
-    margin: 0;
-    padding: 0;
-    /* overflow-y lo manejaremos con JS dinámicamente para controlar el scroll */
-    overflow-y: hidden; /* Oculta el scrollbar por defecto, JS lo controlará */
-}
-
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* El body es un contenedor flex para organizar header, nav y contenido */
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f9f9f9; /* Un gris claro para el fondo */
     color: #030303; /* Color de texto principal */
-    display: flex; /* Para flexbox layout */
-    flex-direction: column; /* Apila elementos verticalmente */
 }
 
-/* Header */
+/* Encabezado (Header) */
 .header {
     background-color: #ff0000; /* Rojo YouTube */
     color: white;
@@ -31,12 +22,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 56px;
-    position: sticky;
+    height: 56px; /* Altura estándar de cabecera */
+    position: sticky; /* Fija el header al hacer scroll */
     top: 0;
-    z-index: 100;
+    z-index: 100; /* Asegura que esté por encima de otros elementos */
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    flex-shrink: 0; /* No se encoge */
 }
 
 .left-header {
@@ -59,8 +49,9 @@ body {
 }
 
 .icon {
-    font-size: 1.5em; /* Tamaño de los iconos de Font Awesome */
-    vertical-align: middle;
+    width: 2em;
+    height: 2em;
+    vertical-align: middle; /* Alinea el SVG con el texto si hubiera */
 }
 
 /* Barra de Navegación Principal (Videos/Shorts) */
@@ -71,17 +62,6 @@ body {
     padding: 10px 0;
     border-bottom: 1px solid #ddd;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    position: sticky;
-    top: 56px; /* Debajo del header */
-    z-index: 90;
-    flex-shrink: 0;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Transición para ocultar/mostrar */
-}
-
-.main-nav.hidden {
-    transform: translateY(-100%);
-    opacity: 0;
-    pointer-events: none; /* Deshabilita clics cuando está oculto */
 }
 
 .nav-button {
@@ -95,15 +75,6 @@ body {
     font-weight: bold;
     color: #333;
     transition: background-color 0.3s ease, border-color 0.3s ease;
-    display: flex; /* Para centrar icono */
-    align-items: center;
-    justify-content: center;
-    width: 60px; /* Tamaño fijo para botón con solo icono */
-    height: 40px;
-}
-
-.nav-button i {
-    font-size: 1.2em; /* Tamaño del icono dentro del botón */
 }
 
 .nav-button:hover {
@@ -120,40 +91,21 @@ body {
     background-color: #cc0000;
 }
 
-/* Contenedor principal de los listados de videos/shorts */
-#content-container {
-    flex-grow: 1; /* Ocupa todo el espacio restante en el body */
-    display: flex;
-    flex-direction: column; /* Para que las secciones internas se apilen */
-    min-height: 0; /* Asegura que el flex item se encoja correctamente */
-}
-
-/* Estilos base para ambas secciones (video-list y shorts-list) */
+/* Contenedores de Contenido (Videos/Shorts) */
 .content-section {
-    display: none; /* Oculto por defecto */
-    width: 100%;
-    flex-grow: 1; /* Ocupa todo el espacio restante en #content-container */
-    min-height: 0; /* Asegura que el flex item se encoja correctamente */
-}
-
-/* Estilos para la sección activa */
-.content-section.active-content {
-    display: grid; /* Por defecto, para video-list (luego shorts-carousel lo sobrescribe) */
-}
-
-/* Estilos Específicos para Video List (grid) */
-#video-list {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Columnas responsivas */
+    display: none; /* Oculta todas las secciones de contenido por defecto */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Mismo grid para ambos */
     gap: 20px;
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    overflow-y: auto; /* Permite scroll solo en esta sección */
-    height: 100%; /* Ocupa la altura del flex-item padre (#content-container) */
-    align-content: start; /* Alinea el contenido al inicio en grid */
 }
 
-/* Tarjeta de Video (Regular) */
+.content-section.active-content {
+    display: grid; /* Muestra solo la sección activa */
+}
+
+/* Tarjeta de Video */
 .video-card {
     background-color: white;
     border-radius: 8px;
@@ -203,77 +155,6 @@ body {
     color: #606060;
     display: block;
 }
-
-/* Estilos Específicos para Shorts Carousel */
-#shorts-list.shorts-carousel { /* Este selector asegura que solo shorts tengan este estilo */
-    display: flex; /* Sobrescribe display: grid de .active-content */
-    flex-direction: column;
-    height: 100%; /* Ocupa la altura del flex-item padre (#content-container) */
-    overflow-y: scroll; /* Habilitar el scroll para cambiar de short */
-    scroll-snap-type: y mandatory; /* Para un scroll snap suave */
-    -webkit-overflow-scrolling: touch; /* Para un scroll más suave en iOS */
-}
-
-.short-card {
-    position: relative; /* Para posicionar iconos de control */
-    min-width: 100%; /* Ocupa el ancho completo del contenedor shorts-list */
-    min-height: 100%; /* Ocupa la altura completa del contenedor shorts-list */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: black; /* Fondo negro para el reproductor */
-    scroll-snap-align: start; /* Se ajusta al inicio al hacer scroll */
-    flex-shrink: 0; /* No se encoge */
-}
-
-.short-card iframe {
-    width: 100%;
-    height: 100%;
-    max-width: 400px; /* Ancho máximo para shorts verticales en pantallas anchas */
-    max-height: calc(100vw * 16 / 9); /* Mantener relación de aspecto vertical (9:16) */
-    aspect-ratio: 9/16; /* Define la relación de aspecto */
-    object-fit: contain; /* Asegura que el video se ajuste sin recortar */
-    display: block;
-}
-
-/* Controles de Play/Mute en Shorts */
-.short-controls {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 50%;
-    padding: 15px;
-    cursor: pointer;
-    z-index: 10; /* Asegura que esté por encima del iframe */
-    transition: opacity 0.3s ease;
-    opacity: 0; /* Oculto por defecto */
-    display: flex; /* Para centrar el icono */
-    justify-content: center;
-    align-items: center;
-}
-
-.short-controls.visible {
-    opacity: 1; /* Visible cuando se le añade la clase */
-}
-
-.short-controls i {
-    font-size: 2em; /* Tamaño del icono */
-    color: white;
-}
-
-/* Overlay para clickear en el short */
-.short-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9; /* Detrás de los controles */
-    cursor: pointer;
-}
-
 
 /* Modal de Búsqueda */
 #search-modal {
