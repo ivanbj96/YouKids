@@ -28,8 +28,9 @@ const PLAYER_STATES = {
  * Fetches and displays content based on currentContentType.
  * @param {string} type - 'videos' or 'shorts'.
  * @param {string|null} pageToken - Token para la siguiente página de resultados.
+ * @param {boolean} append - Si es true, añade al contenido existente; si es false, lo reemplaza.
  */
-async function fetchContent(type, pageToken = null) {
+async function fetchContent(type, pageToken = null, append = false) {
     if (isFetchingMoreContent) return;
     isFetchingMoreContent = true;
 
@@ -37,7 +38,7 @@ async function fetchContent(type, pageToken = null) {
     const targetContainer = document.getElementById(containerId);
 
     // Muestra mensaje de carga solo si es la primera carga o no hay contenido previo
-    if (!pageToken && targetContainer.children.length === 0) {
+    if (!append || targetContainer.children.length === 0) {
         targetContainer.innerHTML = `<p class="loading-message">Cargando ${type}...</p>`;
     }
 
@@ -59,8 +60,8 @@ async function fetchContent(type, pageToken = null) {
 
         const data = await response.json();
 
-        if (!pageToken && targetContainer.children.length === 0) {
-            targetContainer.innerHTML = ''; // Limpiar mensaje de carga
+        if (!append || targetContainer.children.length === 0) {
+            targetContainer.innerHTML = ''; // Limpiar mensaje de carga después de una carga exitosa
         }
 
         // Almacena el token para la siguiente página
@@ -82,18 +83,17 @@ async function fetchContent(type, pageToken = null) {
 
             if (newItems.length > 0) {
                 displayContent(newItems, targetContainer, type);
-            } else if (!pageToken) { // Si es la primera carga y no hay items nuevos
-                targetContainer.innerHTML = `<p class="no-results-message">No se encontraron ${type} con esa búsqueda. Intenta con otras palabras clave.</p>`;
+            } else if (!pageToken) { // Si es la primera carga y no hay items nuevos (o todos son repetidos)
+                targetContainer.innerHTML = `<p class="no-results-message">No se encontraron ${type} con esa búsqueda o todos ya fueron vistos. Intenta con otras palabras clave.</p>`;
             }
-        } else if (!pageToken) {
+        } else if (!pageToken) { // Si no hay items en la primera carga
             targetContainer.innerHTML = `<p class="no-results-message">No se encontraron ${type} con esa búsqueda. Intenta con otras palabras clave.</p>`;
         }
     } catch (error) {
-        console.error(`Error al obtener ${type}:`, error);
-        if (!pageToken) {
-            targetContainer.innerHTML = `<p class="error-message">Ocurrió un error al cargar los ${type}. Por favor, inténtalo de nuevo más tarde.</p>`;
+        console.error(`Error al obtener ${type}:`, error); // No usar alert() aquí
+        if (!pageToken || targetContainer.children.length === 0) { // Mostrar mensaje de error solo si es la carga inicial o no hay contenido
+            targetContainer.innerHTML = `<p class="error-message">Ocurrió un error al cargar los ${type}. Por favor, inténtalo de nuevo más tarde. Revisa tu clave API en la consola (F12) o tu conexión a Internet.</p>`;
         }
-        alert(`Ocurrió un error al obtener los ${type}. Por favor, intenta de nuevo más tarde. Revisa tu clave API.`);
     } finally {
         isFetchingMoreContent = false;
     }
@@ -107,7 +107,7 @@ async function fetchContent(type, pageToken = null) {
  * @param {string} contentType - 'videos' or 'shorts'.
  */
 function displayContent(items, targetContainer, contentType) {
-    items.forEach((item, index) => {
+    items.forEach((item) => {
         if (!item.id || !item.id.videoId || !item.snippet) {
             console.warn('Skipping malformed video item:', item);
             return;
@@ -141,7 +141,7 @@ function displayContent(items, targetContainer, contentType) {
                 </div>
             `;
         } else { // Shorts
-            const shortId = `ytplayer-${videoId}-${Date.now()}-${Math.random().toString(36).substring(7)}`; // Unique ID for each player
+            const shortId = `ytplayer-${videoId}-${Date.now()}-${Math.random().toString(36).substring(7)}`; // Unique ID
             card.innerHTML = `
                 <div id="${shortId}" class="youtube-player"></div>
                 <div class="short-overlay" data-player-id="${shortId}" data-video-id="${videoId}">
@@ -151,22 +151,21 @@ function displayContent(items, targetContainer, contentType) {
                     </div>
                 </div>
             `;
-            // Almacenar datos para inicializar el reproductor después
             card.dataset.videoId = videoId;
             card.dataset.playerId = shortId;
         }
         targetContainer.appendChild(card);
     });
 
-    if (contentType === 'shorts') {
-        // Reinicializar el carrusel y los reproductores
+    if (contentType === 'shorts' && isYoutubeApiReady) {
+        // Inicializar o añadir reproductores para los nuevos shorts
         initShortsCarousel();
     }
 }
 
 // --- Lógica de Navegación de Contenido (Videos vs Shorts) ---
 function showContent(type) {
-    if (currentContentType === type) return; // Ya estamos en esta sección
+    if (currentContentType === type) return;
 
     currentContentType = type;
 
@@ -175,24 +174,26 @@ function showContent(type) {
     // Quita la clase 'active-content' de todas las secciones de contenido
     document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active-content'));
 
-    // Añade la clase 'active' al botón seleccionado y 'active-content' a la sección de contenido correspondiente
+    // Controla el overflow global del body/html
     if (type === 'videos') {
         document.getElementById('showVideosBtn').classList.add('active');
         document.getElementById('video-list').classList.add('active-content');
-        document.getElementById('content-container').style.overflowY = 'auto'; // Habilita scroll para videos
-        document.querySelector('html').style.overflowY = 'auto'; // Permitir scroll en html
-        document.querySelector('body').style.overflowY = 'auto'; // Permitir scroll en body
+        document.documentElement.style.overflowY = 'auto'; // Permitir scroll en html para videos
+        document.body.style.overflowY = 'auto'; // Permitir scroll en body para videos
         resetShortsPlayers(); // Pausa y destruye reproductores de shorts
         fetchContent('videos'); // Carga videos
     } else if (type === 'shorts') {
         document.getElementById('showShortsBtn').classList.add('active');
         document.getElementById('shorts-list').classList.add('active-content');
-        document.getElementById('content-container').style.overflowY = 'hidden'; // Deshabilita scroll para contenedor principal en shorts
-        document.querySelector('html').style.overflowY = 'hidden'; // Deshabilita scroll en html
-        document.querySelector('body').style.overflowY = 'hidden'; // Deshabilita scroll en body
+        document.documentElement.style.overflowY = 'hidden'; // Ocultar scroll en html para shorts
+        document.body.style.overflowY = 'hidden'; // Ocultar scroll en body para shorts
         fetchContent('shorts'); // Carga shorts
     }
+    // Asegurar que la barra de navegación sea visible al cambiar de sección
+    mainNav.classList.remove('hidden');
+    clearTimeout(navHideTimeout); // Limpiar cualquier temporizador de ocultación pendiente
 }
+
 
 // --- Funciones del Modal de Búsqueda ---
 function openFilterModal() {
@@ -208,11 +209,12 @@ function applySearch() {
         SEEN_VIDEO_IDS.clear(); // Limpiar IDs vistos en nueva búsqueda
         videoNextPageToken = null;
         shortsNextPageToken = null;
-        youtubePlayers.length = 0; // Limpiar reproductores
-        currentShortPlayer = null;
-        currentShortIndex = 0;
+
+        // Limpiar contenedores existentes
         document.getElementById("video-list").innerHTML = '';
         document.getElementById("shorts-list").innerHTML = '';
+
+        resetShortsPlayers(); // Limpiar reproductores existentes (importante antes de cargar nuevos shorts)
 
         // Aplica la búsqueda a la sección actualmente activa
         fetchContent(currentContentType);
@@ -266,41 +268,41 @@ let isYoutubeApiReady = false;
 function onYouTubeIframeAPIReady() {
     isYoutubeApiReady = true;
     console.log('YouTube IFrame API is ready.');
-    // Si ya estamos en shorts, inicializamos los reproductores
-    if (currentContentType === 'shorts') {
+    // Si ya estamos en shorts y la sección está activa, inicializamos los reproductores
+    if (currentContentType === 'shorts' && document.getElementById('shorts-list').classList.contains('active-content')) {
         initShortsCarousel();
     }
 }
 
 function initShortsCarousel() {
-    if (!isYoutubeApiReady) return; // No inicializar si la API no está lista
+    if (!isYoutubeApiReady) {
+        console.warn('YouTube IFrame API no está lista. No se pueden inicializar los reproductores.');
+        return;
+    }
 
     const shortsList = document.getElementById('shorts-list');
+    const existingPlayersCount = youtubePlayers.length; // Contar reproductores ya creados
     const shortCards = Array.from(shortsList.querySelectorAll('.short-card'));
 
-    // Destruir reproductores antiguos antes de crear nuevos
-    resetShortsPlayers();
-
-    youtubePlayers.length = 0; // Limpiar la lista de reproductores
-    currentShortPlayer = null;
-    currentShortIndex = 0;
-
-    shortCards.forEach((card, index) => {
+    // Solo crear reproductores para las nuevas tarjetas (las que no tienen un reproductor asociado aún)
+    for (let i = existingPlayersCount; i < shortCards.length; i++) {
+        const card = shortCards[i];
         const videoId = card.dataset.videoId;
         const playerId = card.dataset.playerId;
 
         const player = new YT.Player(playerId, {
             videoId: videoId,
             playerVars: {
-                controls: 0, // Ocultar controles de YouTube
+                controls: 0,
                 disablekb: 1,
                 showinfo: 0,
-                rel: 0, // No mostrar videos relacionados
-                modestbranding: 1, // Logo de YouTube más pequeño
-                autoplay: 0, // No auto-reproducir inicialmente, lo haremos manualmente
+                rel: 0,
+                modestbranding: 1,
+                autoplay: 0,
                 mute: 1, // Empezar siempre muteado, lo controlaremos
-                loop: 1, // Loop el video
-                playlist: videoId // Para que el loop funcione
+                loop: 1,
+                playlist: videoId, // Para que el loop funcione
+                origin: window.location.origin // *** SOLUCIÓN ERROR 2 ***
             },
             events: {
                 'onReady': onShortPlayerReady,
@@ -313,113 +315,146 @@ function initShortsCarousel() {
         // Configurar eventos de clic en el overlay y controles
         const overlay = card.querySelector('.short-overlay');
         const controls = card.querySelector('.short-controls');
-        const playIcon = controls.querySelector('.fa-play');
-        const volumeIcon = controls.querySelector('.fa-volume-mute');
+        const playIcon = controls.querySelector('.fa-play') || controls.querySelector('.fa-pause');
+        const volumeIcon = controls.querySelector('.fa-volume-mute') || controls.querySelector('.fa-volume-up');
 
-        // Toggle Play/Pause on overlay click
-        overlay.onclick = () => {
-            if (player.getPlayerState() === PLAYER_STATES.PLAYING) {
-                player.pauseVideo();
-            } else {
-                player.playVideo();
+        overlay.onclick = (e) => {
+            e.stopPropagation();
+            if (player && typeof player.getPlayerState === 'function') { // *** SOLUCIÓN ERROR 1 ***
+                if (player.getPlayerState() === PLAYER_STATES.PLAYING) {
+                    player.pauseVideo();
+                } else {
+                    player.playVideo();
+                }
             }
-            controls.classList.add('visible'); // Mostrar controles brevemente
-            clearTimeout(controls.hideTimeout);
-            controls.hideTimeout = setTimeout(() => controls.classList.remove('visible'), 1500);
+            if (controls) {
+                controls.classList.add('visible'); // Mostrar controles brevemente
+                clearTimeout(controls.hideTimeout);
+                controls.hideTimeout = setTimeout(() => controls.classList.remove('visible'), 1500);
+            }
         };
 
-        // Toggle Mute/Unmute on volume icon click
         volumeIcon.onclick = (e) => {
-            e.stopPropagation(); // Prevenir que el clic en el icono active el overlay
-            if (player.isMuted()) {
-                player.unMute();
-                volumeIcon.classList.remove('fa-volume-mute');
-                volumeIcon.classList.add('fa-volume-up');
-            } else {
-                player.mute();
-                volumeIcon.classList.remove('fa-volume-up');
-                volumeIcon.classList.add('fa-volume-mute');
+            e.stopPropagation();
+            if (player) { // Solo si el reproductor existe
+                if (player.isMuted()) {
+                    player.unMute();
+                    volumeIcon.classList.remove('fa-volume-mute');
+                    volumeIcon.classList.add('fa-volume-up');
+                } else {
+                    player.mute();
+                    volumeIcon.classList.remove('fa-volume-up');
+                    volumeIcon.classList.add('fa-volume-mute');
+                }
             }
         };
 
         // Mostrar controles al pasar el mouse por encima (opcional, útil en desktop)
-        card.onmouseenter = () => controls.classList.add('visible');
+        card.onmouseenter = () => { if (controls) controls.classList.add('visible'); };
         card.onmouseleave = () => {
-            clearTimeout(controls.hideTimeout);
-            controls.hideTimeout = setTimeout(() => controls.classList.remove('visible'), 500);
+            if (controls) {
+                clearTimeout(controls.hideTimeout);
+                controls.hideTimeout = setTimeout(() => controls.classList.remove('visible'), 500);
+            }
         };
-    });
-
-    // Iniciar el primer short
-    if (youtubePlayers.length > 0) {
-        scrollToShort(0);
-        playShortAtIndex(0);
     }
+
+    // El primer short se reproducirá a través del scroll listener
+    // Esto se elimina de aquí: if (!currentShortPlayer && youtubePlayers.length > 0) { scrollToShort(0); playShortAtIndex(0); }
 }
 
 function onShortPlayerReady(event) {
     console.log(`Player ${event.target.h.id} ready.`);
-    // Opcional: ajustar calidad de video, etc.
+    // Ya no se auto-reproduce el primer short aquí. El scroll listener lo manejará.
 }
 
 function onShortPlayerStateChange(event) {
     const player = event.target;
-    const controls = player.a.parentNode.querySelector('.short-controls'); // Acceder a los controles desde el reproductor
-    const playIcon = controls.querySelector('.fa-play');
+    // *** SOLUCIÓN ERROR 4 ***: Asegurarse de que player.a y su parentNode existan
+    const playerIframe = player && player.a;
+    const playerDiv = playerIframe && playerIframe.parentNode;
+    const card = playerDiv && playerDiv.parentNode;
+    const controls = card && card.querySelector('.short-controls');
+
+    if (!controls) return; // Si no hay controles, salimos
+
+    const playIcon = controls.querySelector('.fa-play') || controls.querySelector('.fa-pause');
     const volumeIcon = controls.querySelector('.fa-volume-mute') || controls.querySelector('.fa-volume-up');
 
     // Sincronizar iconos con el estado del reproductor
     if (player.getPlayerState() === PLAYER_STATES.PLAYING) {
-        playIcon.classList.remove('fa-play');
-        playIcon.classList.add('fa-pause');
+        if (playIcon) {
+            playIcon.classList.remove('fa-play');
+            playIcon.classList.add('fa-pause');
+        }
         controls.classList.remove('visible'); // Ocultar controles automáticamente al reproducir
     } else {
-        playIcon.classList.remove('fa-pause');
-        playIcon.classList.add('fa-play');
+        if (playIcon) {
+            playIcon.classList.remove('fa-pause');
+            playIcon.classList.add('fa-play');
+        }
         controls.classList.add('visible'); // Mostrar controles al pausar
     }
 
-    if (player.isMuted()) {
-        volumeIcon.classList.remove('fa-volume-up');
-        volumeIcon.classList.add('fa-volume-mute');
-    } else {
-        volumeIcon.classList.remove('fa-volume-mute');
-        volumeIcon.classList.add('fa-volume-up');
+    if (volumeIcon) {
+        if (player.isMuted()) {
+            volumeIcon.classList.remove('fa-volume-up');
+            volumeIcon.classList.add('fa-volume-mute');
+        } else {
+            volumeIcon.classList.remove('fa-volume-mute');
+            volumeIcon.classList.add('fa-volume-up');
+        }
     }
-
-    // Si el video termina, el loop lo reinicia, no necesitamos lógica adicional para "siguiente" aquí.
-    // La lógica de "siguiente" se maneja con el scroll.
 }
 
 function onShortPlayerError(event) {
-    console.error('YouTube Player Error:', event.data, event.target.h.id);
-    // Mostrar un mensaje de error o saltar al siguiente short
-    const card = event.target.a.parentNode.parentNode; // .youtube-player -> .short-card
-    card.innerHTML = `<p class="error-message" style="color:white;">No se pudo cargar este Short. (${event.data})</p>`;
-}
+    console.error('YouTube Player Error:', event.data, event.target.h.id); // *** SOLUCIÓN ERROR 3 ***: No usar alert()
+    const playerIframe = event.target && event.target.a;
+    const playerDiv = playerIframe && playerIframe.parentNode;
+    const card = playerDiv && playerDiv.parentNode;
 
+    if (card) {
+        card.innerHTML = `<p class="error-message" style="color:white; text-align:center;">No se pudo cargar este Short. (Error: ${event.data})</p>`;
+    }
+}
 
 function playShortAtIndex(index) {
     if (index < 0 || index >= youtubePlayers.length) return;
 
-    if (currentShortPlayer) {
-        currentShortPlayer.pauseVideo();
-        currentShortPlayer.mute(); // Silenciar al salir
+    const nextPlayer = youtubePlayers[index];
+
+    // Pausar y mutear el reproductor actual si existe y es diferente al siguiente
+    if (currentShortPlayer && currentShortPlayer !== nextPlayer) {
+        if (typeof currentShortPlayer.pauseVideo === 'function') currentShortPlayer.pauseVideo();
+        if (typeof currentShortPlayer.mute === 'function') currentShortPlayer.mute();
     }
 
-    currentShortPlayer = youtubePlayers[index];
+    currentShortPlayer = nextPlayer;
     currentShortIndex = index;
 
-    if (currentShortPlayer.getPlayerState() !== PLAYER_STATES.PLAYING) {
+    // Solo intentar reproducir y mutear si el reproductor existe y está listo
+    if (currentShortPlayer && typeof currentShortPlayer.playVideo === 'function' && currentShortPlayer.getPlayerState() !== PLAYER_STATES.UNSTARTED) {
         currentShortPlayer.playVideo();
+        currentShortPlayer.mute(); // Asegurar que el nuevo short empiece muteado
+    } else {
+        // Si el reproductor no está listo, intentaremos reproducirlo cuando lo esté
+        // Esto se manejará implícitamente por el onShortPlayerStateChange o al reintentar en el scroll
+        console.log(`Short ${index} no está listo todavía, esperando...`);
     }
-    currentShortPlayer.mute(); // Asegurar que el nuevo short empiece muteado
+
     // Mostrar controles brevemente para el nuevo short
-    const controls = currentShortPlayer.a.parentNode.querySelector('.short-controls');
-    controls.classList.add('visible');
-    clearTimeout(controls.hideTimeout);
-    controls.hideTimeout = setTimeout(() => controls.classList.remove('visible'), 1500);
+    const playerIframe = currentShortPlayer && currentShortPlayer.a;
+    const playerDiv = playerIframe && playerIframe.parentNode;
+    const card = playerDiv && playerDiv.parentNode;
+    const controls = card && card.querySelector('.short-controls');
+
+    if (controls) {
+        controls.classList.add('visible');
+        clearTimeout(controls.hideTimeout);
+        controls.hideTimeout = setTimeout(() => controls.classList.remove('visible'), 1500);
+    }
 }
+
 
 function resetShortsPlayers() {
     youtubePlayers.forEach(player => {
@@ -445,25 +480,35 @@ if (shortsListElement) {
         const scrollPosition = shortsListElement.scrollTop;
         const totalHeight = shortsListElement.scrollHeight;
         const visibleHeight = shortsListElement.clientHeight;
-        const scrollThreshold = visibleHeight * 0.8; // Cargar más cuando queda el 20% para el final
 
-        // Calcular el índice del short visible
         const shortCards = Array.from(shortsListElement.querySelectorAll('.short-card'));
         let newCurrentShortIndex = 0;
+
+        // Calcular el índice del short visible por su centro
         for (let i = 0; i < shortCards.length; i++) {
-            if (scrollPosition >= shortCards[i].offsetTop - visibleHeight / 2) {
+            const card = shortCards[i];
+            const cardTop = card.offsetTop;
+            const cardHeight = card.clientHeight;
+            const cardCenter = cardTop + (cardHeight / 2);
+
+            if (cardCenter >= scrollPosition + visibleHeight / 2) {
                 newCurrentShortIndex = i;
+                break; // Encontramos el primer short que está en el centro o más abajo
             }
+            newCurrentShortIndex = i; // En caso de que el último short sea el único visible
         }
 
+
         if (newCurrentShortIndex !== currentShortIndex) {
-            playShortAtIndex(newCurrentShortIndex);
+            scrollToShort(newCurrentShortIndex); // Forzar el snap al short actual
+            playShortAtIndex(newCurrentShortIndex); // Reproducir el short recién visible
         }
 
         // Cargar más shorts si el usuario se acerca al final
+        const scrollThreshold = visibleHeight * 1; // Cargar más cuando queda 1 pantalla para el final
         if (!isFetchingMoreContent && shortsNextPageToken && (scrollPosition + visibleHeight >= totalHeight - scrollThreshold)) {
             console.log("Cargando más shorts...");
-            fetchContent('shorts', shortsNextPageToken);
+            fetchContent('shorts', shortsNextPageToken, true); // Añadir al contenido existente
         }
     }, 200)); // Debounce para no ejecutar demasiado seguido
 }
@@ -482,7 +527,7 @@ if (videoListElement) {
 
         if (!isFetchingMoreContent && videoNextPageToken && (scrollPosition + visibleHeight >= totalHeight - scrollThreshold)) {
             console.log("Cargando más videos...");
-            fetchContent('videos', videoNextPageToken);
+            fetchContent('videos', videoNextPageToken, true); // Añadir al contenido existente
         }
     }, 200));
 }
@@ -504,9 +549,12 @@ function scrollToShort(index) {
     const shortsList = document.getElementById('shorts-list');
     const shortCards = shortsList.querySelectorAll('.short-card');
     if (shortCards[index]) {
-        shortsList.scrollTo({
-            top: shortCards[index].offsetTop,
-            behavior: 'smooth'
+        // Usar requestAnimationFrame para asegurar que el scroll se haga después de que el DOM esté listo
+        requestAnimationFrame(() => {
+            shortsList.scrollTo({
+                top: shortCards[index].offsetTop,
+                behavior: 'smooth'
+            });
         });
     }
 }
@@ -514,20 +562,23 @@ function scrollToShort(index) {
 
 // --- Lógica de Ocultar/Mostrar Barra de Navegación ---
 const mainNav = document.querySelector('.main-nav');
-let lastScrollY = window.scrollY;
+let lastScrollY = 0; // Inicializar en 0 para que siempre se muestre al cargar
 let navHideTimeout;
 
 // Para videos, la barra de navegación se oculta con el scroll del BODY/HTML
 window.addEventListener('scroll', () => {
-    if (currentContentType !== 'videos') { // Solo aplica a la vista de videos
-        mainNav.classList.remove('hidden'); // Asegura que esté visible en shorts
+    if (currentContentType !== 'videos') {
+        // En modo Shorts, la barra de navegación debe estar siempre visible
+        mainNav.classList.remove('hidden');
+        clearTimeout(navHideTimeout);
         return;
     }
 
     const currentScrollY = window.scrollY;
-    if (currentScrollY > lastScrollY && currentScrollY > 56) { // Scroll hacia abajo y no en la parte superior
+    // Si el scroll es hacia abajo y ya no estamos en la parte superior del header
+    if (currentScrollY > lastScrollY && currentScrollY > 56) {
         mainNav.classList.add('hidden');
-    } else { // Scroll hacia arriba
+    } else { // Si el scroll es hacia arriba
         mainNav.classList.remove('hidden');
     }
     lastScrollY = currentScrollY;
@@ -541,8 +592,9 @@ window.addEventListener('scroll', () => {
     }, 5000); // Ocultar después de 5 segundos de inactividad
 });
 
-// Asegurarse de que la barra de navegación sea visible al inicio o al cambiar de sección
+
+// --- Carga inicial de contenido al cargar la página ---
 document.addEventListener("DOMContentLoaded", () => {
     showContent('videos'); // Muestra los videos por defecto al cargar la aplicación
-    mainNav.classList.remove('hidden'); // Asegura que la nav bar sea visible al cargar
+    // La barra de navegación se mostrará por showContent('videos') y el scroll listener
 });
