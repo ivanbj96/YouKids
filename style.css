@@ -3,16 +3,18 @@
 
 /* Estilos Generales y Reseteo */
 html, body {
-    height: 100%; /* Important for full-screen shorts */
+    height: 100%; /* Crucial para ocupar toda la pantalla */
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Hide scrollbars by default for short mode */
+    /* overflow-y lo manejaremos con JS dinámicamente para controlar el scroll */
+    overflow-y: hidden; /* Oculta el scrollbar por defecto, JS lo controlará */
 }
 
 * {
     box-sizing: border-box;
 }
 
+/* El body es un contenedor flex para organizar header, nav y contenido */
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f9f9f9; /* Un gris claro para el fondo */
@@ -118,34 +120,36 @@ body {
     background-color: #cc0000;
 }
 
-/* Contenedores de Contenido (Videos/Shorts) */
+/* Contenedor principal de los listados de videos/shorts */
 #content-container {
-    flex-grow: 1; /* Ocupa el espacio restante */
+    flex-grow: 1; /* Ocupa todo el espacio restante en el body */
     display: flex;
-    flex-direction: column;
-    overflow-y: auto; /* Permite desplazamiento para contenido normal */
+    flex-direction: column; /* Para que las secciones internas se apilen */
+    min-height: 0; /* Asegura que el flex item se encoja correctamente */
 }
 
+/* Estilos base para ambas secciones (video-list y shorts-list) */
 .content-section {
-    display: none; /* Oculta todas las secciones de contenido por defecto */
+    display: none; /* Oculto por defecto */
     width: 100%;
-    min-height: 100%; /* Asegura que la sección ocupa al menos 100% del contenedor padre */
-    flex-grow: 1;
+    flex-grow: 1; /* Ocupa todo el espacio restante en #content-container */
+    min-height: 0; /* Asegura que el flex item se encoja correctamente */
 }
 
+/* Estilos para la sección activa */
 .content-section.active-content {
-    display: grid; /* Muestra solo la sección activa para videos */
+    display: grid; /* Por defecto, para video-list (luego shorts-carousel lo sobrescribe) */
 }
 
 /* Estilos Específicos para Video List (grid) */
-#video-list.active-content {
+#video-list {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Columnas responsivas */
     gap: 20px;
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
     overflow-y: auto; /* Permite scroll solo en esta sección */
-    height: 100%; /* Ocupa la altura restante */
+    height: 100%; /* Ocupa la altura del flex-item padre (#content-container) */
     align-content: start; /* Alinea el contenido al inicio en grid */
 }
 
@@ -201,10 +205,10 @@ body {
 }
 
 /* Estilos Específicos para Shorts Carousel */
-#shorts-list.shorts-carousel {
-    display: flex; /* Para el carrusel de shorts */
-    flex-direction: column; /* Apila los shorts verticalmente */
-    height: calc(100vh - 56px - 60px); /* Altura total - header - nav */
+#shorts-list.shorts-carousel { /* Este selector asegura que solo shorts tengan este estilo */
+    display: flex; /* Sobrescribe display: grid de .active-content */
+    flex-direction: column;
+    height: 100%; /* Ocupa la altura del flex-item padre (#content-container) */
     overflow-y: scroll; /* Habilitar el scroll para cambiar de short */
     scroll-snap-type: y mandatory; /* Para un scroll snap suave */
     -webkit-overflow-scrolling: touch; /* Para un scroll más suave en iOS */
@@ -212,8 +216,8 @@ body {
 
 .short-card {
     position: relative; /* Para posicionar iconos de control */
-    min-width: 100vw; /* Ocupa el ancho completo del viewport */
-    min-height: calc(100vh - 56px - 60px); /* Ocupa la altura disponible */
+    min-width: 100%; /* Ocupa el ancho completo del contenedor shorts-list */
+    min-height: 100%; /* Ocupa la altura completa del contenedor shorts-list */
     display: flex;
     justify-content: center;
     align-items: center;
