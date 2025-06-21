@@ -1,48 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>YouKids - Inicio</title>
-    <link rel="stylesheet" href="style.css"/>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff0000"> <!-- Color de la barra superior del navegador en móvil -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChildTube</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff4081">
+  <!-- Soporte para PWA -->
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Configuración para niños (COPPA) -->
+  <meta name="audience" content="kids">
 </head>
 <body>
-    <header class="header">
-        <div class="left-header">YouKids</div>
-        <div class="right-header">
-            <button id="searchButton" onclick="openFilterModal()" title="Buscar">
-                <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 8.5C16 5.46 13.54 3 10.5 3S5 5.46 5 8.5 7.46 14 10.5 14a6.5 6.5 0 0 0 4.23-1.5l.27.28v.79l5 5L20.5 19l-5-5zm-5 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/></svg>
-            </button>
-        </div>
-    </header>
-
-    <!-- Barra de Navegación para Videos y Shorts -->
-    <nav class="main-nav">
-        <button id="showVideosBtn" class="nav-button active" onclick="showContent('videos')">Videos</button>
-        <button id="showShortsBtn" class="nav-button" onclick="showContent('shorts')">Shorts</button>
-    </nav>
-
-    <!-- Contenedores de Contenido -->
-    <div id="content-container">
-        <div id="video-list" class="content-section active-content"></div>
-        <div id="shorts-list" class="content-section"></div>
-    </div>
-
-    <!-- Modal de Búsqueda -->
-    <div id="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-modal-title">
-        <div class="modal-content">
-            <h2 id="search-modal-title">Buscar Videos / Shorts</h2>
-            <input type="text" id="search-input" placeholder="Ingresa palabras clave">
-            <button onclick="applySearch()">Buscar</button>
-            <button onclick="closeModal()">Cancelar</button>
-        </div>
-    </div>
-
-    <button id="installBtn" style="display: none;">Instalar YouKids</button>
-
-    <script src="app.js"></script>
+  <header>
+    <h1>ChildTube</h1>
+    <p>Videos educativos y cristianos para niños</p>
+  </header>
+  <main>
+    <section id="search-section">
+      <input type="text" id="search-input" placeholder="Busca videos educativos o cristianos...">
+      <button onclick="searchVideos()">Buscar</button>
+    </section>
+    <section id="categories">
+      <h2>Categorías</h2>
+      <button onclick="searchVideos('historias bíblicas niños')">Historias Bíblicas</button>
+      <button onclick="searchVideos('canciones cristianas niños')">Canciones Cristianas</button>
+      <button onclick="searchVideos('ciencia para niños')">Ciencia para Niños</button>
+      <button onclick="searchVideos('shorts educativos niños')">Shorts Educativos</button>
+    </section>
+    <section id="video-list">
+      <h2>Videos</h2>
+      <div id="videos-container"></div>
+    </section>
+    <section id="player-section" style="display: none;">
+      <h2>Reproduciendo</h2>
+      <div id="player"></div>
+      <button onclick="closePlayer()">Cerrar</button>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2025 ChildTube. <a href="privacy-policy.html">Política de Privacidad</a></p>
+  </footer>
+  <script src="app.js"></script>
+  <!-- Carga el SDK de YouTube IFrame -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
