@@ -95,3 +95,9 @@ document.getElementById('search-input').addEventListener('keypress', (e) => {
     }
   }
 });
+
+// Alternar barra lateral en móviles
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('active');
+}
