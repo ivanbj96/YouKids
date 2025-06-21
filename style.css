@@ -1,257 +1,147 @@
-/* Importar fuente Roboto para un aspecto similar a YouTube */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
-/* Estilos Generales y Reseteo */
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: #f9f9f9; /* Un gris claro para el fondo */
-    color: #030303; /* Color de texto principal */
+  background-color: #f0f4f8;
+  color: #333;
+  line-height: 1.6;
 }
 
-/* Encabezado (Header) */
-.header {
-    background-color: #ff0000; /* Rojo YouTube */
-    color: white;
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px; /* Altura estándar de cabecera */
-    position: sticky; /* Fija el header al hacer scroll */
-    top: 0;
-    z-index: 100; /* Asegura que esté por encima de otros elementos */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+header {
+  background-color: #ff4081;
+  color: white;
+  text-align: center;
+  padding: 1rem;
 }
 
-.left-header {
-    font-weight: bold;
-    font-size: 1.5em;
+header h1 {
+  font-size: 2.5rem;
 }
 
-.right-header button {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 5px;
-    transition: background-color 0.3s ease;
+header p {
+  font-size: 1.2rem;
 }
 
-.right-header button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-.icon {
-    width: 2em;
-    height: 2em;
-    vertical-align: middle; /* Alinea el SVG con el texto si hubiera */
+#search-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-/* Barra de Navegación Principal (Videos/Shorts) */
-.main-nav {
-    display: flex;
-    justify-content: center;
-    background-color: #eee;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+#search-input {
+  flex: 1;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  border: 2px solid #ff4081;
+  border-radius: 5px;
 }
 
-.nav-button {
-    background-color: #f1f1f1;
-    border: 1px solid #ccc;
-    padding: 10px 20px;
-    margin: 0 5px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    color: #333;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+button {
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+  background-color: #ff4081;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.nav-button:hover {
-    background-color: #e0e0e0;
+button:hover {
+  background-color: #e91e63;
 }
 
-.nav-button.active {
-    background-color: #ff0000;
-    color: white;
-    border-color: #ff0000;
+#categories {
+  margin-bottom: 2rem;
 }
 
-.nav-button.active:hover {
-    background-color: #cc0000;
+#categories h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
 }
 
-/* Contenedores de Contenido (Videos/Shorts) */
-.content-section {
-    display: none; /* Oculta todas las secciones de contenido por defecto */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Mismo grid para ambos */
-    gap: 20px;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+#categories button {
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.content-section.active-content {
-    display: grid; /* Muestra solo la sección activa */
+#video-list h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
 }
 
-/* Tarjeta de Video */
+#videos-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
 .video-card {
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease-in-out;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 }
 
-.video-card:hover {
-    transform: translateY(-5px);
+.video-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
 }
 
-.video-card iframe {
-    width: 100%;
+.video-card h3 {
+  font-size: 1rem;
+  padding: 0.5rem;
+  height: 3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#player-section {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+#player {
+  width: 100%;
+  max-width: 800px;
+  height: 450px;
+  margin: 0 auto;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #ff4081;
+  color: white;
+  margin-top: 2rem;
+}
+
+footer a {
+  color: white;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  header h1 {
+    font-size: 2rem;
+  }
+
+  #search-section {
+    flex-direction: column;
+  }
+
+  #player {
     height: 200px;
-    display: block;
-}
-
-.video-info {
-    padding: 10px;
-    display: flex;
-    align-items: flex-start;
-}
-
-.channel-img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    margin-right: 10px;
-    flex-shrink: 0;
-}
-
-.video-info div {
-    flex-grow: 1;
-}
-
-.video-info strong {
-    font-size: 0.95em;
-    line-height: 1.3;
-    margin-bottom: 5px;
-    display: block;
-    color: #030303;
-}
-
-.video-info small {
-    font-size: 0.85em;
-    color: #606060;
-    display: block;
-}
-
-/* Modal de Búsqueda */
-#search-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-#search-modal.show {
-    display: flex;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    text-align: center;
-}
-
-.modal-content h2 {
-    margin-bottom: 20px;
-    color: #030303;
-}
-
-.modal-content input {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-}
-
-.modal-content button {
-    background-color: #ff0000;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin: 5px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s ease;
-}
-
-.modal-content button:hover {
-    background-color: #cc0000;
-}
-
-.modal-content button:last-child {
-    background-color: #606060;
-}
-
-.modal-content button:last-child:hover {
-    background-color: #333;
-}
-
-/* Mensajes de estado (carga, sin resultados, error) */
-.loading-message, .no-results-message, .error-message {
-    text-align: center;
-    padding: 20px;
-    font-size: 1.2em;
-    color: #606060;
-}
-
-.error-message {
-    color: #cc0000;
-}
-
-/* Botón de instalación de PWA */
-#installBtn {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #065fd4;
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 1.1em;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    z-index: 999;
-}
-
-#installBtn:hover {
-    background-color: #044aac;
+  }
 }
