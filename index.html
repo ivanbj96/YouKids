@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ChildTube</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="sidebar.css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ff4081">
+  <meta name="theme-color" content="#ffffff">
   <!-- Soporte para PWA -->
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,37 +16,52 @@
   <meta name="audience" content="kids">
 </head>
 <body>
-  <header>
-    <h1>ChildTube</h1>
-    <p>Videos educativos y cristianos para niños</p>
+  <!-- Barra de navegación superior -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <h1 class="logo">ChildTube</h1>
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Buscar videos educativos o cristianos...">
+        <button onclick="searchVideos()">🔍</button>
+      </div>
+    </div>
   </header>
-  <main>
-    <section id="search-section">
-      <input type="text" id="search-input" placeholder="Busca videos educativos o cristianos...">
-      <button onclick="searchVideos()">Buscar</button>
-    </section>
-    <section id="categories">
-      <h2>Categorías</h2>
-      <button onclick="searchVideos('historias bíblicas niños')">Historias Bíblicas</button>
-      <button onclick="searchVideos('canciones cristianas niños')">Canciones Cristianas</button>
-      <button onclick="searchVideos('ciencia para niños')">Ciencia para Niños</button>
-      <button onclick="searchVideos('shorts educativos niños')">Shorts Educativos</button>
-    </section>
-    <section id="video-list">
-      <h2>Videos</h2>
-      <div id="videos-container"></div>
-    </section>
-    <section id="player-section" style="display: none;">
-      <h2>Reproduciendo</h2>
-      <div id="player"></div>
-      <button onclick="closePlayer()">Cerrar</button>
-    </section>
-  </main>
+
+  <!-- Contenedor principal -->
+  <div class="main-container">
+    <!-- Barra lateral -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-content">
+        <h2>Categorías</h2>
+        <ul>
+          <li><button onclick="searchVideos('historias bíblicas niños')">Historias Bíblicas</button></li>
+          <li><button onclick="searchVideos('canciones cristianas niños')">Canciones Cristianas</button></li>
+          <li><button onclick="searchVideos('ciencia para niños')">Ciencia para Niños</button></li>
+          <li><button onclick="searchVideos('shorts educativos niños')">Shorts Educativos</button></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="content">
+      <section id="video-list">
+        <h2>Videos</h2>
+        <div id="videos-container" class="video-grid"></div>
+      </section>
+      <section id="player-section" style="display: none;">
+        <h2>Reproduciendo</h2>
+        <div id="player"></div>
+        <button class="close-player" onclick="closePlayer()">Cerrar</button>
+      </section>
+    </main>
+  </div>
+
   <footer>
-    <p>&copy; 2025 ChildTube. <a href="privacy-policy.html">Política de Privacidad</a></p>
+    <p>© 2025 ChildTube. <a href="privacy-policy.html">Política de Privacidad</a></p>
   </footer>
+
   <script src="app.js"></script>
-  <!-- Carga el SDK de YouTube IFrame -->
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
