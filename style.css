@@ -2,113 +2,128 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', Arial, sans-serif;
 }
 
 body {
-  background-color: #f0f4f8;
-  color: #333;
+  background-color: #f9f9f9;
+  color: #030303;
   line-height: 1.6;
 }
 
-header {
-  background-color: #ff4081;
-  color: white;
-  text-align: center;
-  padding: 1rem;
+/* Barra de navegación superior */
+.top-nav {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
 }
 
-header h1 {
-  font-size: 2.5rem;
-}
-
-header p {
-  font-size: 1.2rem;
-}
-
-main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-#search-section {
+.nav-container {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
-#search-input {
-  flex: 1;
-  padding: 0.8rem;
-  font-size: 1.1rem;
-  border: 2px solid #ff4081;
-  border-radius: 5px;
-}
-
-button {
-  padding: 0.8rem 1.5rem;
-  font-size: 1.1rem;
-  background-color: #ff4081;
-  color: white;
+.menu-toggle {
+  display: none;
+  font-size: 1.5rem;
+  background: none;
   border: none;
-  border-radius: 5px;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #ff0000;
+  margin: 0 1rem;
+}
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 2px 0 0 2px;
+}
+
+.search-bar button {
+  padding: 0.5rem 1rem;
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  border-left: none;
+  border-radius: 0 2px 2px 0;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #e91e63;
+.search-bar button:hover {
+  background-color: #e0e0e0;
 }
 
-#categories {
-  margin-bottom: 2rem;
+/* Contenedor principal */
+.main-container {
+  display: flex;
+  margin-top: 56px; /* Espacio para la barra superior fija */
+  min-height: calc(100vh - 56px - 60px); /* Resta la barra y el footer */
 }
 
-#categories h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+/* Contenido principal */
+.content {
+  flex: 1;
+  padding: 1rem;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-#categories button {
-  margin-right: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-#video-list h2 {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-}
-
-#videos-container {
+.video-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
 }
 
 .video-card {
-  background-color: white;
-  border-radius: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.video-card:hover {
+  transform: scale(1.02);
 }
 
 .video-card img {
   width: 100%;
-  height: 150px;
+  aspect-ratio: 16/9;
   object-fit: cover;
 }
 
 .video-card h3 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   padding: 0.5rem;
-  height: 3rem;
+  height: 2.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #030303;
 }
 
 #player-section {
-  margin-top: 2rem;
+  margin: 2rem 0;
   text-align: center;
 }
 
@@ -119,29 +134,65 @@ button:hover {
   margin: 0 auto;
 }
 
+.close-player {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #ff0000;
+  color: white;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.close-player:hover {
+  background-color: #cc0000;
+}
+
 footer {
   text-align: center;
   padding: 1rem;
-  background-color: #ff4081;
-  color: white;
-  margin-top: 2rem;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e5e5;
 }
 
 footer a {
-  color: white;
-  text-decoration: underline;
+  color: #ff0000;
+  text-decoration: none;
 }
 
-@media (max-width: 600px) {
-  header h1 {
-    font-size: 2rem;
+/* Responsividad */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
   }
 
-  #search-section {
-    flex-direction: column;
+  .search-bar {
+    margin-left: 0;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .video-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
   #player {
     height: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-bar input {
+    font-size: 0.9rem;
+  }
+
+  .search-bar button {
+    padding: 0.5rem;
+  }
+
+  .video-card h3 {
+    font-size: 0.8rem;
   }
 }
