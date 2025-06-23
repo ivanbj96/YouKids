@@ -3,17 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouKids - Inicio</title>
-    <link rel="stylesheet" href="style.css">
-   
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>VibeStream</title>
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="apple-touch-icon" href="/icon.png">
 </head>
 <body>
+    <!-- Barra de navegación superior -->
     <header>
-        <h1>YouKids</h1>
-        <input type="text" id="searchInput" placeholder="Buscar videos...">
-        <button id="searchButton">Buscar</button>
+        <nav>
+            <div class="logo">
+                <img src="/logo.png" alt="VibeStream Logo">
+            </div>
+            <div class="search-bar">
+                <input type="search" placeholder="Buscar videos, música..." aria-label="Buscar">
+                <button type="submit" aria-label="Buscar">
+                    <img src="/search-icon.png" alt="Buscar">
+                </button>
+            </div>
+            <div class="user-menu">
+                <button aria-label="Menú de usuario">
+                    <img src="/user-icon.png" alt="Usuario">
+                </button>
+            </div>
+        </nav>
     </header>
-    <main id="videoContainer"></main>
-    <script src="app.js"></script>
+
+    <!-- Contenido principal -->
+    <main>
+        <!-- Barra lateral de navegación -->
+        <aside>
+            <ul>
+                <li>
+                    <a href="#home" aria-label="Inicio">
+                        <img src="/home-icon.png" alt="Inicio">
+                    </a>
+                </li>
+                <li>
+                    <a href="#music" aria-label="Música">
+                        <img src="/music-icon.png" alt="Música">
+                    </a>
+                </li>
+                <li>
+                    <a href="#reels" aria-label="Reels">
+                        <img src="/reels-icon.png" alt="Reels">
+                    </a>
+                </li>
+                <li>
+                    <a href="#subscriptions" aria-label="Suscripciones">
+                        <img src="/subscriptions-icon.png" alt="Suscripciones">
+                    </a>
+                </li>
+                <li>
+                    <a href="#library" aria-label="Biblioteca">
+                        <img src="/library-icon.png" alt="Biblioteca">
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Sección de contenido principal -->
+        <section class="content">
+            <!-- Carrusel de destacados -->
+            <div class="carousel">
+                <div class="carousel-item">
+                    <video poster="/thumbnail1.jpg" controls>
+                        <source src="/video1.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="carousel-item">
+                    <img src="/banner1.jpg" alt="Banner destacado">
+                </div>
+                <div class="carousel-item">
+                    <video poster="/thumbnail2.jpg" controls>
+                        <source src="/video2.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+
+            <!-- Sección de Reels -->
+            <section class="reels-section">
+                <h2>Reels</h2>
+                <div class="reels-container">
+                    <div class="reel">
+                        <video poster="/reel1.jpg" controls loop>
+                            <source src="/reel1.mp4" type="video/mp4">
+                        </video>
+                        <div class="reel-overlay">
+                            <img src="/user1.png" alt="Usuario">
+                        </div>
+                    </div>
+                    <div class="reel">
+                        <video poster="/reel2.jpg" controls loop>
+                            <source src="/reel2.mp4" type="video/mp4">
+                        </video>
+                        <div class="reel-overlay">
+                            <img src="/user2.png" alt="Usuario">
+                        </div>
+                    </div>
+                    <div class="reel">
+                        <video poster="/reel3.jpg" controls loop>
+                            <source src="/reel3.mp4" type="video/mp4">
+                        </video>
+                        <div class="reel-overlay">
+                            <img src="/user3.png" alt="Usuario">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de Música -->
+            <section class="music-section">
+                <h2>Música popular</h2>
+                <div class="music-container">
+                    <div class="music-card">
+                        <img src="/album1.jpg" alt="Álbum">
+                        <audio controls>
+                            <source src="/song1.mp3" type="audio/mp3">
+                        </audio>
+                    </div>
+                    <div class="music-card">
+                        <img src="/album2.jpg" alt="Álbum">
+                        <audio controls>
+                            <source src="/song2.mp3" type="audio/mp3">
+                        </audio>
+                    </div>
+                    <div class="music-card">
+                        <img src="/album3.jpg" alt="Álbum">
+                        <audio controls>
+                            <source src="/song3.mp3" type="audio/mp3">
+                        </audio>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección de Videos recomendados -->
+            <section class="videos-section">
+                <h2>Recomendados</h2>
+                <div class="videos-container">
+                    <div class="video-card">
+                        <video poster="/thumbnail3.jpg" controls>
+                            <source src="/video3.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-info">
+                            <img src="/channel1.png" alt="Canal">
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <video poster="/thumbnail4.jpg" controls>
+                            <source src="/video4.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-info">
+                            <img src="/channel2.png" alt="Canal">
+                        </div>
+                    </div>
+                    <div class="video-card">
+                        <video poster="/thumbnail5.jpg" controls>
+                            <source src="/video5.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-info">
+                            <img src="/channel3.png" alt="Canal">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <!-- Reproductor flotante -->
+    <footer class="player">
+        <div class="player-controls">
+            <img src="/current-media.jpg" alt="Media actual">
+            <button aria-label="Reproducir/Pausar">
+                <img src="/play-icon.png" alt="Play">
+            </button>
+            <button aria-label="Siguiente">
+                <img src="/next-icon.png" alt="Siguiente">
+            </button>
+            <div class="progress-bar">
+                <input type="range" min="0" max="100" value="0" aria-label="Progreso">
+            </div>
+            <button aria-label="Volumen">
+                <img src="/volume-icon.png" alt="Volumen">
+            </button>
+        </div>
+    </footer>
+<script src="app.js"></script>
 </body>
 </html>
