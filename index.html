@@ -26,6 +26,11 @@
     </div>
   </header>
 
+  <div class="player-section" id="player-section" style="display: none;">
+    <div id="player"></div>
+    <button class="close-player" onclick="closePlayer()">Cerrar</button>
+  </div>
+
   <div class="main-container">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-content">
@@ -34,7 +39,7 @@
           <li><button onclick="searchVideos('historias bíblicas niños')">Historias Bíblicas</button></li>
           <li><button onclick="searchVideos('canciones cristianas niños')">Canciones Cristianas</button></li>
           <li><button onclick="searchVideos('educativo niños')">Aprende y Juega</button></li>
-          <li><button onclick="searchVideos('shorts educativos niños')">Shorts Divertidos</button></li>
+          <li><button onclick="searchShorts()">Shorts Divertidos</button></li>
         </ul>
       </div>
     </aside>
@@ -43,11 +48,7 @@
       <section id="video-list">
         <h2>Videos para Niños</h2>
         <div id="videos-container" class="video-grid"></div>
-      </section>
-      <section id="player-section" style="display: none;">
-        <h2>¡A Disfrutar!</h2>
-        <div id="player"></div>
-        <button class="close-player" onclick="closePlayer()">Cerrar</button>
+        <div id="loading" style="display: none; text-align: center; padding: 1rem;">Cargando más videos...</div>
       </section>
     </main>
   </div>
