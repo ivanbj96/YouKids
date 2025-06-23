@@ -1,63 +1,133 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ChildTube</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="sidebar.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="apple-touch-icon" href="YouKids.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="audience" content="kids">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouKids - Inicio</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="manifest" href="manifest.json"> <!-- Agrega esto para el manifiesto -->
 </head>
 <body>
-  <header class="top-nav">
-    <div class="nav-container">
-      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-      <img src="icons/icon-192x192.png" alt="Logo" class="logo-img">
-      <h1 class="logo">ChildTube</h1>
-      <div class="search-bar">
-        <input type="text" id="search-input" placeholder="Buscar videos para niños...">
-        <button onclick="searchVideos()">🔍</button>
-      </div>
-    </div>
+  <header class="header">
+    <div class="left-header">YouKids</div>
+    <div class="right-header">
+      <button onclick="openFilterModal()" title="Buscar">
+        <svg viewBox="0 0 24 24" class="icon"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 8.5C16 5.46 13.54 3 10.5 3S5 5.46 5 8.5 7.46 14 10.5 14a6.5 6.5 0 0 0 4.23-1.5l.27.28v.79l5 5L20.5 19l-5-5zm-5 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"/></svg>
+      </button>
+      <button id="filterModal" onclick="openFilterModal()" title="Filtro"> </button> </div>
   </header>
 
-  <div class="player-section" id="player-section" style="display: none;">
-    <div id="player"></div>
-    <button class="close-player" onclick="closePlayer()">Cerrar</button>
+  <div id="video-list"></div>
+
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <input type="text" id="search-input" placeholder="Buscar videos...">
+      <button onclick="applySearch()">Buscar</button>
+    </div>
   </div>
 
-  <div class="main-container">
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-content">
-        <h2>Categorías</h2>
-        <ul>
-          <li><button onclick="searchVideos('historias bíblicas niños')">Historias Bíblicas</button></li>
-          <li><button onclick="searchVideos('canciones cristianas niños')">Canciones Cristianas</button></li>
-          <li><button onclick="searchVideos('educativo niños')">Aprende y Juega</button></li>
-          <li><button onclick="searchShorts()">Shorts Divertidos</button></li>
-        </ul>
-      </div>
-    </aside>
+  <button id="installBtn" style="display:none;">Instalar</button>
 
-    <main class="content">
-      <section id="video-list">
-        <h2>Videos para Niños</h2>
-        <div id="videos-container" class="video-grid"></div>
-        <div id="loading" style="display: none; text-align: center; padding: 1rem;">Cargando más videos...</div>
-      </section>
-    </main>
-  </div>
 
-  <footer>
-    <p>© 2025 ChildTube. <a href="privacy-policy.html">Política de Privacidad</a></p>
-  </footer>
+  <script>
+    const apiKey = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // Asegúrate de tener tu propia API Key
+    let currentKeyword = "videos cristianos niños";
 
-  <script src="app.js"></script>
-  <script src="https://www.youtube.com/iframe_api"></script>
+    async function fetchVideos() {
+      try {
+        const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=100&q=${encodeURIComponent(currentKeyword)}&type=video&key=${apiKey}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+
+        const container = document.getElementById("video-list");
+        container.innerHTML = "";
+
+        for (let item of data.items) {
+          const videoId = item.id.videoId;
+          const title = item.snippet.title;
+          const thumbnail = item.snippet.thumbnails.high.url;
+          const channelTitle = item.snippet.channelTitle;
+          const channelId = item.snippet.channelId;
+
+          try {
+            const channelRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`);
+            if (!channelRes.ok) {
+              throw new Error(`HTTP error! status: ${channelRes.status}`);
+            }
+            const channelData = await channelRes.json();
+            const channelImg = channelData.items[0]?.snippet?.thumbnails?.default?.url || '';
+
+            const videoCardHTML = `
+              <div class="video-card">
+                <iframe width="100%" height="200" src="https://www.youtube.com/embed/${videoId}?autoplay=0&mute=1" frameborder="0" allowfullscreen></iframe>
+                <div class="video-info">
+                  <img src="${channelImg}" class="channel-img" />
+                  <div>
+                    <strong>${title}</strong><br/>
+                    <small>${channelTitle}</small>
+                  </div>
+                </div>
+              </div>
+            `;
+            container.innerHTML += videoCardHTML;
+          } catch (error) {
+            console.error("Error fetching channel data:", error);
+            // Aquí podrías mostrar un mensaje de error al usuario
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+        // Aquí podrías mostrar un mensaje de error al usuario
+      }
+    }
+
+    function openFilterModal() {
+      document.getElementById("search-modal").classList.add("show");
+      document.getElementById("search-input").value = currentKeyword;
+      document.getElementById("search-input").focus();
+    }
+
+    function applySearch() {
+      const input = document.getElementById("search-input").value.trim();
+      if (input !== "") {
+        currentKeyword = input;
+        fetchVideos();
+      }
+      closeModal();
+    }
+
+    function closeModal() {
+      document.getElementById("search-modal").classList.remove("show");
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchVideos);
+
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        console.log('Instalación aceptada');
+      } else {
+        console.log('Instalación rechazada');
+      }
+      installBtn.style.display = 'none';
+      deferredPrompt = null;
+    });
+  </script>
 </body>
 </html>
