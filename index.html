@@ -1,110 +1,18 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#121212">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <title>VibeStream</title>
-    <!-- <link rel="manifest" href="/manifest.json"> -->
-    <link rel="apple-touch-icon" href="/icon.png">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contenido Cristiano</title>
+  <script src="https://cdn.tailwindcss.com"></script> <!-- Incluimos Tailwind -->
+  <script src="app.js" defer></script> <!-- Script JS al final -->
 </head>
-<body>
-    <!-- Barra de navegación superior -->
-    <header>
-        <nav>
-            <div class="logo">
-                <img src="/logo.png" alt="VibeStream Logo">
-            </div>
-            <div class="search-bar">
-                <input type="search" placeholder="Buscar videos cristianos..." aria-label="Buscar">
-                <button type="submit" aria-label="Buscar">
-                    <img src="/search-icon.png" alt="Buscar">
-                </button>
-            </div>
-            <div class="user-menu">
-                <button aria-label="Menú de usuario">
-                    <img src="/user-icon.png" alt="Usuario">
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Contenido principal -->
-    <main>
-        <!-- Barra lateral de navegación -->
-        <aside>
-            <ul>
-                <li>
-                    <a href="#home" aria-label="Inicio">
-                        <img src="/home-icon.png" alt="Inicio">
-                    </a>
-                </li>
-                <li>
-                    <a href="#music" aria-label="Música">
-                        <img src="/music-icon.png" alt="Música">
-                    </a>
-                </li>
-                <li>
-                    <a href="#reels" aria-label="Reels">
-                        <img src="/reels-icon.png" alt="Reels">
-                    </a>
-                </li>
-                <li>
-                    <a href="#subscriptions" aria-label="Suscripciones">
-                        <img src="/subscriptions-icon.png" alt="Suscripciones">
-                    </a>
-                </li>
-                <li>
-                    <a href="#library" aria-label="Biblioteca">
-                        <img src="/library-icon.png" alt="Biblioteca">
-                    </a>
-                </li>
-            </ul>
-        </aside>
-
-        <!-- Sección de contenido principal -->
-        <section class="content">
-            <!-- Indicador de carga -->
-            <div id="loading" style="text-align: center; margin: 20px 0; color: #ffffff; display: none;">Cargando...</div>
-            <!-- Carrusel de destacados -->
-            <div class="carousel"></div>
-
-            <!-- Sección de Reels -->
-            <section class="reels-section">
-                <h2>Reels Cristianos</h2>
-                <div class="reels-container"></div>
-            </section>
-
-            <!-- Sección de Videos recomendados -->
-            <section class="videos-section">
-                <h2>Videos Recomendados</h2>
-                <div class="videos-container"></div>
-            </section>
-        </section>
-    </main>
-
-    <!-- Reproductor flotante -->
-    <footer class="player">
-        <div class="player-controls">
-            <img src="/default-media.jpg" alt="Media actual" class="current-media">
-            <button aria-label="Reproducir/Pausar">
-                <img src="/play-icon.png" alt="Play">
-            </button>
-            <button aria-label="Siguiente">
-                <img src="/next-icon.png" alt="Siguiente">
-            </button>
-            <div class="progress-bar">
-                <input type="range" min="0" max="100" value="0" aria-label="Progreso">
-            </div>
-            <button aria-label="Volumen">
-                <img src="/volume-icon.png" alt="Volumen">
-            </button>
-        </div>
-    </footer>
-
-    <script src="app.js"></script>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-4 text-center">Contenido Cristiano</h1>
+    <div id="video-container">
+      <!-- Aquí irá el video embebido -->
+    </div>
+  </div>
 </body>
 </html>
