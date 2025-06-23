@@ -35,4 +35,59 @@ function displayVideos(videos) {
     const videoId = video.id.videoId;
     const title = video.snippet.title;
     const thumbnail = video.snippet.thumbnails.high.url;
-    const card = document.createElement('div
+    const card = document.createElement('div');
+    card.className = 'video-card';
+    card.innerHTML = `
+      <img src="${thumbnail}" alt="${title}">
+      <h3>${title}</h3>
+    `;
+    card.onclick = () => playVideo(videoId);
+    container.appendChild(card);
+  });
+}
+
+function playVideo(videoId) {
+  const playerSection = document.getElementById('player-section');
+  playerSection.style.display = 'block';
+  if (player) {
+    player.loadVideoById(videoId);
+  } else {
+    player = new YT.Player('player', {
+      height: '100%',
+      width: '100%',
+      videoId: videoId,
+      playerVars: {
+        autoplay: 0,
+        controls: 1,
+        modestbranding: 1,
+        rel: 0,
+        fs: 1,
+        enablejsapi: 1,
+        iv_load_policy: 3 // Desactiva anotaciones
+      },
+      events: {
+        onReady: (event) => event.target.playVideo()
+      }
+    });
+  }
+  window.scrollTo(0, playerSection.offsetTop);
+}
+
+function closePlayer() {
+  document.getElementById('player-section').style.display = 'none';
+  if (player) {
+    player.stopVideo();
+  }
+}
+
+document.getElementById('search-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const query = e.target.value;
+    searchVideos(query ? `${query} educativo cristiano niños` : 'educativo cristiano niños');
+  }
+});
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('active');
+}
