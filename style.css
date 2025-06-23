@@ -18,7 +18,7 @@ body {
   top: 0;
   width: 100%;
   z-index: 1000;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
 }
 
 .nav-container {
@@ -26,7 +26,7 @@ body {
   align-items: center;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 
 .menu-toggle {
@@ -40,13 +40,13 @@ body {
 }
 
 .logo-img {
-  width: 40px;
-  height: 40px;
+  width: clamp(32px, 5vw, 40px);
+  height: clamp(32px, 5vw, 40px);
   margin-right: 0.5rem;
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
   font-weight: bold;
   color: #ff0000;
   display: flex;
@@ -57,30 +57,60 @@ body {
   flex: 1;
   display: flex;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 1rem;
 }
 
 .search-bar input {
   flex: 1;
-  padding: 0.6rem;
-  font-size: 1rem;
+  padding: clamp(0.4rem, 2vw, 0.6rem);
+  font-size: clamp(0.9rem, 3vw, 1rem);
   border: 1px solid #ccc;
   border-radius: 20px 0 0 20px;
   outline: none;
 }
 
 .search-bar button {
-  padding: 0.6rem 1rem;
+  padding: clamp(0.4rem, 2vw, 0.6rem) 1rem;
   background-color: #f8f8f8;
   border: 1px solid #ccc;
   border-left: none;
   border-radius: 0 20px 20px 0;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
 }
 
 .search-bar button:hover {
   background-color: #e0e0e0;
+}
+
+.player-section {
+  position: sticky;
+  top: 56px;
+  background-color: #000;
+  z-index: 900;
+  padding: 0;
+}
+
+#player {
+  width: 100%;
+  height: clamp(200px, 56.25vw, 540px); /* 16:9 */
+  margin: 0;
+}
+
+.close-player {
+  display: block;
+  margin: 0.5rem auto;
+  padding: clamp(0.4rem, 2vw, 0.6rem) 1.5rem;
+  background-color: #ff0000;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: clamp(0.9rem, 3vw, 1rem);
+}
+
+.close-player:hover {
+  background-color: #cc0000;
 }
 
 .main-container {
@@ -91,15 +121,15 @@ body {
 
 .content {
   flex: 1;
-  padding: 1rem;
+  padding: clamp(0.5rem, 2vw, 1rem);
   max-width: 1280px;
   margin: 0 auto;
 }
 
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 30vw, 280px), 1fr));
+  gap: clamp(0.8rem, 2vw, 1.5rem);
 }
 
 .video-card {
@@ -107,7 +137,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 }
 
 .video-card:hover {
@@ -122,45 +152,20 @@ body {
 }
 
 .video-card h3 {
-  font-size: 1rem;
-  padding: 0.8rem;
-  height: 3rem;
+  font-size: clamp(0.8rem, 3vw, 1rem);
+  padding: clamp(0.5rem, 2vw, 0.8rem);
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   color: #030303;
-}
-
-#player-section {
-  margin: 2rem 0;
-  text-align: center;
-}
-
-#player {
-  width: 100%;
-  max-width: 960px;
-  height: 540px;
-  margin: 0 auto;
-  border-radius: 12px;
-}
-
-.close-player {
-  margin-top: 1rem;
-  padding: 0.6rem 1.5rem;
-  background-color: #ff0000;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.close-player:hover {
-  background-color: #cc0000;
 }
 
 footer {
   text-align: center;
-  padding: 1rem;
+  padding: clamp(0.5rem, 2vw, 1rem);
   background-color: #ffffff;
   border-top: 1px solid #e5e5e5;
 }
@@ -175,49 +180,33 @@ footer a {
     display: block;
   }
 
-  .logo {
-    font-size: 1.2rem;
-  }
-
-  .logo-img {
-    width: 32px;
-    height: 32px;
-  }
-
   .search-bar {
-    margin-left: 0;
-    max-width: 400px;
+    margin: 0 0.5rem;
+  }
+
+  .content {
+    padding: 0.5rem;
   }
 
   .video-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-
-  #player {
-    height: 360px;
+    gap: 0.8rem;
   }
 }
 
 @media (max-width: 480px) {
   .nav-container {
-    padding: 0 0.5rem;
+    padding: 0 0.3rem;
   }
 
-  .search-bar input {
-    font-size: 0.9rem;
-    padding: 0.5rem;
+  .search-bar {
+    max-width: 100%;
   }
 
-  .search-bar button {
-    padding: 0.5rem;
-  }
-
-  .video-card h3 {
-    font-size: 0.9rem;
-    padding: 0.6rem;
+  .video-grid {
+    grid-template-columns: 1fr;
   }
 
   #player {
-    height: 200px;
+    height: calc(100vw * 9 / 16);
   }
 }
