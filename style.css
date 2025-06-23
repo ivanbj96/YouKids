@@ -1,6 +1,9 @@
 body {
     font-family: sans-serif;
     margin: 0;
+    display: flex;
+    flex-direction: column; /* asegura que header y main estén en columnas */
+    min-height: 100vh; /* asegura que la página ocupe toda la altura de la pantalla */
 }
 
 header {
@@ -8,18 +11,21 @@ header {
     padding: 10px;
     display: flex;
     align-items: center;
+    width: 100%; /* asegura que el header ocupe todo el ancho */
+    box-sizing: border-box; /* incluye el padding en el ancho total */
 }
 
 header h1 {
     margin: 0;
     padding-left: 10px;
-    flex-grow: 1; /* permite que el h1 ocupe el espacio disponible */
+    flex-grow: 1;
 }
 
 #searchInput {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px 0 0 5px;
+    flex-grow: 2; /* permite que la caja de texto se expanda */
 }
 
 #searchButton {
@@ -33,9 +39,10 @@ header h1 {
 
 #videoContainer {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Diseño responsivo */
     grid-gap: 10px;
     padding: 10px;
+    flex-grow: 1; /* permite que el main ocupe el espacio restante */
 }
 
 .videoItem {
@@ -61,4 +68,11 @@ header h1 {
     margin: 0;
     font-size: 0.9em;
     color: #666;
+}
+
+/* Estilos para pantallas pequeñas */
+@media (max-width: 600px) {
+    #videoContainer {
+        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
+    }
 }
