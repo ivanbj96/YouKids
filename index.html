@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="sidebar.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#ffffff">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="YouKids.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="audience" content="kids">
@@ -17,12 +17,10 @@
   <header class="top-nav">
     <div class="nav-container">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-      <div class="logo-container">
-        <img src="icons/icon-192x192.png" alt="ChildTube Logo" class="logo-icon">
-        <h1 class="logo">ChildTube</h1>
-      </div>
+      <img src="icons/icon-192x192.png" alt="Logo" class="logo-img">
+      <h1 class="logo">ChildTube</h1>
       <div class="search-bar">
-        <input type="text" id="search-input" placeholder="Buscar videos educativos o cristianos...">
+        <input type="text" id="search-input" placeholder="Buscar videos para niños...">
         <button onclick="searchVideos()">🔍</button>
       </div>
     </div>
@@ -33,6 +31,32 @@
       <div class="sidebar-content">
         <h2>Categorías</h2>
         <ul>
-          <li><button onclick="searchVideos('historias bíblicas niños')">📖 Historias Bíblicas</button></li>
-          <li><button onclick="searchVideos('canciones cristianas niños')">🎵 Canciones Cristianas</button></li>
-          <li><button onclick="searchVideos('ciencia para niños')">🔬 Ciencia
+          <li><button onclick="searchVideos('historias bíblicas niños')">Historias Bíblicas</button></li>
+          <li><button onclick="searchVideos('canciones cristianas niños')">Canciones Cristianas</button></li>
+          <li><button onclick="searchVideos('educativo niños')">Aprende y Juega</button></li>
+          <li><button onclick="searchVideos('shorts educativos niños')">Shorts Divertidos</button></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section id="video-list">
+        <h2>Videos para Niños</h2>
+        <div id="videos-container" class="video-grid"></div>
+      </section>
+      <section id="player-section" style="display: none;">
+        <h2>¡A Disfrutar!</h2>
+        <div id="player"></div>
+        <button class="close-player" onclick="closePlayer()">Cerrar</button>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p>© 2025 ChildTube. <a href="privacy-policy.html">Política de Privacidad</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
