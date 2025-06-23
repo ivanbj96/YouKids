@@ -21,6 +21,7 @@ const nextButton = playerControls.querySelector('button[aria-label="Siguiente"]'
 const volumeButton = playerControls.querySelector('button[aria-label="Volumen"]');
 const progressBar = playerControls.querySelector('.progress-bar input');
 const currentMediaImg = playerControls.querySelector('.current-media');
+const loadingIndicator = document.getElementById('loading');
 
 // Cargar YouTube IFrame API
 function loadYouTubeAPI() {
@@ -58,7 +59,8 @@ function setupEventListeners() {
     document.querySelectorAll('aside ul li a').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            resetAndReload();
+            const section = link.getAttribute('href').substring(1);
+            resetAndReload(section);
         });
     });
 
@@ -83,9 +85,10 @@ function performSearch() {
 }
 
 // Obtener videos de la API
-async function fetchVideos(isInitial = false, customQuery = SEARCH_QUERY) {
+async function fetchVideos(isInitial = false, customQuery = SEARCH_QUERY, duration = '') {
     if (isLoading) return;
     isLoading = true;
+    loadingIndicator.style.display = 'block';
 
     try {
         const url = new URL(BASE_URL);
@@ -96,9 +99,9 @@ async function fetchVideos(isInitial = false, customQuery = SEARCH_QUERY) {
         url.searchParams.append('type', 'video');
         url.searchParams.append('videoEmbeddable', 'true');
         url.searchParams.append('order', 'relevance');
-        if (currentPageToken) {
-            url.searchParams.append('pageToken', currentPageToken);
-        }
+        url.searchParams.append('relevanceLanguage', 'es');
+        if (duration) url.searchParams.append('videoDuration', duration);
+        if (currentPageToken) url.searchParams.append('pageToken', currentPageToken);
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('API request failed');
@@ -125,6 +128,7 @@ async function fetchVideos(isInitial = false, customQuery = SEARCH_QUERY) {
         videosContainer.innerHTML += '<p style="color: #ff0000; text-align: center;">Error al cargar videos. Intenta de nuevo.</p>';
     } finally {
         isLoading = false;
+        loadingIndicator.style.display = 'none';
     }
 }
 
@@ -133,6 +137,7 @@ function renderCarousel(videos) {
     carouselContainer.innerHTML = videos.map(video => `
         <div class="carousel-item" data-video-id="${video.id.videoId}">
             <div class="video-player" id="player-${video.id.videoId}"></div>
+            <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" class="thumbnail" style="width: 100%; aspect-ratio: 16/9;">
         </div>
     `).join('');
     initializePlayers('.carousel-item .video-player', videos);
@@ -146,6 +151,7 @@ function renderReels(videos) {
             <div class="reel-overlay">
                 <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.channelTitle}">
             </div>
+            <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" class="thumbnail" style="width: 100%; aspect-ratio: 9/16;">
         </div>
     `).join('');
     initializePlayers('.reel .video-player', videos);
@@ -159,6 +165,7 @@ function renderVideos(videos) {
             <div class="video-info">
                 <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.channelTitle}">
             </div>
+            <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" class="thumbnail" style="width: 100%; aspect-ratio: 16/9;">
         </div>
     `).join('');
     initializePlayers('.video-card .video-player', videos);
@@ -189,7 +196,12 @@ function initializePlayers(selector, videos) {
 // Cuando el reproductor está listo
 function onPlayerReady(event, videoData) {
     const player = event.target;
+    const thumbnail = player.getIframe().parentElement.querySelector('.thumbnail');
+    if (thumbnail) thumbnail.style.display = 'none'; // Ocultar thumbnail cuando el player esté listo
     player.getIframe().addEventListener('click', () => {
+        if (currentPlayer && currentPlayer !== player) {
+            currentPlayer.pauseVideo();
+        }
         currentPlayer = player;
         currentVideoData = videoData;
         updatePlayerControls();
@@ -202,8 +214,10 @@ function onPlayerStateChange(event) {
         currentPlayer = event.target;
         const videoId = currentPlayer.getVideoData().video_id;
         const videoElement = document.querySelector(`[data-video-id="${videoId}"]`);
-        const thumbnail = videoElement.querySelector('img').src;
-        currentVideoData = { snippet: { thumbnails: { default: { url: thumbnail } } } };
+        const thumbnail = videoElement.querySelector('img.thumbnail');
+        if (thumbnail) thumbnail.style.display = 'none';
+        const channelThumbnail = videoElement.querySelector('.video-info img');
+        currentVideoData = { snippet: { thumbnails: { default: { url: channelThumbnail.src } } } };
         updatePlayerControls();
     } else if (event.data === YT.PlayerState.ENDED) {
         playNextVideo();
@@ -261,16 +275,16 @@ function playNextVideo() {
             currentVideoData = {
                 snippet: {
                     thumbnails: {
-                        default: { element: nextVideo.querySelector('img').src }
+                        default: { url: nextVideo.querySelector('.video-info img').src }
                     }
                 }
             };
-            currentPlayer.playVideoById(nextVideoId);
+            currentPlayer.playVideo();
             updatePlayerControls();
             nextVideo.scrollIntoView({ behavior: 'smooth' });
         } else {
             // Si no hay más videos, cargar más
-            fetchVideos();
+            fetchVideos(false, SEARCH_QUERY, '');
         }
     }
 }
@@ -301,15 +315,15 @@ function updateProgress() {
 function handleInfiniteScroll() {
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500 && !isLoading) {
         if (currentPageToken) {
-            fetchVideos();
+            fetchVideos(false, SEARCH_QUERY, '');
         } else {
-            resetAndReload();
+            resetAndReload('home');
         }
     }
 }
 
 // Resetear y recargar
-function resetAndReload() {
+function resetAndReload(section = 'home') {
     videoIds.clear();
     currentPageToken = null;
     videosContainer.innerHTML = '';
@@ -318,8 +332,11 @@ function resetAndReload() {
     currentPlayer = null;
     currentVideoData = null;
     updatePlayerControls();
-    fetchVideos(true);
-}
-
-// Iniciar cuando la API de YouTube esté lista
-window.onYouTubeIframeAPIReady = () => init();
+    let query = SEARCH_QUERY;
+    let duration = '';
+    if (section === 'music') query = 'música cristiana';
+    else if (section === 'reels') {
+        query = 'videos cristianos cortos';
+        duration = 'short';
+    }
+    fetch
