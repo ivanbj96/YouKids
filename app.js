@@ -65,3 +65,53 @@ languageFilter.addEventListener('change', () => {
 
 
 fetchVideos();
+
+// ... (código anterior, incluyendo la función fetchVideos y handleScroll)
+
+let currentPlayingVideo = null; // Variable para rastrear el video en reproducción
+let expanded = false;
+const videoContainer = document.getElementById('video-container');
+const otherVideosContainer = document.getElementById('other-videos-container');
+
+function handleVideoPlay(event){
+    if (currentPlayingVideo) {
+        // Pausa el video anterior si hay uno
+        currentPlayingVideo.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        expanded = false;
+        otherVideosContainer.classList.remove("hidden");
+        videoContainer.classList.remove("h-screen");
+        currentPlayingVideo.classList.remove("w-screen")
+        currentPlayingVideo = null;
+
+    }
+    currentPlayingVideo = event.target;
+    expanded = true;
+    otherVideosContainer.classList.add("hidden");
+    videoContainer.classList.add("h-screen");
+    currentPlayingVideo.classList.add("w-screen");
+}
+
+
+data.items.forEach(item => {
+  const videoDiv = document.createElement('div');
+  videoDiv.classList.add('bg-white', 'rounded-lg', 'shadow', 'mb-4', 'p-4', 'relative', 'cursor-pointer'); // Añadido cursor-pointer
+  videoDiv.addEventListener("click", (e) => handleVideoPlay(e));
+
+  videoDiv.innerHTML = `
+    <div class="overflow-hidden aspect-video">
+      <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${item.id.videoId}?enablejsapi=1" title="${item.snippet.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <h3 class="text-xl font-bold mt-2">${item.snippet.title}</h3>
+    <p class="text-gray-600 flex items-center">
+      <img src="${item.snippet.thumbnails.default.url}" alt="Channel Icon" class="rounded-full h-8 w-8 mr-2">
+      ${item.snippet.channelTitle}
+    </p>
+  `;
+
+
+  if(expanded){
+      otherVideosContainer.appendChild(videoDiv);
+  } else {
+      videoContainer.appendChild(videoDiv);
+  }
+});
