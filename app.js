@@ -1,76 +1,80 @@
-const videoContainer = document.getElementById('video-container');
-const otherVideosContainer = document.getElementById('other-videos-container');
-const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // Reemplaza con tu clave API
+const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
+const videoContainer = document.getElementById("video-container");
+const otherVideosContainer = document.getElementById("other-videos-container");
+const searchInput = document.getElementById("search-input");
+const languageFilter = document.getElementById("language-filter");
+
 let nextPageToken = null;
 let currentPlayingVideo = null;
 
-async function fetchVideos(searchQuery = "", language = "", pageToken = null) {
-    try {
-        let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&key=${API_KEY}`;
-        if (searchQuery) url += `&q=${encodeURIComponent(searchQuery)}`;
-        if (language) url += `&videoCaption=closedCaption&videoDuration=any&videoSyndicated=true&type=video&videoCategoryId=22`;
-        if (pageToken) url += `&pageToken=${pageToken}`;
+async function fetchVideos(query = "videos para niños", lang = "", pageToken = null) {
+  try {
+    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=12&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+    if (pageToken) url += `&pageToken=${pageToken}`;
+    if (lang) url += "&relevanceLanguage=" + lang;
 
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+    const res = await fetch(url);
+    const data = await res.json();
 
-        if (!data.items || data.items.length === 0) {
-            otherVideosContainer.innerHTML = "<p>No se encontraron videos.</p>";
-            return;
-        }
-
-        otherVideosContainer.innerHTML = ''; // Limpiar antes de añadir nuevos videos
-        const fragments = data.items.map(createVideoElement);
-        otherVideosContainer.append(...fragments);
-        nextPageToken = data.nextPageToken;
-    } catch (error) {
-        console.error("Error al obtener videos:", error);
-        otherVideosContainer.innerHTML = `<p>Error al cargar videos: ${error.message}</p>`;
-    }
-}
-
-function createVideoElement(item) {
-    const videoDiv = document.createElement('div');
-    videoDiv.classList.add('video-card');
-    videoDiv.dataset.videoId = item.id.videoId;
-    videoDiv.addEventListener("click", handleVideoPlay);
-
-    videoDiv.innerHTML = `
-        <img src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
-        <h3 class="video-title">${item.snippet.title}</h3>
-        <div class="channel-info">
-            <img src="${item.snippet.thumbnails.default.url}" alt="Channel Icon" class="channel-avatar">
-            <span>${item.snippet.channelTitle}</span>
-        </div>
-    `;
-    return videoDiv;
-}
-
-function handleVideoPlay(event) {
-    const videoId = event.target.closest('.video-card').dataset.videoId;
-
-    if (currentPlayingVideo) {
-        currentPlayingVideo.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+    if (!data.items.length) {
+      otherVideosContainer.innerHTML = "<p>No se encontraron videos.</p>";
+      return;
     }
 
-    currentPlayingVideo = createIframe(videoId);
-    videoContainer.innerHTML = '';
-    videoContainer.appendChild(currentPlayingVideo);
-    videoContainer.classList.add('fixed', 'top-0', 'left-0', 'z-50', 'w-full');
+    data.items.forEach(createVideoCard);
+    nextPageToken = data.nextPageToken;
+  } catch (err) {
+    console.error(err);
+    otherVideosContainer.innerHTML = `<p>Error al cargar videos: ${err.message}</p>`;
+  }
 }
 
-function createIframe(videoId) {
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
-    iframe.title = videoId;
-    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-    iframe.allowFullscreen = true;
-    iframe.frameborder = "0";
-    iframe.classList.add('w-full');
-    return iframe;
+function createVideoCard(item) {
+  const videoId = item.id.videoId;
+  const { title, thumbnails, channelTitle } = item.snippet;
+
+  const card = document.createElement("div");
+  card.className = "video-card";
+  card.onclick = () => playVideo(videoId);
+
+  card.innerHTML = `
+    <img src="${thumbnails.medium.url}" alt="${title}" class="video-thumb" />
+    <div class="video-info">
+      <p class="video-title">${title}</p>
+      <p class="video-channel">${channelTitle}</p>
+    </div>
+  `;
+
+  otherVideosContainer.appendChild(card);
 }
 
-// ... (handleScroll, listeners, etc. remain the same) ...
+function playVideo(videoId) {
+  videoContainer.innerHTML = `
+    <iframe
+      src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+    ></iframe>
+  `;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+searchInput.addEventListener("input", () => {
+  otherVideosContainer.innerHTML = "";
+  fetchVideos(searchInput.value, languageFilter.value);
+});
+
+languageFilter.addEventListener("change", () => {
+  otherVideosContainer.innerHTML = "";
+  fetchVideos(searchInput.value, languageFilter.value);
+});
+
+window.addEventListener("scroll", () => {
+  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+  if (nearBottom && nextPageToken) {
+    fetchVideos(searchInput.value, languageFilter.value, nextPageToken);
+    nextPageToken = null;
+  }
+});
+
+fetchVideos();
