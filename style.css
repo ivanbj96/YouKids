@@ -1,8 +1,8 @@
 body {
     font-family: sans-serif;
     margin: 0;
-    overflow-x: hidden; /* Evita scroll horizontal */
-    background-color: #f0f0f0; /* Fondo gris claro */
+    overflow-x: hidden;
+    background-color: #f0f0f0;
 }
 
 .container {
@@ -18,16 +18,22 @@ header {
     margin-bottom: 20px;
 }
 
-header h1 {
-    font-size: 2em;
-    margin: 0;
+header img { /* Estilos para el logo */
+    height: 60px; /* Ajusta el tamaño según tu logo */
 }
+
+header div { /* Contenedor para el buscador y el selector de idioma */
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Espacio entre el buscador y el selector */
+}
+
 
 header input[type="text"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    width: 300px;
+    flex-grow: 1; /* Permite que el input ocupe el espacio disponible */
 }
 
 header select {
@@ -48,7 +54,7 @@ header select {
 
 #video-container iframe {
     width: 100%;
-    height: 300px; /* Altura inicial del video */
+    height: 300px;
 }
 
 #video-container.expanded iframe {
@@ -86,6 +92,9 @@ header select {
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
+    header div {
+        flex-direction: column; /* Apila el buscador y el selector en móvil */
+    }
     header input[type="text"],
     header select {
         width: 100%;
