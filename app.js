@@ -67,6 +67,7 @@ function createVideoCard(item) {
 function playVideo(videoId) {
   if (currentVideoId === videoId) return;
 
+  videoContainer.classList.add("active");
   videoContainer.innerHTML = `
     <iframe
       src="https://www.youtube.com/embed/${videoId}?autoplay=1"
@@ -86,7 +87,6 @@ searchInput.addEventListener("input", () => {
   nextPageToken = null;
   fetchVideos(currentQuery, currentLang);
 });
-
 languageFilter.addEventListener("change", () => {
   currentLang = languageFilter.value;
   otherVideosContainer.innerHTML = "";
@@ -99,7 +99,7 @@ window.addEventListener("scroll", () => {
   const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
   if (bottom && nextPageToken) {
     const pageToken = nextPageToken;
-    nextPageToken = null; // Evitar múltiples llamadas
+    nextPageToken = null;
     fetchVideos(currentQuery, currentLang, pageToken);
   }
 });
