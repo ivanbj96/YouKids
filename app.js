@@ -1,5 +1,5 @@
 const videoContainer = document.getElementById('video-container');
-const API_KEY = "YOUR_YOUTUBE_API_KEY"; // <--- ¡REEMPLAZA ESTA CLAVE!
+const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // <--- ¡REEMPLAZA ESTA CLAVE!
 let nextPageToken = null;
 
 async function fetchVideos(searchQuery = "", language = "", pageToken = null) {
