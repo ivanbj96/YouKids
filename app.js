@@ -22,55 +22,61 @@ async function fetchVideos(searchQuery = "", language = "", pageToken = null) {
             return;
         }
 
-        data.items.forEach(createAndAppendVideo);
+        const fragments = data.items.map(createVideoElement);
+        otherVideosContainer.append(...fragments);
         nextPageToken = data.nextPageToken;
     } catch (error) {
-        console.error("Error fetching videos:", error);
+        console.error("Error al obtener videos:", error);
         otherVideosContainer.innerHTML = `<p>Error al cargar videos: ${error.message}</p>`;
     }
 }
 
-function createAndAppendVideo(item) {
+function createVideoElement(item) {
     const videoDiv = document.createElement('div');
-    videoDiv.classList.add('bg-white', 'rounded-lg', 'shadow', 'p-4', 'cursor-pointer');
-    videoDiv.addEventListener('click', () => handleVideoPlay(item.id.videoId));
+    videoDiv.classList.add('video-card'); // Usar la clase video-card
+    videoDiv.addEventListener("click", handleVideoPlay);
 
     videoDiv.innerHTML = `
-        <img src="${item.snippet.thumbnails.medium.url}" class="w-full h-auto mb-2 rounded-lg" alt="${item.snippet.title}">
-        <h3 class="text-xl font-bold">${item.snippet.title}</h3>
-        <p class="text-gray-600">${item.snippet.channelTitle}</p>
+        <div class="video-thumbnail">
+            <img src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
+        </div>
+        <h3 class="video-title">${item.snippet.title}</h3>
+        <div class="channel-info">
+            <img src="${item.snippet.thumbnails.default.url}" alt="Channel Icon" class="channel-avatar">
+            <span>${item.snippet.channelTitle}</span>
+        </div>
     `;
-
-    otherVideosContainer.appendChild(videoDiv);
+    return videoDiv;
 }
 
-function handleVideoPlay(videoId) {
+function handleVideoPlay(event) {
+    const videoId = event.target.closest('.video-card').querySelector('img').dataset.videoid; // Obtener videoId desde el dataset
+
     if (currentPlayingVideo) {
-        currentPlayingVideo.remove();
-        currentPlayingVideo = null;
+        currentPlayingVideo.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
     }
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
-    iframe.width = '100%';
-    iframe.height = '300'; // Altura del video en modo normal
-    iframe.classList.add('w-full', 'rounded-lg', 'shadow'); // Estilos de Tailwind
-    iframe.allowFullscreen = true;
-    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-
-    iframe.onload = function() {
-        this.style.height = 'calc(100vh - 100px)'; // Ajusta la altura al cargar
-    }
-
-    videoContainer.appendChild(iframe);
-    currentPlayingVideo = iframe;
+    currentPlayingVideo = createIframe(videoId); //Crear el iframe en una funcion
+    videoContainer.innerHTML = '';
+    videoContainer.appendChild(currentPlayingVideo);
+    currentPlayingVideo.classList.add('w-screen');
 }
 
+function createIframe(videoId){
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+    iframe.title = videoId;
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+    iframe.frameborder = "0";
+    return iframe;
+}
 
 function handleScroll() {
     const scrollPosition = window.pageYOffset + window.innerHeight;
     const documentHeight = document.body.scrollHeight;
-    if (scrollPosition >= documentHeight - 100 && nextPageToken) {
-        fetchVideos("", "", nextPageToken);
+
+    if (scrollPosition + 1 >= documentHeight && nextPageToken) {
+        fetchVideos(searchInput.value, languageFilter.value, nextPageToken);
         nextPageToken = null;
     }
 }
@@ -83,13 +89,13 @@ const languageFilter = document.getElementById('language-filter');
 searchInput.addEventListener('input', () => {
     otherVideosContainer.innerHTML = '';
     nextPageToken = null;
-    fetchVideos(searchInput.value);
+    fetchVideos(searchInput.value, languageFilter.value);
 });
 
 languageFilter.addEventListener('change', () => {
     otherVideosContainer.innerHTML = '';
     nextPageToken = null;
-    fetchVideos("", languageFilter.value);
+    fetchVideos(searchInput.value, languageFilter.value);
 });
 
 fetchVideos();
