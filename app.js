@@ -22,6 +22,7 @@ async function fetchVideos(searchQuery = "", language = "", pageToken = null) {
             return;
         }
 
+        otherVideosContainer.innerHTML = ''; // Limpiar antes de añadir nuevos videos
         const fragments = data.items.map(createVideoElement);
         otherVideosContainer.append(...fragments);
         nextPageToken = data.nextPageToken;
@@ -38,7 +39,7 @@ function createVideoElement(item) {
     videoDiv.addEventListener("click", handleVideoPlay);
 
     videoDiv.innerHTML = `
-        <img src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}" data-videoid="${item.id.videoId}">
+        <img src="${item.snippet.thumbnails.medium.url}" alt="${item.snippet.title}">
         <h3 class="video-title">${item.snippet.title}</h3>
         <div class="channel-info">
             <img src="${item.snippet.thumbnails.default.url}" alt="Channel Icon" class="channel-avatar">
@@ -58,26 +59,18 @@ function handleVideoPlay(event) {
     currentPlayingVideo = createIframe(videoId);
     videoContainer.innerHTML = '';
     videoContainer.appendChild(currentPlayingVideo);
-    videoContainer.classList.add('fixed', 'top-0', 'left-0', 'z-50', 'w-full'); // Fija el video en la parte superior
+    videoContainer.classList.add('fixed', 'top-0', 'left-0', 'z-50', 'w-full');
 }
 
-
-function createIframe(videoId){
+function createIframe(videoId) {
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
     iframe.title = videoId;
     iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
     iframe.allowFullscreen = true;
     iframe.frameborder = "0";
-    iframe.classList.add('w-full'); //Añadimos clases para el tamaño del video
+    iframe.classList.add('w-full');
     return iframe;
 }
 
-
-function handleScroll() {
-    // ... (Este bloque permanece igual) ...
-}
-
-// ... (Eventos de escucha para searchInput y languageFilter permanecen iguales) ...
-
-fetchVideos();
+// ... (handleScroll, listeners, etc. remain the same) ...
