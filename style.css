@@ -1,114 +1,120 @@
 body {
-    font-family: 'Arial', sans-serif; /* Fuente más moderna */
+    font-family: 'Roboto', sans-serif; /* Fuente similar a YouTube */
     margin: 0;
-    overflow-x: hidden;
-    background-color: #f5f5f5; /* Fondo gris claro más suave */
-    line-height: 1.6; /* Mejor espacio entre líneas */
+    background-color: #f0f0f0;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 1200px; /* Aumenta el ancho máximo para contenido más amplio */
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
 
-header {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px; /* Más espacio entre el encabezado y el contenido */
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee; /* Línea divisoria sutil */
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
 }
 
-header img {
-    height: 70px;
+.logo {
+    height: 60px; /* Ajusta según tu logo */
 }
 
-header div {
+.search-bar {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
 }
 
-header input[type="text"] {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+.search-bar input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 20px; /* Bordes más redondeados */
     flex-grow: 1;
     font-size: 16px;
 }
 
-header select {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+.search-bar select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
     font-size: 16px;
 }
 
 
-#video-container {
-    position: relative;
-    margin-bottom: 30px;
-    background-color: white;
-    padding: 20px;
+.video-container {
+    background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Sombra más pronunciada */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    margin-bottom: 20px;
 }
 
-#video-container iframe {
+.video-container iframe {
     width: 100%;
-    height: 400px; /* Aumenta la altura inicial del video */
-}
-
-#video-container.expanded iframe {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-}
-
-
-#other-videos-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Más espacio para las miniaturas */
-    grid-gap: 30px;
-}
-
-#other-videos-container > div {
-    background-color: white;
-    padding: 15px;
+    height: 400px;
+    border: none;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    text-align: center; /* Centra el título y la imagen */
 }
 
-#other-videos-container img {
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 20px;
+}
+
+.video-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 10px;
+}
+
+.video-card img {
     width: 100%;
     height: auto;
     border-radius: 8px;
-    margin-bottom: 15px;
+    object-fit: cover;
 }
 
-#other-videos-container h3 {
-    margin-top: 0;
-    font-size: 1.1em; /* Título ligeramente más grande */
+.video-card .video-title {
     font-weight: bold;
+    margin-top: 5px;
 }
 
-/* Estilos responsivos */
+.video-card .channel-info {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+
+.video-card .channel-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+/* Responsividad */
 @media (max-width: 768px) {
-    header div {
-        flex-direction: column;
-    }
-    header input[type="text"],
-    header select {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    #other-videos-container {
-        grid-template-columns: 1fr; /* Una columna en pantallas pequeñas */
-    }
+  .search-bar {
+    flex-direction: column;
+  }
+  .search-bar input,
+  .search-bar select {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
 }
