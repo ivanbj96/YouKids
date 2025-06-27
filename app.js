@@ -8,6 +8,8 @@ const searchContainer = document.getElementById("search-container");
 
 let nextPageToken = null;
 let currentVideoId = null;
+let currentQuery = "videos para niños";
+let currentLang = "";
 
 // Mostrar/ocultar barra de búsqueda
 searchBtn.addEventListener("click", () => {
@@ -15,7 +17,7 @@ searchBtn.addEventListener("click", () => {
 });
 
 // Fetch de videos
-async function fetchVideos(query = "videos para niños", lang = "", pageToken = null) {
+async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
   try {
     let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}`;
     if (pageToken) url += `&pageToken=${pageToken}`;
@@ -24,16 +26,20 @@ async function fetchVideos(query = "videos para niños", lang = "", pageToken = 
     const res = await fetch(url);
     const data = await res.json();
 
-    if (!data.items.length) {
-      otherVideosContainer.innerHTML = "<p>No se encontraron videos.</p>";
+    if (!data.items || data.items.length === 0) {
+      if (!pageToken) {
+        otherVideosContainer.innerHTML = "<p>No se encontraron videos.</p>";
+      }
       return;
     }
 
     data.items.forEach(createVideoCard);
-    nextPageToken = data.nextPageToken;
+    nextPageToken = data.nextPageToken || null;
   } catch (err) {
     console.error("Error al cargar videos:", err);
-    otherVideosContainer.innerHTML = `<p>Error: ${err.message}</p>`;
+    if (!pageToken) {
+      otherVideosContainer.innerHTML = `<p>Error: ${err.message}</p>`;
+    }
   }
 }
 
@@ -75,20 +81,26 @@ function playVideo(videoId) {
 
 // Eventos de búsqueda y filtro
 searchInput.addEventListener("input", () => {
+  currentQuery = searchInput.value.trim() || "videos para niños";
   otherVideosContainer.innerHTML = "";
-  fetchVideos(searchInput.value, languageFilter.value);
+  nextPageToken = null;
+  fetchVideos(currentQuery, currentLang);
 });
+
 languageFilter.addEventListener("change", () => {
+  currentLang = languageFilter.value;
   otherVideosContainer.innerHTML = "";
-  fetchVideos(searchInput.value, languageFilter.value);
+  nextPageToken = null;
+  fetchVideos(currentQuery, currentLang);
 });
 
 // Scroll infinito
 window.addEventListener("scroll", () => {
   const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
   if (bottom && nextPageToken) {
-    fetchVideos(searchInput.value, languageFilter.value, nextPageToken);
-    nextPageToken = null;
+    const pageToken = nextPageToken;
+    nextPageToken = null; // Evitar múltiples llamadas
+    fetchVideos(currentQuery, currentLang, pageToken);
   }
 });
 
