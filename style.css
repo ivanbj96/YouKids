@@ -118,3 +118,28 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.w-full {
+    width: 100%;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.top-0 {
+    top: 0;
+}
+
+.left-0 {
+    left: 0;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+/* Estilos para el video en reproducción */
+.playing {
+    border: 2px solid red; /* O cualquier estilo que desees */
+}
