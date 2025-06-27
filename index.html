@@ -8,21 +8,29 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+  <!-- Top Bar -->
   <header class="top-bar">
-    <div class="logo-search">
-      <img src="YouKids.png" alt="YouKids Logo" class="logo" />
-      <input type="text" id="search-input" placeholder="Buscar videos..." class="search-bar" />
+    <img src="YouKids.png" alt="YouKids Logo" class="logo" />
+    <div class="top-icons">
+      <button id="search-btn" class="icon-button">🔍</button>
+      <button class="icon-button">⋮</button>
     </div>
-    <select id="language-filter" class="language-select">
+  </header>
+
+  <!-- Search Input -->
+  <div id="search-container" class="search-container hidden">
+    <input type="text" id="search-input" placeholder="Buscar videos..." />
+    <select id="language-filter">
       <option value="">Todos los idiomas</option>
       <option value="es">Español</option>
       <option value="en">Inglés</option>
     </select>
-  </header>
+  </div>
 
-  <main class="main-content">
-    <section id="video-container" class="main-video"></section>
-    <section id="other-videos-container" class="video-list"></section>
-  </main>
+  <!-- Sticky Player -->
+  <section id="video-container" class="video-player"></section>
+
+  <!-- Video List -->
+  <section id="other-videos-container" class="video-list"></section>
 </body>
 </html>
