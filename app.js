@@ -3,15 +3,23 @@ const videoContainer = document.getElementById("video-container");
 const otherVideosContainer = document.getElementById("other-videos-container");
 const searchInput = document.getElementById("search-input");
 const languageFilter = document.getElementById("language-filter");
+const searchBtn = document.getElementById("search-btn");
+const searchContainer = document.getElementById("search-container");
 
 let nextPageToken = null;
-let currentPlayingVideo = null;
+let currentVideoId = null;
 
+// Mostrar/ocultar barra de búsqueda
+searchBtn.addEventListener("click", () => {
+  searchContainer.classList.toggle("hidden");
+});
+
+// Fetch de videos
 async function fetchVideos(query = "videos para niños", lang = "", pageToken = null) {
   try {
-    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=12&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}`;
     if (pageToken) url += `&pageToken=${pageToken}`;
-    if (lang) url += "&relevanceLanguage=" + lang;
+    if (lang) url += `&relevanceLanguage=${lang}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -24,11 +32,12 @@ async function fetchVideos(query = "videos para niños", lang = "", pageToken = 
     data.items.forEach(createVideoCard);
     nextPageToken = data.nextPageToken;
   } catch (err) {
-    console.error(err);
-    otherVideosContainer.innerHTML = `<p>Error al cargar videos: ${err.message}</p>`;
+    console.error("Error al cargar videos:", err);
+    otherVideosContainer.innerHTML = `<p>Error: ${err.message}</p>`;
   }
 }
 
+// Crear card de video
 function createVideoCard(item) {
   const videoId = item.id.videoId;
   const { title, thumbnails, channelTitle } = item.snippet;
@@ -38,7 +47,7 @@ function createVideoCard(item) {
   card.onclick = () => playVideo(videoId);
 
   card.innerHTML = `
-    <img src="${thumbnails.medium.url}" alt="${title}" class="video-thumb" />
+    <img src="${thumbnails.medium.url}" class="video-thumb" alt="${title}" />
     <div class="video-info">
       <p class="video-title">${title}</p>
       <p class="video-channel">${channelTitle}</p>
@@ -48,7 +57,10 @@ function createVideoCard(item) {
   otherVideosContainer.appendChild(card);
 }
 
+// Reproducir video en player fijo
 function playVideo(videoId) {
+  if (currentVideoId === videoId) return;
+
   videoContainer.innerHTML = `
     <iframe
       src="https://www.youtube.com/embed/${videoId}?autoplay=1"
@@ -56,25 +68,29 @@ function playVideo(videoId) {
       allowfullscreen
     ></iframe>
   `;
+  currentVideoId = videoId;
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Eventos de búsqueda y filtro
 searchInput.addEventListener("input", () => {
   otherVideosContainer.innerHTML = "";
   fetchVideos(searchInput.value, languageFilter.value);
 });
-
 languageFilter.addEventListener("change", () => {
   otherVideosContainer.innerHTML = "";
   fetchVideos(searchInput.value, languageFilter.value);
 });
 
+// Scroll infinito
 window.addEventListener("scroll", () => {
-  const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
-  if (nearBottom && nextPageToken) {
+  const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+  if (bottom && nextPageToken) {
     fetchVideos(searchInput.value, languageFilter.value, nextPageToken);
     nextPageToken = null;
   }
 });
 
+// Inicial
 fetchVideos();
