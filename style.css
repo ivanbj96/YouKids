@@ -1,424 +1,94 @@
-/* Reset y configuración base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #121212;
-    color: #ffffff;
-    overflow-x: hidden;
+    font-family: sans-serif;
+    margin: 0;
+    overflow-x: hidden; /* Evita scroll horizontal */
+    background-color: #f0f0f0; /* Fondo gris claro */
 }
 
-/* Paleta de colores */
-:root {
-    --primary: #1db954; /* Verde inspirado en Spotify */
-    --secondary: #ff0000; /* Rojo inspirado en YouTube */
-    --background: #121212; /* Fondo oscuro */
-    --surface: #1e1e1e; /* Superficies */
-    --text-primary: #ffffff;
-    --text-secondary: #b3b3b3;
-    --accent: #bb86fc; /* Púrpura para acentos */
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-/* Header */
 header {
-    background-color: var(--surface);
-    padding: 12px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    transition: background-color 0.3s ease;
-}
-
-nav {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.logo img {
-    height: 40px;
-    transition: transform 0.3s ease;
-}
-
-.logo img:hover {
-    transform: scale(1.1);
-}
-
-.search-bar {
-    flex: 1;
-    max-width: 600px;
-    margin: 0 16px;
-    display: flex;
     align-items: center;
-    background-color: #2a2a2a;
-    border-radius: 20px;
-    padding: 8px;
-    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
 }
 
-.search-bar input {
-    border: none;
-    background: none;
-    color: var(--text-primary);
-    width: 100%;
-    padding: 8px;
-    font-size: 16px;
-    outline: none;
+header h1 {
+    font-size: 2em;
+    margin: 0;
 }
 
-.search-bar button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
+header input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 300px;
 }
 
-.search-bar button img {
-    width: 20px;
-    filter: brightness(0) invert(1);
-    transition: transform 0.2s ease;
+header select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.search-bar button:hover img {
-    transform: rotate(360deg);
-}
 
-.user-menu button {
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.user-menu button img {
-    width: 32px;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-}
-
-.user-menu button:hover img {
-    transform: scale(1.2);
-}
-
-/* Barra lateral */
-aside {
-    width: 80px;
-    background-color: var(--surface);
-    height: calc(100vh - 64px);
-    position: fixed;
-    top: 64px;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 16px;
-    transition: width 0.3s ease;
-}
-
-aside ul {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-aside ul li a {
-    display: flex;
-    justify-content: center;
-    padding: 12px;
-    border-radius: 8px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-aside ul li a img {
-    width: 24px;
-    filter: brightness(0) invert(1);
-}
-
-aside ul li a:hover {
-    background-color: var(--primary);
-    transform: translateX(8px);
-}
-
-aside ul li a:hover img {
-    filter: none;
-}
-
-/* Contenido principal */
-main {
-    display: flex;
-    margin-left: 80px;
-}
-
-.content {
-    flex: 1;
-    padding: 24px;
-    max-width: calc(100% - 80px);
-}
-
-/* Carrusel */
-.carousel {
-    display: flex;
-    overflow-x: auto;
-    gap: 16px;
-    padding-bottom: 16px;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-}
-
-.carousel::-webkit-scrollbar {
-    display: none;
-}
-
-.carousel-item {
-    flex: 0 0 80%;
-    max-width: 800px;
-    scroll-snap-align: start;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-}
-
-.carousel-item:hover {
-    transform: scale(1.02);
-}
-
-.carousel-item .video-player {
-    width: 100%;
-    aspect-ratio: 16/9;
-}
-
-/* Secciones */
-.reels-section,
-.videos-section {
-    margin-bottom: 32px;
-}
-
-h2 {
-    font-size: 24px;
-    margin-bottom: 16px;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
-}
-
-h2:hover {
-    color: var(--primary);
-}
-
-/* Reels */
-.reels-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-}
-
-.reel {
+#video-container {
     position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.reel:hover {
-    transform: scale(1.05);
-}
-
-.reel .video-player {
+#video-container iframe {
     width: 100%;
-    aspect-ratio: 9/16;
+    height: 300px; /* Altura inicial del video */
 }
 
-.reel-overlay {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.reel-overlay img {
-    width: 32px;
-    border-radius: 50%;
-    border: 2px solid var(--primary);
-    transition: border-color 0.3s ease;
-}
-
-.reel-overlay img:hover {
-    border-color: var(--accent);
-}
-
-/* Videos */
-.videos-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-}
-
-.video-card {
-    border-radius: 12px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-}
-
-.video-card:hover {
-    transform: scale(1.03);
-}
-
-.video-card .video-player {
-    width: 100%;
-    aspect-ratio: 16/9;
-}
-
-.video-info {
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.video-info img {
-    width: 40px;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
-}
-
-.video-info img:hover {
-    transform: rotate(360deg);
-}
-
-/* Reproductor flotante */
-.player {
+#video-container.expanded iframe {
     position: fixed;
-    bottom: 0;
-    left: 80px;
-    right: 0;
-    background-color: var(--surface);
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    border-top: 1px solid #2a2a2a;
-    transition: transform 0.3s ease;
-}
-
-.player-controls {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    max-width: 1400px;
-    margin: 0 auto;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    z-index: 1000;
 }
 
-.player-controls .current-media {
-    width: 48px;
-    aspect-ratio: 1;
-    border-radius: 8px;
+#other-videos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 20px;
 }
 
-.player-controls button {
-    background: none;
-    border: none;
-    cursor: pointer;
+#other-videos-container > div {
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.player-controls button img {
-    width: 24px;
-    filter: brightness(0) invert(1);
-    transition: transform 0.3s ease;
-}
-
-.player-controls button:hover img {
-    transform: scale(1.2);
-}
-
-.progress-bar {
-    flex: 1;
-}
-
-.progress-bar input {
+#other-videos-container img {
     width: 100%;
-    accent-color: var(--primary);
-    cursor: pointer;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
 }
 
-/* Responsividad */
-@media (max-width: 1024px) {
-    aside {
-        width: 60px;
-    }
-
-    main {
-        margin-left: 60px;
-    }
-
-    .player {
-        left: 60px;
-    }
-
-    .carousel-item {
-        flex: 0 0 90%;
-    }
-
-    .reels-container,
-    .videos-container {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    }
+#other-videos-container h3 {
+    margin-top: 0;
 }
 
+/* Estilos responsivos */
 @media (max-width: 768px) {
-    aside {
+    header input[type="text"],
+    header select {
         width: 100%;
-        height: auto;
-        position: static;
-        padding: 8px 0;
-    }
-
-    aside ul {
-        flex-direction: row;
-        justify-content: space-around;
-    }
-
-    main {
-        margin-left: 0;
-    }
-
-    .player {
-        left: 0;
-    }
-
-    .search-bar {
-        margin: 0 8px;
-    }
-
-    .carousel-item {
-        flex: 0 0 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    nav {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .search-bar {
-        order: 3;
-        width: 100%;
-        margin: 8px 0;
-    }
-
-    .reels-container,
-    .videos-container {
-        grid-template-columns: 1fr;
-    }
-
-    .reel .video-player {
-        aspect-ratio: 9/16;
+        margin-bottom: 10px;
     }
 }
