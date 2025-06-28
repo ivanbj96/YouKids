@@ -12,22 +12,29 @@
   <header class="top-bar">
     <img src="YouKids.png" alt="YouKids Logo" class="logo" />
     <div class="top-icons">
-      <button id="search-btn" class="icon-button">🔍</button>
-      <button class="icon-button">⋮</button>
+      <button id="search-toggle" class="icon-button">🔍</button>
+      <button id="settings-toggle" class="icon-button">⋮</button>
     </div>
   </header>
 
-  <!-- Search Area -->
-  <div id="search-container" class="search-container hidden">
+  <!-- Search Slide -->
+  <div id="search-bar" class="search-bar hidden">
     <input type="text" id="search-input" placeholder="Buscar videos..." />
-    <select id="language-filter">
-      <option value="">Todos los idiomas</option>
-      <option value="es">Español</option>
-      <option value="en">Inglés</option>
-    </select>
+    <button id="language-btn" class="lang-button">🌐</button>
   </div>
 
-  <!-- Sticky Player -->
+  <!-- Language Modal -->
+  <div id="language-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Selecciona idioma</h2>
+      <button data-lang="">Todos</button>
+      <button data-lang="es">Español</button>
+      <button data-lang="en">Inglés</button>
+      <button id="close-modal">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Sticky Video Player -->
   <section id="video-container" class="video-player"></section>
 
   <!-- Video List -->
