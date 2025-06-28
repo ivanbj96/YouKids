@@ -3,8 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoContainer = document.getElementById("video-container");
   const otherVideosContainer = document.getElementById("other-videos-container");
   const searchInput = document.getElementById("search-input");
-  const searchBar = document.getElementById("search-bar");
-  const searchToggle = document.getElementById("search-toggle");
   const languageBtn = document.getElementById("language-btn");
   const languageModal = document.getElementById("language-modal");
   const closeModal = document.getElementById("close-modal");
@@ -14,10 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentQuery = "videos para niños";
   let currentLang = "";
   let scrollPosition = 0;
-
-  searchToggle?.addEventListener("click", () => {
-    searchBar.classList.toggle("hidden");
-  });
 
   languageBtn?.addEventListener("click", () => {
     languageModal.classList.add("show");
@@ -39,7 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
     try {
-      let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+      // Forzar búsqueda segura con "para niños"
+      const safeQuery = query.toLowerCase().includes("niños") ? query : `${query} para niños`;
+      let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(safeQuery)}&key=${API_KEY}`;
       if (pageToken) url += `&pageToken=${pageToken}`;
       if (lang) url += `&relevanceLanguage=${lang}`;
 
