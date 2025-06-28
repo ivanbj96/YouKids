@@ -58,16 +58,21 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("#language-modal button[data-lang]").forEach(btn => {
     btn.addEventListener("click", () => {
       currentLang = btn.dataset.lang;
-      otherVideosContainer.innerHTML = "";
-      nextPageToken = null;
-      fetchVideos(currentQuery, currentLang);
-      languageModal.classList.remove("show");
+      resetSearch();
     });
   });
+
+  function resetSearch() {
+    otherVideosContainer.innerHTML = "";
+    nextPageToken = null;
+    currentQuery = searchInput.value.trim() || "videos para niños";
+    fetchVideos(currentQuery, currentLang);
+  }
 
   async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
     try {
       const safeQuery = query.toLowerCase().includes("niños") ? query : `${query} para niños`;
+
       let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(safeQuery)}&key=${API_KEY}`;
       if (pageToken) url += `&pageToken=${pageToken}`;
       if (lang) url += `&relevanceLanguage=${lang}`;
@@ -75,11 +80,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(url);
       const data = await res.json();
 
+      // Si no hay resultados
       if (!data.items || data.items.length === 0) {
         if (!pageToken) {
           otherVideosContainer.innerHTML = "<p>No se encontraron videos.</p>";
         }
         return;
+      }
+
+      // Si hay resultados, limpiar mensajes anteriores
+      if (!pageToken) {
+        otherVideosContainer.innerHTML = "";
       }
 
       data.items.forEach(createVideoCard);
@@ -130,26 +141,19 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: scrollPosition, behavior: 'auto' });
   }
 
-  // Búsqueda al escribir
+  // Buscar mientras escribe
   searchInput?.addEventListener("input", () => {
-    const value = searchInput.value.trim();
-    currentQuery = value || "videos para niños";
-    otherVideosContainer.innerHTML = "";
-    nextPageToken = null;
-    fetchVideos(currentQuery, currentLang);
+    resetSearch();
   });
 
-  // Búsqueda al presionar Enter
+  // Buscar al presionar Enter
   searchInput?.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      const value = searchInput.value.trim();
-      currentQuery = value || "videos para niños";
-      otherVideosContainer.innerHTML = "";
-      nextPageToken = null;
-      fetchVideos(currentQuery, currentLang);
+      resetSearch();
     }
   });
 
+  // Primera carga
   fetchVideos();
 });
