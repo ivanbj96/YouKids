@@ -2,21 +2,40 @@ const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
 const videoContainer = document.getElementById("video-container");
 const otherVideosContainer = document.getElementById("other-videos-container");
 const searchInput = document.getElementById("search-input");
-const languageFilter = document.getElementById("language-filter");
-const searchBtn = document.getElementById("search-btn");
-const searchContainer = document.getElementById("search-container");
+const searchBar = document.getElementById("search-bar");
+const searchToggle = document.getElementById("search-toggle");
+const languageBtn = document.getElementById("language-btn");
+const languageModal = document.getElementById("language-modal");
+const closeModal = document.getElementById("close-modal");
 
 let nextPageToken = null;
 let currentVideoId = null;
 let currentQuery = "videos para niños";
 let currentLang = "";
+let scrollPosition = 0;
 
-// Mostrar/ocultar barra de búsqueda
-searchBtn.addEventListener("click", () => {
-  searchContainer.classList.toggle("hidden");
+searchToggle.addEventListener("click", () => {
+  searchBar.classList.toggle("hidden");
 });
 
-// Fetch de videos
+languageBtn.addEventListener("click", () => {
+  languageModal.classList.remove("hidden");
+});
+
+closeModal.addEventListener("click", () => {
+  languageModal.classList.add("hidden");
+});
+
+document.querySelectorAll("#language-modal button[data-lang]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentLang = btn.dataset.lang;
+    otherVideosContainer.innerHTML = "";
+    nextPageToken = null;
+    fetchVideos(currentQuery, currentLang);
+    languageModal.classList.add("hidden");
+  });
+});
+
 async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
   try {
     let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}`;
@@ -43,7 +62,6 @@ async function fetchVideos(query = currentQuery, lang = currentLang, pageToken =
   }
 }
 
-// Crear card de video
 function createVideoCard(item) {
   const videoId = item.id.videoId;
   const { title, thumbnails, channelTitle } = item.snippet;
@@ -63,10 +81,9 @@ function createVideoCard(item) {
   otherVideosContainer.appendChild(card);
 }
 
-// Reproducir video en player fijo
 function playVideo(videoId) {
   if (currentVideoId === videoId) return;
-
+  scrollPosition = window.scrollY;
   videoContainer.classList.add("active");
   videoContainer.innerHTML = `
     <iframe
@@ -76,33 +93,23 @@ function playVideo(videoId) {
     ></iframe>
   `;
   currentVideoId = videoId;
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: scrollPosition, behavior: 'auto' });
 }
 
-// Eventos de búsqueda y filtro
 searchInput.addEventListener("input", () => {
   currentQuery = searchInput.value.trim() || "videos para niños";
   otherVideosContainer.innerHTML = "";
   nextPageToken = null;
   fetchVideos(currentQuery, currentLang);
 });
-languageFilter.addEventListener("change", () => {
-  currentLang = languageFilter.value;
-  otherVideosContainer.innerHTML = "";
-  nextPageToken = null;
-  fetchVideos(currentQuery, currentLang);
-});
 
-// Scroll infinito
 window.addEventListener("scroll", () => {
   const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
   if (bottom && nextPageToken) {
-    const pageToken = nextPageToken;
+    const token = nextPageToken;
     nextPageToken = null;
-    fetchVideos(currentQuery, currentLang, pageToken);
+    fetchVideos(currentQuery, currentLang, token);
   }
 });
 
-// Inicial
 fetchVideos();
