@@ -15,13 +15,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentLang = "";
   let scrollPosition = 0;
 
-  // Mostrar barra al hacer clic en lupa
+  // Alternar visibilidad del buscador con la lupa
   searchToggle?.addEventListener("click", () => {
-    searchBar.classList.remove("hidden");
-    searchInput.focus();
+    searchBar.classList.toggle("hidden");
+    if (!searchBar.classList.contains("hidden")) {
+      searchInput.focus();
+    }
   });
 
-  // Ocultar barra al hacer scroll
+  // Ocultar buscador al hacer scroll
   let lastScrollTop = 0;
   window.addEventListener("scroll", () => {
     if (!searchBar.classList.contains("hidden")) {
@@ -32,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
       lastScrollTop = scrollTop;
     }
 
-    // Scroll infinito
     const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
     if (nearBottom && nextPageToken) {
       const token = nextPageToken;
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Ocultar barra al hacer clic en un video
+  // Ocultar buscador al seleccionar un video
   function hideSearchBar() {
     searchBar.classList.add("hidden");
   }
@@ -129,11 +130,25 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: scrollPosition, behavior: 'auto' });
   }
 
+  // Búsqueda al escribir
   searchInput?.addEventListener("input", () => {
-    currentQuery = searchInput.value.trim() || "videos para niños";
+    const value = searchInput.value.trim();
+    currentQuery = value || "videos para niños";
     otherVideosContainer.innerHTML = "";
     nextPageToken = null;
     fetchVideos(currentQuery, currentLang);
+  });
+
+  // Búsqueda al presionar Enter
+  searchInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const value = searchInput.value.trim();
+      currentQuery = value || "videos para niños";
+      otherVideosContainer.innerHTML = "";
+      nextPageToken = null;
+      fetchVideos(currentQuery, currentLang);
+    }
   });
 
   fetchVideos();
