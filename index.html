@@ -17,7 +17,7 @@
     </div>
   </header>
 
-  <!-- Search Input -->
+  <!-- Search Area -->
   <div id="search-container" class="search-container hidden">
     <input type="text" id="search-input" placeholder="Buscar videos..." />
     <select id="language-filter">
@@ -27,10 +27,17 @@
     </select>
   </div>
 
-  <!-- Sticky Player (invisible hasta que haya video) -->
+  <!-- Sticky Player -->
   <section id="video-container" class="video-player"></section>
 
   <!-- Video List -->
   <section id="other-videos-container" class="video-list"></section>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active">🏠<span>Inicio</span></button>
+    <button class="nav-btn">🎬<span>Shorts</span></button>
+    <button class="nav-btn">👤<span>Perfil</span></button>
+  </nav>
 </body>
 </html>
