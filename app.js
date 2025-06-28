@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoContainer = document.getElementById("video-container");
   const otherVideosContainer = document.getElementById("other-videos-container");
   const searchInput = document.getElementById("search-input");
+  const searchToggle = document.getElementById("search-toggle");
+  const searchBar = document.getElementById("search-bar");
   const languageBtn = document.getElementById("language-btn");
   const languageModal = document.getElementById("language-modal");
   const closeModal = document.getElementById("close-modal");
@@ -12,6 +14,37 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentQuery = "videos para niños";
   let currentLang = "";
   let scrollPosition = 0;
+
+  // Mostrar barra al hacer clic en lupa
+  searchToggle?.addEventListener("click", () => {
+    searchBar.classList.remove("hidden");
+    searchInput.focus();
+  });
+
+  // Ocultar barra al hacer scroll
+  let lastScrollTop = 0;
+  window.addEventListener("scroll", () => {
+    if (!searchBar.classList.contains("hidden")) {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      if (Math.abs(scrollTop - lastScrollTop) > 20) {
+        searchBar.classList.add("hidden");
+      }
+      lastScrollTop = scrollTop;
+    }
+
+    // Scroll infinito
+    const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+    if (nearBottom && nextPageToken) {
+      const token = nextPageToken;
+      nextPageToken = null;
+      fetchVideos(currentQuery, currentLang, token);
+    }
+  });
+
+  // Ocultar barra al hacer clic en un video
+  function hideSearchBar() {
+    searchBar.classList.add("hidden");
+  }
 
   languageBtn?.addEventListener("click", () => {
     languageModal.classList.add("show");
@@ -33,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
     try {
-      // Forzar búsqueda segura con "para niños"
       const safeQuery = query.toLowerCase().includes("niños") ? query : `${query} para niños`;
       let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(safeQuery)}&key=${API_KEY}`;
       if (pageToken) url += `&pageToken=${pageToken}`;
@@ -66,7 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const card = document.createElement("div");
     card.className = "video-card";
-    card.onclick = () => playVideo(videoId);
+    card.onclick = () => {
+      playVideo(videoId);
+      hideSearchBar();
+    };
 
     card.innerHTML = `
       <img src="${thumbnails.medium.url}" class="video-thumb" alt="${title}" />
@@ -99,15 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
     otherVideosContainer.innerHTML = "";
     nextPageToken = null;
     fetchVideos(currentQuery, currentLang);
-  });
-
-  window.addEventListener("scroll", () => {
-    const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
-    if (bottom && nextPageToken) {
-      const token = nextPageToken;
-      nextPageToken = null;
-      fetchVideos(currentQuery, currentLang, token);
-    }
   });
 
   fetchVideos();
