@@ -1,5 +1,4 @@
 const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-
 const videoContainer = document.getElementById("video-container");
 const otherVideosContainer = document.getElementById("other-videos-container");
 const searchInput = document.getElementById("search-input");
@@ -13,7 +12,7 @@ let nextPageToken = null;
 let currentVideoId = null;
 let currentQuery = "videos para niños";
 let currentLang = "";
-let lastScroll = 0;
+let scrollPosition = 0;
 
 searchToggle.addEventListener("click", () => {
   searchBar.classList.toggle("hidden");
@@ -84,9 +83,7 @@ function createVideoCard(item) {
 
 function playVideo(videoId) {
   if (currentVideoId === videoId) return;
-
-  lastScroll = window.scrollY;
-
+  scrollPosition = window.scrollY;
   videoContainer.classList.add("active");
   videoContainer.innerHTML = `
     <iframe
@@ -95,12 +92,8 @@ function playVideo(videoId) {
       allowfullscreen
     ></iframe>
   `;
-
   currentVideoId = videoId;
-
-  setTimeout(() => {
-    window.scrollTo({ top: lastScroll, behavior: 'auto' });
-  }, 50);
+  window.scrollTo({ top: scrollPosition, behavior: 'auto' });
 }
 
 searchInput.addEventListener("input", () => {
