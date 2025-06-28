@@ -3,8 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const videoContainer = document.getElementById("video-container");
   const otherVideosContainer = document.getElementById("other-videos-container");
   const searchInput = document.getElementById("search-input");
-  const searchToggle = document.getElementById("search-toggle");
-  const searchBar = document.getElementById("search-bar");
   const languageBtn = document.getElementById("language-btn");
   const languageModal = document.getElementById("language-modal");
   const closeModal = document.getElementById("close-modal");
@@ -14,38 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentQuery = "videos para niños";
   let currentLang = "";
   let scrollPosition = 0;
-
-  // Alternar visibilidad del buscador con la lupa
-  searchToggle?.addEventListener("click", () => {
-    searchBar.classList.toggle("hidden");
-    if (!searchBar.classList.contains("hidden")) {
-      searchInput.focus();
-    }
-  });
-
-  // Ocultar buscador al hacer scroll
-  let lastScrollTop = 0;
-  window.addEventListener("scroll", () => {
-    if (!searchBar.classList.contains("hidden")) {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      if (Math.abs(scrollTop - lastScrollTop) > 20) {
-        searchBar.classList.add("hidden");
-      }
-      lastScrollTop = scrollTop;
-    }
-
-    const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
-    if (nearBottom && nextPageToken) {
-      const token = nextPageToken;
-      nextPageToken = null;
-      fetchVideos(currentQuery, currentLang, token);
-    }
-  });
-
-  // Ocultar buscador al seleccionar un video
-  function hideSearchBar() {
-    searchBar.classList.add("hidden");
-  }
 
   languageBtn?.addEventListener("click", () => {
     languageModal.classList.add("show");
@@ -58,21 +24,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("#language-modal button[data-lang]").forEach(btn => {
     btn.addEventListener("click", () => {
       currentLang = btn.dataset.lang;
-      resetSearch();
+      otherVideosContainer.innerHTML = "";
+      nextPageToken = null;
+      fetchVideos(currentQuery, currentLang);
+      languageModal.classList.remove("show");
     });
   });
 
-  function resetSearch() {
-    otherVideosContainer.innerHTML = "";
-    nextPageToken = null;
-    currentQuery = searchInput.value.trim() || "videos para niños";
-    fetchVideos(currentQuery, currentLang);
-  }
-
   async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
     try {
+      // Forzar búsqueda segura con "para niños"
       const safeQuery = query.toLowerCase().includes("niños") ? query : `${query} para niños`;
-
       let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(safeQuery)}&key=${API_KEY}`;
       if (pageToken) url += `&pageToken=${pageToken}`;
       if (lang) url += `&relevanceLanguage=${lang}`;
@@ -80,17 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch(url);
       const data = await res.json();
 
-      // Si no hay resultados
       if (!data.items || data.items.length === 0) {
         if (!pageToken) {
           otherVideosContainer.innerHTML = "<p>No se encontraron videos.</p>";
         }
         return;
-      }
-
-      // Si hay resultados, limpiar mensajes anteriores
-      if (!pageToken) {
-        otherVideosContainer.innerHTML = "";
       }
 
       data.items.forEach(createVideoCard);
@@ -110,10 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const card = document.createElement("div");
     card.className = "video-card";
-    card.onclick = () => {
-      playVideo(videoId);
-      hideSearchBar();
-    };
+    card.onclick = () => playVideo(videoId);
 
     card.innerHTML = `
       <img src="${thumbnails.medium.url}" class="video-thumb" alt="${title}" />
@@ -141,19 +94,21 @@ document.addEventListener("DOMContentLoaded", () => {
     window.scrollTo({ top: scrollPosition, behavior: 'auto' });
   }
 
-  // Buscar mientras escribe
   searchInput?.addEventListener("input", () => {
-    resetSearch();
+    currentQuery = searchInput.value.trim() || "videos para niños";
+    otherVideosContainer.innerHTML = "";
+    nextPageToken = null;
+    fetchVideos(currentQuery, currentLang);
   });
 
-  // Buscar al presionar Enter
-  searchInput?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      resetSearch();
+  window.addEventListener("scroll", () => {
+    const bottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+    if (bottom && nextPageToken) {
+      const token = nextPageToken;
+      nextPageToken = null;
+      fetchVideos(currentQuery, currentLang, token);
     }
   });
 
-  // Primera carga
   fetchVideos();
 });
