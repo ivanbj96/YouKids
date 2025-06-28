@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,34 +7,44 @@
   <link rel="stylesheet" href="style.css" />
   <script src="app.js" defer></script>
 </head>
-<body class="dark">
-  <header id="header">
-    <img src="YouKids.png" id="logo" alt="Logo YouKids" />
-    <div id="search-toggle">🔍</div>
-    <div id="more-options">⋮</div>
+<body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <img src="YouKids.png" alt="YouKids Logo" class="logo" />
+    <div class="top-icons">
+      <button id="search-toggle" class="icon-button">🔍</button>
+      <button id="settings-toggle" class="icon-button">⋮</button>
+    </div>
   </header>
 
-  <div id="search-bar" class="hidden">
-    <input type="text" id="search-input" placeholder="Buscar..." />
-    <button id="language-btn">🌐</button>
+  <!-- Search Slide -->
+  <div id="search-bar" class="search-bar hidden">
+    <input type="text" id="search-input" placeholder="Buscar videos..." />
+    <button id="language-btn" class="lang-button">🌐</button>
   </div>
 
-  <div id="video-container"></div>
-  <div id="other-videos-container"></div>
-
+  <!-- Language Modal -->
   <div id="language-modal" class="modal">
     <div class="modal-content">
-      <span id="close-modal">&times;</span>
-      <h3>Selecciona un idioma</h3>
+      <h2>Selecciona idioma</h2>
+      <button data-lang="">Todos</button>
       <button data-lang="es">Español</button>
       <button data-lang="en">Inglés</button>
+      <button id="close-modal">Cerrar</button>
     </div>
   </div>
 
-  <footer class="bottom-nav">
-    <div class="nav-item active">🏠<span>Inicio</span></div>
-    <div class="nav-item">🎬<span>Shorts</span></div>
-    <div class="nav-item">👤<span>Perfil</span></div>
-  </footer>
+  <!-- Sticky Video Player -->
+  <section id="video-container" class="video-player"></section>
+
+  <!-- Video List -->
+  <section id="other-videos-container" class="video-list"></section>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active">🏠<span>Inicio</span></button>
+    <button class="nav-btn">🎬<span>Shorts</span></button>
+    <button class="nav-btn">👤<span>Perfil</span></button>
+  </nav>
 </body>
 </html>
