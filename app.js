@@ -19,11 +19,11 @@ searchToggle.addEventListener("click", () => {
 });
 
 languageBtn.addEventListener("click", () => {
-  languageModal.classList.remove("hidden");
+  languageModal.classList.add("show");
 });
 
 closeModal.addEventListener("click", () => {
-  languageModal.classList.add("hidden");
+  languageModal.classList.remove("show");
 });
 
 document.querySelectorAll("#language-modal button[data-lang]").forEach(btn => {
@@ -32,7 +32,7 @@ document.querySelectorAll("#language-modal button[data-lang]").forEach(btn => {
     otherVideosContainer.innerHTML = "";
     nextPageToken = null;
     fetchVideos(currentQuery, currentLang);
-    languageModal.classList.add("hidden");
+    languageModal.classList.remove("show");
   });
 });
 
