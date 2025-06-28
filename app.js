@@ -54,6 +54,7 @@ async function fetchVideos(query = currentQuery, lang = currentLang, pageToken =
 
     data.items.forEach(createVideoCard);
     nextPageToken = data.nextPageToken || null;
+
   } catch (err) {
     console.error("Error al cargar videos:", err);
     if (!pageToken) {
