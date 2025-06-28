@@ -43,13 +43,15 @@ body {
 }
 
 .search-bar {
+  position: sticky;
+  top: 60px;
+  z-index: 90;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
   background: white;
   border-bottom: 1px solid #ccc;
-  transition: transform 0.3s ease;
 }
 
 .search-bar input {
@@ -66,10 +68,7 @@ body {
   border: none;
   border-radius: 8px;
   font-size: 18px;
-}
-
-.hidden {
-  display: none !important;
+  cursor: pointer;
 }
 
 .modal {
@@ -106,7 +105,7 @@ body {
 
 .video-player {
   position: sticky;
-  top: 60px;
+  top: 110px;
   z-index: 50;
   background: transparent;
   margin: 0;
