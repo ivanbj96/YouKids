@@ -5,18 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YouKids</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
 </head>
 <body>
   <!-- Top Bar -->
   <header class="top-bar">
     <img src="YouKids.png" alt="YouKids Logo" class="logo" />
     <div class="top-icons">
+      <button id="search-toggle" class="icon-button">🔍</button>
       <button id="settings-toggle" class="icon-button">⋮</button>
     </div>
   </header>
 
-  <!-- Search Bar (Siempre visible) -->
-  <div id="search-bar" class="search-bar">
+  <!-- Search Slide -->
+  <div id="search-bar" class="search-bar hidden">
     <input type="text" id="search-input" placeholder="Buscar videos..." />
     <button id="language-btn" class="lang-button">🌐</button>
   </div>
@@ -32,7 +34,7 @@
     </div>
   </div>
 
-  <!-- Video Player -->
+  <!-- Sticky Video Player -->
   <section id="video-container" class="video-player"></section>
 
   <!-- Video List -->
@@ -44,8 +46,5 @@
     <button class="nav-btn">🎬<span>Shorts</span></button>
     <button class="nav-btn">👤<span>Perfil</span></button>
   </nav>
-
-  <!-- JS -->
-  <script src="app.js" defer></script>
 </body>
 </html>
