@@ -13,6 +13,50 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .top-bar,
+  .bottom-nav {
+    background-color: #000;
+    border-color: #222;
+  }
+
+  .video-card {
+    background-color: #111;
+    color: #fff;
+  }
+
+  .video-title {
+    color: #fff;
+  }
+
+  .video-channel {
+    color: #aaa;
+  }
+
+  .search-bar,
+  .modal-content {
+    background-color: #111;
+    color: #fff;
+  }
+
+  .logo {
+    filter: invert(1);
+  }
+
+  .nav-btn {
+    color: #bbb;
+  }
+
+  .nav-btn.active {
+    color: #42a5f5;
+  }
+}
+
 .top-bar {
   position: sticky;
   top: 0;
@@ -43,15 +87,13 @@ body {
 }
 
 .search-bar {
-  position: sticky;
-  top: 60px;
-  z-index: 90;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
   background: white;
   border-bottom: 1px solid #ccc;
+  transition: transform 0.3s ease;
 }
 
 .search-bar input {
@@ -68,7 +110,10 @@ body {
   border: none;
   border-radius: 8px;
   font-size: 18px;
-  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
 }
 
 .modal {
@@ -105,7 +150,7 @@ body {
 
 .video-player {
   position: sticky;
-  top: 110px;
+  top: 60px;
   z-index: 50;
   background: transparent;
   margin: 0;
@@ -158,7 +203,6 @@ body {
 .video-title {
   font-size: 15px;
   font-weight: bold;
-  color: #111;
 }
 
 .video-channel {
@@ -196,51 +240,6 @@ body {
 
 .nav-btn.active {
   color: #1e88e5;
-}
-
-/* 🌙 Modo oscuro */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #000;
-    color: #fff;
-  }
-
-  .top-bar,
-  .bottom-nav {
-    background-color: #000;
-    border-color: #222;
-  }
-
-  .video-card {
-    background-color: #111 !important;
-    color: #fff !important;
-  }
-
-  .video-title {
-    color: #fff !important;
-  }
-
-  .video-channel {
-    color: #aaa !important;
-  }
-
-  .search-bar,
-  .modal-content {
-    background-color: #111;
-    color: #fff;
-  }
-
-  .logo {
-    filter: invert(1);
-  }
-
-  .nav-btn {
-    color: #bbb;
-  }
-
-  .nav-btn.active {
-    color: #42a5f5;
-  }
 }
 
 @media (max-width: 600px) {
