@@ -1,60 +1,37 @@
 body {
-    font-family: sans-serif;
-    margin: 0;
-    background-color: #f0f0f0; /* Color de fondo principal */
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Para que el contenido llene toda la pantalla */
+  margin: 0;
+  overflow: hidden; /* Hide scrollbars */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
 }
 
-header {
-    background-color: #d6e4ff; /* Color de la cabecera */
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* Centrar verticalmente el contenido */
+#short-video {
+  width: 100%;
+  max-width: 600px; /* Adjust as needed */
+  height: auto;
+  position: relative;
 }
 
-#logo {
-    height: 50px; /* Ajusta el tamaño según tu logo */
+/* Center controls */
+#short-video::-webkit-media-controls-panel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
 }
 
-#videoContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsivo */
-    grid-gap: 10px;
-    padding: 10px;
+#short-video::-webkit-media-controls-timeline {
+  width: calc(100% - 20px);
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
-.video-item {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    overflow: hidden;
+#short-video::-webkit-media-controls-play-button {
+  margin-right: 1px; /* 1px separation */
 }
-
-.video-item img {
-    width: 100%;
-    height: auto;
-}
-
-
-/* Estilos para el modal (necesitarás más estilos para hacerlo funcional) */
-.modal {
-    display: none; /* Oculto por defecto */
-    position: fixed;
-    z-index: 1; /* Para que esté encima de todo */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Para que se pueda desplazar el contenido */
-    background-color: rgba(0,0,0,0.4); /* Fondo semitransparente */
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 300px; /* Ajusta el ancho del modal */
+#short-video::-webkit-media-controls-mute-button{
+  margin-left: 1px; /* 1px separation */
 }
