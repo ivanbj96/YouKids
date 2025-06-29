@@ -1,0 +1,18 @@
+/* Agrega estilos para el perfil aquí. Es solo una sugerencia, ajusta a tu gusto*/
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+#preferred-channels, #settings{
+  margin-bottom: 20px;
+}
+
+#channel-list {
+  list-style: none;
+  padding: 0;
+}
+
+#channel-list li {
+  margin-bottom: 5px;
+}
