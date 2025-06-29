@@ -113,4 +113,68 @@ window.addEventListener("scroll", () => {
   }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+  const homeBtn = document.querySelector('.bottom-nav button:nth-child(1)');
+  const shortsBtn = document.querySelector('.bottom-nav button:nth-child(2)');
+  const profileBtn = document.querySelector('.bottom-nav button:nth-child(3)');
+  const videoContainer = document.getElementById('video-container');
+  const searchToggle = document.getElementById('search-toggle');
+  const searchBar = document.getElementById('search-bar');
+  const languageBtn = document.getElementById('language-btn');
+  const languageModal = document.getElementById('language-modal');
+  const closeModalBtn = document.getElementById('close-modal');
+  const languageButtons = document.querySelectorAll('#language-modal button:not(#close-modal)');
+
+
+  // Inicio (ya funcional)
+
+  // Shorts
+  shortsBtn.addEventListener('click', () => {
+    window.location.href = 'shorts.html';
+  });
+
+  // Perfil
+  profileBtn.addEventListener('click', () => {
+    window.location.href = 'profile.html';
+  });
+
+
+  // Search Bar Toggle
+  searchToggle.addEventListener('click', () => {
+    searchBar.classList.toggle('hidden');
+  });
+
+  // Language Modal Toggle
+  languageBtn.addEventListener('click', () => {
+    languageModal.classList.add('show');
+  });
+
+  closeModalBtn.addEventListener('click', () => {
+    languageModal.classList.remove('show');
+  });
+
+  // Language Selection (needs backend integration)
+  languageButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const lang = button.dataset.lang || ''; // Handle "Todos" option
+      // Send lang to backend to save preference. Example using fetch:
+      fetch('/api/savePreference', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preference: 'language', value: lang })
+      })
+      .then(response => response.json())
+      .then(data => {
+        //Handle response
+        console.log('Preference saved:', data);
+        languageModal.classList.remove('show');
+      })
+      .catch(error => console.error('Error saving preference:', error));
+
+    });
+  });
+
+});
+
+
 fetchVideos();
