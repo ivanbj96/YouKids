@@ -1,25 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Kids Shorts PWA</title>
-    <link rel="stylesheet" href="shorts.css">
-    <link rel="icon" type="image/png" href="YouKids.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouKids Shorts</title>
+  <link rel="stylesheet" href="shorts.css">
+  <script src="shorts.js" defer></script>
 </head>
 <body>
-    <header>
-        <img src="YouKids.png" alt="Logo" id="logo">
-        <button id="preferencesButton">Preferencias</button> </header>
-
-    <main id="shortsContainer">
-        <!-- Aquí se mostrarán los shorts -->
-    </main>
-
-    <div id="preferencesModal" class="modal">
-        <!-- Contenido del modal de preferencias -->
-    </div>
-
-    <script src="shorts.js"></script>
+  <video id="short-video" controls muted autoplay playsinline></video>
 </body>
 </html>
