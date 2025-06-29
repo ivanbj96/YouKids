@@ -38,7 +38,7 @@ document.querySelectorAll("#language-modal button[data-lang]").forEach(btn => {
 
 async function fetchVideos(query = currentQuery, lang = currentLang, pageToken = null) {
   try {
-    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+    let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query + ' para niños')}&key=${API_KEY}`;
     if (pageToken) url += `&pageToken=${pageToken}`;
     if (lang) url += `&relevanceLanguage=${lang}`;
 
