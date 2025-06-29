@@ -1,40 +1,34 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const channelSearch = document.getElementById('channel-search');
-  const channelList = document.getElementById('channel-list');
-  const languageSelect = document.getElementById('language-select');
+const langSelect = document.getElementById("prefer-lang");
+const channelInput = document.getElementById("channel-search");
+const favChannelsList = document.getElementById("fav-channels");
+const form = document.getElementById("perfil-form");
 
-  // Carga canales preferidos desde el backend (necesita integración con tu API)
-  fetch('/api/getPreferredChannels')
-    .then(response => response.json())
-    .then(channels => {
-      channels.forEach(channel => {
-        addChannelToList(channel);
-      });
-    })
-    .catch(error => console.error('Error loading channels:', error));
+let favChannels = JSON.parse(localStorage.getItem("favChannels") || "[]");
+langSelect.value = localStorage.getItem("preferLang") || "";
 
-  channelSearch.addEventListener('input', () => {
-    const searchTerm = channelSearch.value.toLowerCase();
-    //Busca canales en tu backend, luego agrega o actualiza en la lista.
-  });
+favChannels.forEach(addChannelToList);
 
-  // Agregar funcionalidad para guardar canales preferidos. Necesita tu API
-  channelList.addEventListener('click', (event) => {
-    if (event.target.tagName === 'BUTTON') {
-      const channelId = event.target.dataset.channelId;
-      // Llama a tu API para eliminar el canal de la lista de preferencias
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  localStorage.setItem("preferLang", langSelect.value);
+  localStorage.setItem("favChannels", JSON.stringify(favChannels));
+  alert("Preferencias guardadas ✅");
+});
+
+channelInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const val = channelInput.value.trim();
+    if (val && !favChannels.includes(val)) {
+      favChannels.push(val);
+      addChannelToList(val);
+      channelInput.value = "";
     }
-  });
-
-
-  languageSelect.addEventListener('change', () => {
-    const selectedLanguage = languageSelect.value;
-    // Guarda la preferencia del idioma usando tu API
-  });
-
-  function addChannelToList(channel) {
-    const listItem = document.createElement('li');
-    listItem.innerHTML = `${channel.name} <button data-channel-id="${channel.id}">Eliminar</button>`;
-    channelList.appendChild(listItem);
   }
 });
+
+function addChannelToList(channel) {
+  const li = document.createElement("li");
+  li.textContent = channel;
+  favChannelsList.appendChild(li);
+}
