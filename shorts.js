@@ -1,24 +1,49 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const video = document.getElementById('short-video');
+const shortsContainer = document.getElementById("shorts-container");
 
-  function loadRandomVideo() {
-    // Aquí debes integrar tu API para obtener un video aleatorio para niños.
-    // Ejemplo (reemplaza con tu API):
-    fetch('/api/getKidsShort')
-      .then(response => response.json())
-      .then(data => {
-        if (data.url) {
-          video.src = data.url;
-          video.load();
-          video.play();
-        } else {
-          console.error('Error fetching video');
-        }
-      })
-      .catch(error => console.error('Error:', error));
-  }
+async function loadShorts() {
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=shorts+para+niños&key=${API_KEY}`
+  );
+  const data = await response.json();
 
-  // Cargar video aleatorio al cargar la página y al recargarla
-  loadRandomVideo();
-  window.addEventListener('beforeunload', () => video.pause()); // Pause before leaving
-});
+  const videos = shuffleArray(data.items);
+  shortsContainer.innerHTML = "";
+
+  videos.forEach(video => {
+    const videoId = video.id.videoId;
+    const wrapper = document.createElement("div");
+    wrapper.className = "short-wrapper";
+
+    wrapper.innerHTML = `
+      <video class="short-video" playsinline muted>
+        <source src="https://www.youtube.com/embed/${videoId}" type="video/mp4" />
+        Tu navegador no soporta video.
+      </video>
+      <div class="controls">
+        <button class="play-toggle">⏯</button>
+        <button class="mute-toggle">🔇</button>
+      </div>
+    `;
+
+    const videoElement = wrapper.querySelector("video");
+    const playBtn = wrapper.querySelector(".play-toggle");
+    const muteBtn = wrapper.querySelector(".mute-toggle");
+
+    playBtn.addEventListener("click", () => {
+      videoElement.paused ? videoElement.play() : videoElement.pause();
+    });
+
+    muteBtn.addEventListener("click", () => {
+      videoElement.muted = !videoElement.muted;
+      muteBtn.textContent = videoElement.muted ? "🔇" : "🔊";
+    });
+
+    shortsContainer.appendChild(wrapper);
+  });
+}
+
+function shuffleArray(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+loadShorts();
