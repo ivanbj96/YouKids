@@ -1,69 +1,43 @@
-const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-const shortsContainer = document.getElementById("shorts-container");
+// shorts.js (versión corregida y mejorada)
 
-async function fetchShorts() {
-  const randomQueries = ["juguetes", "cuentos", "aprender colores", "niños pequeños", "educativo infantil", "canciones infantiles"];
-  const query = randomQueries[Math.floor(Math.random() * randomQueries.length)];
+const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // Sustituye por tu clave real const container = document.getElementById("shorts-container"); let nextPageToken = null;
 
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&maxResults=5&q=${encodeURIComponent(query)}&relevanceLanguage=es&safeSearch=strict&key=${API_KEY}`;
+async function fetchShorts() { const query = "shorts para niños"; let url = https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}; if (nextPageToken) url += &pageToken=${nextPageToken};
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+try { const res = await fetch(url); const data = await res.json(); nextPageToken = data.nextPageToken || null;
 
-    if (data.items) {
-      data.items.forEach(item => {
-        createShort(item.id.videoId);
-      });
-    }
-  } catch (error) {
-    console.error("Error al cargar shorts:", error);
-  }
-}
+data.items?.forEach(item => {
+  const id = item.id.videoId;
+  createShortCard(id);
+});
 
-function createShort(videoId) {
-  const short = document.createElement("div");
-  short.className = "short-video";
+} catch (error) { console.error("Error al cargar shorts:", error); } }
 
-  short.innerHTML = `
-    <div class="video-wrapper">
-      <iframe
-        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&playsinline=1"
-        allow="autoplay; encrypted-media"
-        allowfullscreen
-        class="short-iframe"
-      ></iframe>
-      <div class="controls">
-        <button class="short-btn playpause">⏸</button>
-        <button class="short-btn mute">🔇</button>
-      </div>
-    </div>
-  `;
+function createShortCard(videoId) { const wrapper = document.createElement("div"); wrapper.className = "short-video";
 
-  const iframe = short.querySelector("iframe");
-  const playPauseBtn = short.querySelector(".playpause");
-  const muteBtn = short.querySelector(".mute");
+wrapper.innerHTML = <div class="short-frame-wrapper"> <iframe class="short-frame" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&rel=0&showinfo=0&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen ></iframe> <div class="controls-overlay"> <button class="btn-control btn-play">▶️</button> <button class="btn-control btn-mute">🔈</button> </div> </div>;
 
-  let isPaused = false;
-  let isMuted = true;
+container.appendChild(wrapper); initPlayer(wrapper, videoId); }
 
-  // Controlador Play/Pause
-  playPauseBtn.addEventListener("click", () => {
-    const message = isPaused ? "playVideo" : "pauseVideo";
-    iframe.contentWindow.postMessage(`{"event":"command","func":"${message}","args":""}`, "*");
-    playPauseBtn.textContent = isPaused ? "⏸" : "▶️";
-    isPaused = !isPaused;
-  });
+function initPlayer(wrapper, videoId) { const iframe = wrapper.querySelector("iframe"); const overlay = wrapper.querySelector(".controls-overlay"); const playBtn = overlay.querySelector(".btn-play"); const muteBtn = overlay.querySelector(".btn-mute");
 
-  // Controlador Mute/Unmute
-  muteBtn.addEventListener("click", () => {
-    const message = isMuted ? "unMute" : "mute";
-    iframe.contentWindow.postMessage(`{"event":"command","func":"${message}","args":""}`, "*");
-    muteBtn.textContent = isMuted ? "🔊" : "🔇";
-    isMuted = !isMuted;
-  });
+let player;
 
-  shortsContainer.appendChild(short);
-}
+const showControls = () => { overlay.classList.add("visible"); clearTimeout(overlay._hideTimeout); overlay._hideTimeout = setTimeout(() => overlay.classList.remove("visible"), 3000); };
 
-fetchShorts();
+wrapper.addEventListener("click", showControls);
+
+const onYouTubeIframeAPIReady = () => { player = new YT.Player(iframe, { events: { onReady: (event) => { player.mute(); player.playVideo(); } } }); };
+
+if (typeof YT === "undefined" || typeof YT.Player === "undefined") { const tag = document.createElement("script"); tag.src = "https://www.youtube.com/iframe_api"; document.body.appendChild(tag); window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady; } else { onYouTubeIframeAPIReady(); }
+
+playBtn.addEventListener("click", (e) => { e.stopPropagation(); if (!player) return; const state = player.getPlayerState(); if (state === YT.PlayerState.PLAYING) { player.pauseVideo(); playBtn.textContent = "▶️"; } else { player.playVideo(); playBtn.textContent = "⏸️"; } });
+
+muteBtn.addEventListener("click", (e) => { e.stopPropagation(); if (!player) return; if (player.isMuted()) { player.unMute(); muteBtn.textContent = "🔊"; } else { player.mute(); muteBtn.textContent = "🔈"; } }); }
+
+function setupInfiniteScroll() { window.addEventListener("scroll", () => { const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300; if (nearBottom) { fetchShorts(); } }); }
+
+function setupSnapScroll() { document.documentElement.style.scrollSnapType = "y mandatory"; container.querySelectorAll(".short-video").forEach(video => { video.style.scrollSnapAlign = "start"; }); }
+
+window.addEventListener("load", () => { fetchShorts(); setupInfiniteScroll(); setupSnapScroll(); });
+
