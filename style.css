@@ -308,19 +308,37 @@ body {
   padding-bottom: 60px;
 }
 
-.short-video {
+.shorts-video {
   position: relative;
-  width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: black;
 }
 
-.short-iframe {
+.video-frame {
   width: 100%;
   height: 100%;
-  border: none;
 }
+
+.video-controls {
+  position: absolute;
+  bottom: 10%;
+  left: 10px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.play-btn,
+.mute-btn {
+  font-size: 24px;
+  margin-right: 10px;
+  cursor: pointer;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 50%;
+
 
 .video-wrapper {
   position: relative;
