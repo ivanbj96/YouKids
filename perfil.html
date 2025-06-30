@@ -7,48 +7,33 @@
   <link rel="stylesheet" href="style.css" />
   <script src="perfil.js" defer></script>
 </head>
-<body>
-  <!-- Top Bar -->
-  <header class="top-bar">
-    <img src="YouKids.png" alt="YouKids Logo" class="logo" />
-    <div class="top-icons">
-      <button id="search-toggle" class="icon-button">🔍</button>
-      <button id="settings-toggle" class="icon-button">⋮</button>
-    </div>
-  </header>
+<body class="perfil-body">
+  <main class="perfil-container">
+    <h1>Preferencias del Usuario</h1>
 
-  <!-- Search Bar (opcional en perfil) -->
-  <div id="search-bar" class="search-bar hidden">
-    <input type="text" id="search-input" placeholder="Buscar canales..." />
-  </div>
+    <section class="perfil-section">
+      <h2>Canales preferidos</h2>
+      <input type="text" id="channel-search" placeholder="Buscar canal..." />
+      <ul id="preferred-channels"></ul>
+    </section>
 
-  <!-- Contenido de Perfil -->
-  <main class="profile-content">
-    <h2>Preferencias de Usuario</h2>
-
-    <section class="profile-section">
-      <label for="language-select">Idioma preferido:</label>
-      <select id="language-select">
+    <section class="perfil-section">
+      <h2>Idioma preferido</h2>
+      <select id="preferred-language">
         <option value="">Todos</option>
         <option value="es">Español</option>
         <option value="en">Inglés</option>
       </select>
     </section>
 
-    <section class="profile-section">
-      <h3>Canales preferidos</h3>
-      <input type="text" id="channel-search" placeholder="Buscar canal..." />
-      <ul id="channel-results"></ul>
-      <h4>Seleccionados:</h4>
-      <ul id="preferred-channels"></ul>
+    <section class="perfil-section">
+      <h2>Funciones adicionales</h2>
+      <label><input type="checkbox" id="autoplay-toggle" /> Reproducción automática</label>
+      <label><input type="checkbox" id="darkmode-toggle" /> Modo oscuro</label>
     </section>
-  </main>
 
-  <!-- Bottom Navigation -->
-  <nav class="bottom-nav">
-    <a href="index.html" class="nav-btn">🏠<span>Inicio</span></a>
-    <a href="shorts.html" class="nav-btn">🎬<span>Shorts</span></a>
-    <a href="perfil.html" class="nav-btn active">👤<span>Perfil</span></a>
-  </nav>
+    <button id="save-btn">Guardar preferencias</button>
+    <p id="status-msg"></p>
+  </main>
 </body>
 </html>
