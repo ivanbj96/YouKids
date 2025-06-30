@@ -3,19 +3,35 @@ const shortsContainer = document.getElementById("shorts-container");
 
 let nextPageToken = null;
 let isLoading = false;
-let currentLang = "";
+let currentLang = "es";
 let loadedVideos = new Set();
+let youtubeAPIReady = false;
 
 function initShorts() {
+  loadYouTubeIframeAPI();
   fetchShortVideos();
   shortsContainer.addEventListener("scroll", handleScrollSnap);
 }
 
+function loadYouTubeIframeAPI() {
+  if (!window.YT) {
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    document.body.appendChild(tag);
+    window.onYouTubeIframeAPIReady = () => {
+      youtubeAPIReady = true;
+      fetchShortVideos();
+    };
+  } else {
+    youtubeAPIReady = true;
+  }
+}
+
 async function fetchShortVideos() {
-  if (isLoading) return;
+  if (isLoading || !youtubeAPIReady) return;
   isLoading = true;
 
-  let query = "shorts para niños";
+  const query = "shorts para niños";
   let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(query)}&key=${API_KEY}`;
   if (nextPageToken) url += `&pageToken=${nextPageToken}`;
   if (currentLang) url += `&relevanceLanguage=${currentLang}`;
@@ -23,7 +39,6 @@ async function fetchShortVideos() {
   try {
     const res = await fetch(url);
     const data = await res.json();
-
     nextPageToken = data.nextPageToken || null;
 
     for (const item of data.items) {
@@ -44,11 +59,8 @@ function createShort(videoId) {
   const container = document.createElement("div");
   container.className = "shorts-video";
 
-  const iframe = document.createElement("iframe");
-  iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}`;
-  iframe.setAttribute("frameborder", "0");
-  iframe.setAttribute("allowfullscreen", "1");
-  iframe.setAttribute("allow", "autoplay; encrypted-media");
+  const iframe = document.createElement("div");
+  iframe.id = `ytplayer-${videoId}`;
   iframe.className = "video-frame";
 
   const controls = document.createElement("div");
@@ -69,51 +81,57 @@ function createShort(videoId) {
   shortsContainer.appendChild(container);
 
   let player;
-  function onYouTubeIframeAPIReady() {
-    player = new YT.Player(iframe, {
-      events: {
-        onReady: (event) => {
-          setTimeout(() => hideControls(controls), 3000);
+  const onPlayerReady = (event) => {
+    event.target.playVideo();
 
-          container.addEventListener("click", () => {
-            showControls(controls);
-            setTimeout(() => hideControls(controls), 3000);
-          });
+    container.addEventListener("click", () => {
+      showControls(controls);
+      setTimeout(() => hideControls(controls), 3000);
+    });
 
-          playBtn.addEventListener("click", () => {
-            const isPaused = playBtn.textContent === "▶️";
-            if (isPaused) {
-              player.playVideo();
-              playBtn.textContent = "⏸";
-            } else {
-              player.pauseVideo();
-              playBtn.textContent = "▶️";
-            }
-          });
-
-          muteBtn.addEventListener("click", () => {
-            const isMuted = player.isMuted();
-            if (isMuted) {
-              player.unMute();
-              muteBtn.textContent = "🔈";
-            } else {
-              player.mute();
-              muteBtn.textContent = "🔇";
-            }
-          });
-        }
+    playBtn.addEventListener("click", () => {
+      const state = player.getPlayerState();
+      if (state === YT.PlayerState.PAUSED || state === YT.PlayerState.ENDED) {
+        player.playVideo();
+        playBtn.textContent = "⏸";
+      } else {
+        player.pauseVideo();
+        playBtn.textContent = "▶️";
       }
     });
-  }
 
-  if (!window.YT) {
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
-  } else {
-    onYouTubeIframeAPIReady();
-  }
+    muteBtn.addEventListener("click", () => {
+      if (player.isMuted()) {
+        player.unMute();
+        muteBtn.textContent = "🔈";
+      } else {
+        player.mute();
+        muteBtn.textContent = "🔇";
+      }
+    });
+
+    setTimeout(() => hideControls(controls), 3000);
+  };
+
+  player = new YT.Player(`ytplayer-${videoId}`, {
+    height: "100%",
+    width: "100%",
+    videoId: videoId,
+    playerVars: {
+      autoplay: 1,
+      mute: 1,
+      playsinline: 1,
+      controls: 0,
+      loop: 1,
+      playlist: videoId,
+      modestbranding: 1,
+      rel: 0,
+      showinfo: 0,
+    },
+    events: {
+      onReady: onPlayerReady
+    }
+  });
 }
 
 function hideControls(controls) {
