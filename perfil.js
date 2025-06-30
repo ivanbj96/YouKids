@@ -1,34 +1,60 @@
-const langSelect = document.getElementById("prefer-lang");
-const channelInput = document.getElementById("channel-search");
-const favChannelsList = document.getElementById("fav-channels");
-const form = document.getElementById("perfil-form");
+// DOM Elements
+const channelSearch = document.getElementById("channel-search");
+const preferredChannelsList = document.getElementById("preferred-channels");
+const languageSelect = document.getElementById("preferred-language");
+const autoplayToggle = document.getElementById("autoplay-toggle");
+const darkmodeToggle = document.getElementById("darkmode-toggle");
+const saveBtn = document.getElementById("save-btn");
+const statusMsg = document.getElementById("status-msg");
 
-let favChannels = JSON.parse(localStorage.getItem("favChannels") || "[]");
-langSelect.value = localStorage.getItem("preferLang") || "";
+// Estado
+let preferredChannels = new Set();
 
-favChannels.forEach(addChannelToList);
-
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  localStorage.setItem("preferLang", langSelect.value);
-  localStorage.setItem("favChannels", JSON.stringify(favChannels));
-  alert("Preferencias guardadas ✅");
+// Recuperar configuración previa
+window.addEventListener("DOMContentLoaded", () => {
+  const saved = JSON.parse(localStorage.getItem("youkidsPrefs")) || {};
+  if (saved.channels) {
+    saved.channels.forEach(ch => addChannel(ch));
+  }
+  if (saved.language) languageSelect.value = saved.language;
+  if (saved.autoplay) autoplayToggle.checked = true;
+  if (saved.darkmode) darkmodeToggle.checked = true;
 });
 
-channelInput.addEventListener("keydown", (e) => {
+// Añadir canal
+channelSearch.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
-    e.preventDefault();
-    const val = channelInput.value.trim();
-    if (val && !favChannels.includes(val)) {
-      favChannels.push(val);
-      addChannelToList(val);
-      channelInput.value = "";
+    const val = e.target.value.trim();
+    if (val && !preferredChannels.has(val)) {
+      addChannel(val);
+      e.target.value = "";
     }
   }
 });
 
-function addChannelToList(channel) {
+function addChannel(name) {
+  preferredChannels.add(name);
   const li = document.createElement("li");
-  li.textContent = channel;
-  favChannelsList.appendChild(li);
+  li.textContent = name;
+  const removeBtn = document.createElement("button");
+  removeBtn.textContent = "❌";
+  removeBtn.onclick = () => {
+    preferredChannels.delete(name);
+    preferredChannelsList.removeChild(li);
+  };
+  li.appendChild(removeBtn);
+  preferredChannelsList.appendChild(li);
 }
+
+// Guardar preferencias
+saveBtn.addEventListener("click", () => {
+  const data = {
+    channels: Array.from(preferredChannels),
+    language: languageSelect.value,
+    autoplay: autoplayToggle.checked,
+    darkmode: darkmodeToggle.checked,
+  };
+  localStorage.setItem("youkidsPrefs", JSON.stringify(data));
+  statusMsg.textContent = "✅ Preferencias guardadas correctamente.";
+  setTimeout(() => (statusMsg.textContent = ""), 3000);
+});
