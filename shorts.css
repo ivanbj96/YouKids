@@ -9,6 +9,7 @@ body {
   height: 100vh;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
 }
 
 .video-item {
@@ -26,7 +27,7 @@ iframe {
   border: none;
 }
 
-/* Controles invisibles para play/pause y mute */
+/* Controles invisibles */
 .control-zone {
   position: absolute;
   width: 100%;
@@ -40,4 +41,19 @@ iframe {
 
 .bottom-control {
   bottom: 0;
+}
+
+/* Botón de regreso */
+.home-button {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
 }
