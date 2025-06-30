@@ -3,13 +3,27 @@ const shortsContainer = document.getElementById("shorts-container");
 
 let nextPageToken = null;
 let isLoading = false;
-let currentLang = "es";
 let loadedVideos = new Set();
 let youtubeAPIReady = false;
 
+// Palabras clave aleatorias para variar los resultados
+const queries = [
+  "videos cristianos para niños"
+  "canciones cristianas para niños"
+  "educación preescolar",
+  "videos educativos para niños",
+  "shorts de canciones infantiles",
+  "juegos para niños",
+  "videos para bebés"
+];
+
+function getRandomQuery() {
+  const index = Math.floor(Math.random() * queries.length);
+  return queries[index];
+}
+
 function initShorts() {
   loadYouTubeIframeAPI();
-  fetchShortVideos();
   shortsContainer.addEventListener("scroll", handleScrollSnap);
 }
 
@@ -20,10 +34,11 @@ function loadYouTubeIframeAPI() {
     document.body.appendChild(tag);
     window.onYouTubeIframeAPIReady = () => {
       youtubeAPIReady = true;
-      fetchShortVideos();
+      fetchShortVideos(); // inicia después de que esté lista la API
     };
   } else {
     youtubeAPIReady = true;
+    fetchShortVideos();
   }
 }
 
@@ -31,10 +46,10 @@ async function fetchShortVideos() {
   if (isLoading || !youtubeAPIReady) return;
   isLoading = true;
 
-  const query = "shorts para niños";
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(query)}&key=${API_KEY}`;
+  const query = getRandomQuery(); // keyword aleatoria
+  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(query)}&key=${API_KEY}&relevanceLanguage=es`;
+
   if (nextPageToken) url += `&pageToken=${nextPageToken}`;
-  if (currentLang) url += `&relevanceLanguage=${currentLang}`;
 
   try {
     const res = await fetch(url);
@@ -59,9 +74,9 @@ function createShort(videoId) {
   const container = document.createElement("div");
   container.className = "shorts-video";
 
-  const iframe = document.createElement("div");
-  iframe.id = `ytplayer-${videoId}`;
-  iframe.className = "video-frame";
+  const iframeDiv = document.createElement("div");
+  iframeDiv.id = `ytplayer-${videoId}`;
+  iframeDiv.className = "video-frame";
 
   const controls = document.createElement("div");
   controls.className = "video-controls";
@@ -76,13 +91,14 @@ function createShort(videoId) {
 
   controls.appendChild(playBtn);
   controls.appendChild(muteBtn);
-  container.appendChild(iframe);
+  container.appendChild(iframeDiv);
   container.appendChild(controls);
   shortsContainer.appendChild(container);
 
   let player;
   const onPlayerReady = (event) => {
-    event.target.playVideo();
+    player = event.target;
+    player.playVideo();
 
     container.addEventListener("click", () => {
       showControls(controls);
@@ -113,7 +129,7 @@ function createShort(videoId) {
     setTimeout(() => hideControls(controls), 3000);
   };
 
-  player = new YT.Player(`ytplayer-${videoId}`, {
+  new YT.Player(`ytplayer-${videoId}`, {
     height: "100%",
     width: "100%",
     videoId: videoId,
@@ -126,7 +142,6 @@ function createShort(videoId) {
       playlist: videoId,
       modestbranding: 1,
       rel: 0,
-      showinfo: 0,
     },
     events: {
       onReady: onPlayerReady
