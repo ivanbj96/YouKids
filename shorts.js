@@ -6,22 +6,6 @@ let isLoading = false;
 let loadedVideos = new Set();
 let youtubeAPIReady = false;
 
-// Palabras clave aleatorias para variar los resultados
-const queries = [
-  "videos cristianos para niños"
-  "canciones cristianas para niños"
-  "educación preescolar",
-  "videos educativos para niños",
-  "shorts de canciones infantiles",
-  "juegos para niños",
-  "videos para bebés"
-];
-
-function getRandomQuery() {
-  const index = Math.floor(Math.random() * queries.length);
-  return queries[index];
-}
-
 function initShorts() {
   loadYouTubeIframeAPI();
   shortsContainer.addEventListener("scroll", handleScrollSnap);
@@ -34,26 +18,38 @@ function loadYouTubeIframeAPI() {
     document.body.appendChild(tag);
     window.onYouTubeIframeAPIReady = () => {
       youtubeAPIReady = true;
-      fetchShortVideos(); // inicia después de que esté lista la API
+      fetchShortVideos(true);
     };
   } else {
     youtubeAPIReady = true;
-    fetchShortVideos();
+    fetchShortVideos(true);
   }
 }
 
-async function fetchShortVideos() {
+async function fetchShortVideos(isInitial = false) {
   if (isLoading || !youtubeAPIReady) return;
   isLoading = true;
 
-  const query = getRandomQuery(); // keyword aleatoria
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(query)}&key=${API_KEY}&relevanceLanguage=es`;
+  const randomQueries = [
+    "dibujos animados para niños",
+    "cuentos infantiles",
+    "videos educativos niños",
+    "videos para niños pequeños",
+    "canciones infantiles",
+    "shorts para niños"
+  ];
+  const query = randomQueries[Math.floor(Math.random() * randomQueries.length)];
 
-  if (nextPageToken) url += `&pageToken=${nextPageToken}`;
+  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(
+    query
+  )}&key=${API_KEY}&relevanceLanguage=es`;
+
+  if (nextPageToken && !isInitial) url += `&pageToken=${nextPageToken}`;
 
   try {
     const res = await fetch(url);
     const data = await res.json();
+
     nextPageToken = data.nextPageToken || null;
 
     for (const item of data.items) {
@@ -74,9 +70,9 @@ function createShort(videoId) {
   const container = document.createElement("div");
   container.className = "shorts-video";
 
-  const iframeDiv = document.createElement("div");
-  iframeDiv.id = `ytplayer-${videoId}`;
-  iframeDiv.className = "video-frame";
+  const iframeWrapper = document.createElement("div");
+  iframeWrapper.id = `ytplayer-${videoId}`;
+  iframeWrapper.className = "video-frame";
 
   const controls = document.createElement("div");
   controls.className = "video-controls";
@@ -91,14 +87,13 @@ function createShort(videoId) {
 
   controls.appendChild(playBtn);
   controls.appendChild(muteBtn);
-  container.appendChild(iframeDiv);
+  container.appendChild(iframeWrapper);
   container.appendChild(controls);
   shortsContainer.appendChild(container);
 
   let player;
   const onPlayerReady = (event) => {
-    player = event.target;
-    player.playVideo();
+    event.target.playVideo();
 
     container.addEventListener("click", () => {
       showControls(controls);
@@ -129,7 +124,7 @@ function createShort(videoId) {
     setTimeout(() => hideControls(controls), 3000);
   };
 
-  new YT.Player(`ytplayer-${videoId}`, {
+  player = new YT.Player(`ytplayer-${videoId}`, {
     height: "100%",
     width: "100%",
     videoId: videoId,
@@ -141,7 +136,7 @@ function createShort(videoId) {
       loop: 1,
       playlist: videoId,
       modestbranding: 1,
-      rel: 0,
+      rel: 0
     },
     events: {
       onReady: onPlayerReady
@@ -167,7 +162,7 @@ function handleScrollSnap() {
   let closest = null;
   let minDistance = Infinity;
 
-  shorts.forEach(short => {
+  shorts.forEach((short) => {
     const offset = short.offsetTop;
     const distance = Math.abs(offset - scrollTop);
     if (distance < minDistance) {
@@ -183,7 +178,7 @@ function handleScrollSnap() {
     });
   }
 
-  if (shortsContainer.scrollHeight - scrollTop - containerHeight < 300) {
+  if (shortsContainer.scrollHeight - scrollTop - containerHeight < 500) {
     fetchShortVideos();
   }
 }
