@@ -1,49 +1,69 @@
+const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
 const shortsContainer = document.getElementById("shorts-container");
 
-async function loadShorts() {
-  const response = await fetch(
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=shorts+para+niños&key=${API_KEY}`
-  );
-  const data = await response.json();
+async function fetchShorts() {
+  const randomQueries = ["juguetes", "cuentos", "aprender colores", "niños pequeños", "educativo infantil", "canciones infantiles"];
+  const query = randomQueries[Math.floor(Math.random() * randomQueries.length)];
 
-  const videos = shuffleArray(data.items);
-  shortsContainer.innerHTML = "";
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&maxResults=5&q=${encodeURIComponent(query)}&relevanceLanguage=es&safeSearch=strict&key=${API_KEY}`;
 
-  videos.forEach(video => {
-    const videoId = video.id.videoId;
-    const wrapper = document.createElement("div");
-    wrapper.className = "short-wrapper";
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
 
-    wrapper.innerHTML = `
-      <video class="short-video" playsinline muted>
-        <source src="https://www.youtube.com/embed/${videoId}" type="video/mp4" />
-        Tu navegador no soporta video.
-      </video>
+    if (data.items) {
+      data.items.forEach(item => {
+        createShort(item.id.videoId);
+      });
+    }
+  } catch (error) {
+    console.error("Error al cargar shorts:", error);
+  }
+}
+
+function createShort(videoId) {
+  const short = document.createElement("div");
+  short.className = "short-video";
+
+  short.innerHTML = `
+    <div class="video-wrapper">
+      <iframe
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&playsinline=1"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        class="short-iframe"
+      ></iframe>
       <div class="controls">
-        <button class="play-toggle">⏯</button>
-        <button class="mute-toggle">🔇</button>
+        <button class="short-btn playpause">⏸</button>
+        <button class="short-btn mute">🔇</button>
       </div>
-    `;
+    </div>
+  `;
 
-    const videoElement = wrapper.querySelector("video");
-    const playBtn = wrapper.querySelector(".play-toggle");
-    const muteBtn = wrapper.querySelector(".mute-toggle");
+  const iframe = short.querySelector("iframe");
+  const playPauseBtn = short.querySelector(".playpause");
+  const muteBtn = short.querySelector(".mute");
 
-    playBtn.addEventListener("click", () => {
-      videoElement.paused ? videoElement.play() : videoElement.pause();
-    });
+  let isPaused = false;
+  let isMuted = true;
 
-    muteBtn.addEventListener("click", () => {
-      videoElement.muted = !videoElement.muted;
-      muteBtn.textContent = videoElement.muted ? "🔇" : "🔊";
-    });
-
-    shortsContainer.appendChild(wrapper);
+  // Controlador Play/Pause
+  playPauseBtn.addEventListener("click", () => {
+    const message = isPaused ? "playVideo" : "pauseVideo";
+    iframe.contentWindow.postMessage(`{"event":"command","func":"${message}","args":""}`, "*");
+    playPauseBtn.textContent = isPaused ? "⏸" : "▶️";
+    isPaused = !isPaused;
   });
+
+  // Controlador Mute/Unmute
+  muteBtn.addEventListener("click", () => {
+    const message = isMuted ? "unMute" : "mute";
+    iframe.contentWindow.postMessage(`{"event":"command","func":"${message}","args":""}`, "*");
+    muteBtn.textContent = isMuted ? "🔊" : "🔇";
+    isMuted = !isMuted;
+  });
+
+  shortsContainer.appendChild(short);
 }
 
-function shuffleArray(arr) {
-  return arr.sort(() => Math.random() - 0.5);
-}
-
-loadShorts();
+fetchShorts();
