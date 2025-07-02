@@ -26,11 +26,10 @@ function loadYouTubeAPI() {
 }
 
 window.onYouTubeIframeAPIReady = () => {
-  // Esperamos a que el API esté listo para crear reproductores
+  // Si la API ya está lista, inicializar todos los players pendientes
   players.forEach(entry => {
-    if (!entry.ready) {
-      entry.create();
-      entry.ready = true;
+    if (!entry.player) {
+      entry.init();
     }
   });
 };
@@ -86,18 +85,12 @@ function queueShort(videoId) {
   controls.appendChild(muteBtn);
   container.appendChild(iframeWrapper);
   container.appendChild(controls);
+  shortsContainer.appendChild(container);
 
-  if (shortsContainer) {
-    shortsContainer.appendChild(container);
-  } else {
-    console.error("shortsContainer es null");
-    return;
-  }
-
-  // Configurar reproductor cuando API esté lista
-  const playerEntry = {
-    ready: false,
-    create: () => {
+  const entry = {
+    container,
+    player: null,
+    init: () => {
       const player = new YT.Player(iframeWrapper.id, {
         videoId,
         playerVars: {
@@ -106,62 +99,61 @@ function queueShort(videoId) {
           mute: 1,
           loop: 1,
           playlist: videoId,
-          playsinline: 1,
+          playsinline: 1
         },
         events: {
           onReady: event => {
-            players.push({ player, container });
-
-            // Solo el primero se reproduce con sonido
-            if (players.length === 1) {
+            entry.player = event.target;
+            // Solo reproduce el primero visible con sonido
+            if (players.length === 0) {
               event.target.unMute();
               event.target.playVideo();
-            } else {
-              event.target.mute();
             }
-
-            // Botones
-            setTimeout(() => hideControls(controls), 3000);
-
-            container.addEventListener("click", () => {
-              showControls(controls);
-              setTimeout(() => hideControls(controls), 3000);
-            });
-
-            playBtn.addEventListener("click", () => {
-              const isPaused = event.target.getPlayerState() !== 1;
-              if (isPaused) {
-                event.target.playVideo();
-                playBtn.textContent = "⏸";
-              } else {
-                event.target.pauseVideo();
-                playBtn.textContent = "▶️";
-              }
-            });
-
-            muteBtn.addEventListener("click", () => {
-              const isMuted = event.target.isMuted();
-              if (isMuted) {
-                event.target.unMute();
-                muteBtn.textContent = "🔈";
-              } else {
-                event.target.mute();
-                muteBtn.textContent = "🔇";
-              }
-            });
+            setupControls(event.target, container, playBtn, muteBtn, controls);
           }
         }
       });
     }
   };
 
-  players.push(playerEntry);
+  players.push(entry);
 
-  // Si API ya está lista, crea de inmediato
+  // Si la API ya está lista, inicializa el player de inmediato
   if (window.YT && window.YT.Player) {
-    playerEntry.create();
-    playerEntry.ready = true;
+    entry.init();
   }
+}
+
+function setupControls(player, container, playBtn, muteBtn, controls) {
+  // Ocultar controles automáticamente
+  setTimeout(() => hideControls(controls), 3000);
+
+  container.addEventListener("click", () => {
+    showControls(controls);
+    setTimeout(() => hideControls(controls), 3000);
+  });
+
+  playBtn.addEventListener("click", () => {
+    const isPaused = player.getPlayerState() !== 1;
+    if (isPaused) {
+      player.playVideo();
+      playBtn.textContent = "⏸";
+    } else {
+      player.pauseVideo();
+      playBtn.textContent = "▶️";
+    }
+  });
+
+  muteBtn.addEventListener("click", () => {
+    const isMuted = player.isMuted();
+    if (isMuted) {
+      player.unMute();
+      muteBtn.textContent = "🔈";
+    } else {
+      player.mute();
+      muteBtn.textContent = "🔇";
+    }
+  });
 }
 
 function hideControls(controls) {
@@ -211,6 +203,7 @@ function handleScrollSnap() {
     });
   }
 
+  // Scroll infinito
   if (shortsContainer.scrollHeight - scrollTop - containerHeight < 300) {
     fetchShortVideos();
   }
