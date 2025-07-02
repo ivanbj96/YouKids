@@ -3,23 +3,45 @@ const shortsContainer = document.getElementById("shorts-container");
 
 let nextPageToken = null;
 let isLoading = false;
-let currentLang = "";
 let loadedVideos = new Set();
 let players = [];
 
 function initShorts() {
+  if (!shortsContainer) {
+    console.error("Elemento #shorts-container no encontrado.");
+    return;
+  }
+
+  loadYouTubeAPI();
   fetchShortVideos();
   shortsContainer.addEventListener("scroll", handleScrollSnap);
 }
+
+function loadYouTubeAPI() {
+  if (window.YT && window.YT.Player) return;
+
+  const tag = document.createElement("script");
+  tag.src = "https://www.youtube.com/iframe_api";
+  document.body.appendChild(tag);
+}
+
+window.onYouTubeIframeAPIReady = () => {
+  // Esperamos a que el API esté listo para crear reproductores
+  players.forEach(entry => {
+    if (!entry.ready) {
+      entry.create();
+      entry.ready = true;
+    }
+  });
+};
 
 async function fetchShortVideos() {
   if (isLoading) return;
   isLoading = true;
 
-  let query = "shorts para niños";
+  const query = "shorts para niños";
   let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(query)}&key=${API_KEY}`;
   if (nextPageToken) url += `&pageToken=${nextPageToken}`;
-  if (currentLang) url += `&relevanceLanguage=${currentLang}`;
 
   try {
     const res = await fetch(url);
@@ -31,7 +53,7 @@ async function fetchShortVideos() {
       const videoId = item.id.videoId;
       if (!loadedVideos.has(videoId)) {
         loadedVideos.add(videoId);
-        createShort(videoId);
+        queueShort(videoId);
       }
     }
   } catch (err) {
@@ -41,13 +63,13 @@ async function fetchShortVideos() {
   }
 }
 
-function createShort(videoId) {
+function queueShort(videoId) {
   const container = document.createElement("div");
   container.className = "shorts-video";
 
-  const iframe = document.createElement("div");
-  iframe.id = `player-${videoId}`;
-  iframe.className = "video-frame";
+  const iframeWrapper = document.createElement("div");
+  iframeWrapper.id = `player-${videoId}`;
+  iframeWrapper.className = "video-frame";
 
   const controls = document.createElement("div");
   controls.className = "video-controls";
@@ -62,75 +84,83 @@ function createShort(videoId) {
 
   controls.appendChild(playBtn);
   controls.appendChild(muteBtn);
-  container.appendChild(iframe);
+  container.appendChild(iframeWrapper);
   container.appendChild(controls);
-  shortsContainer.appendChild(container);
 
-  function onPlayerReady(event) {
-    players.push({ player: event.target, container });
-
-    // Si es el primero, lo dejamos sonar, los demás en mute
-    if (players.length === 1) {
-      event.target.playVideo();
-      event.target.unMute();
-    } else {
-      event.target.mute();
-    }
-
-    // Controles
-    setTimeout(() => hideControls(controls), 3000);
-    container.addEventListener("click", () => {
-      showControls(controls);
-      setTimeout(() => hideControls(controls), 3000);
-    });
-
-    playBtn.addEventListener("click", () => {
-      const isPaused = playBtn.textContent === "▶️";
-      if (isPaused) {
-        event.target.playVideo();
-        playBtn.textContent = "⏸";
-      } else {
-        event.target.pauseVideo();
-        playBtn.textContent = "▶️";
-      }
-    });
-
-    muteBtn.addEventListener("click", () => {
-      const isMuted = event.target.isMuted();
-      if (isMuted) {
-        event.target.unMute();
-        muteBtn.textContent = "🔈";
-      } else {
-        event.target.mute();
-        muteBtn.textContent = "🔇";
-      }
-    });
-  }
-
-  function onYouTubeIframeAPIReady() {
-    new YT.Player(iframe.id, {
-      videoId,
-      playerVars: {
-        autoplay: 1,
-        controls: 0,
-        mute: 1,
-        loop: 1,
-        playlist: videoId,
-        playsinline: 1,
-      },
-      events: {
-        onReady: onPlayerReady
-      }
-    });
-  }
-
-  if (!window.YT) {
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
-    window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+  if (shortsContainer) {
+    shortsContainer.appendChild(container);
   } else {
-    onYouTubeIframeAPIReady();
+    console.error("shortsContainer es null");
+    return;
+  }
+
+  // Configurar reproductor cuando API esté lista
+  const playerEntry = {
+    ready: false,
+    create: () => {
+      const player = new YT.Player(iframeWrapper.id, {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          mute: 1,
+          loop: 1,
+          playlist: videoId,
+          playsinline: 1,
+        },
+        events: {
+          onReady: event => {
+            players.push({ player, container });
+
+            // Solo el primero se reproduce con sonido
+            if (players.length === 1) {
+              event.target.unMute();
+              event.target.playVideo();
+            } else {
+              event.target.mute();
+            }
+
+            // Botones
+            setTimeout(() => hideControls(controls), 3000);
+
+            container.addEventListener("click", () => {
+              showControls(controls);
+              setTimeout(() => hideControls(controls), 3000);
+            });
+
+            playBtn.addEventListener("click", () => {
+              const isPaused = event.target.getPlayerState() !== 1;
+              if (isPaused) {
+                event.target.playVideo();
+                playBtn.textContent = "⏸";
+              } else {
+                event.target.pauseVideo();
+                playBtn.textContent = "▶️";
+              }
+            });
+
+            muteBtn.addEventListener("click", () => {
+              const isMuted = event.target.isMuted();
+              if (isMuted) {
+                event.target.unMute();
+                muteBtn.textContent = "🔈";
+              } else {
+                event.target.mute();
+                muteBtn.textContent = "🔇";
+              }
+            });
+          }
+        }
+      });
+    }
+  };
+
+  players.push(playerEntry);
+
+  // Si API ya está lista, crea de inmediato
+  if (window.YT && window.YT.Player) {
+    playerEntry.create();
+    playerEntry.ready = true;
   }
 }
 
@@ -145,6 +175,8 @@ function showControls(controls) {
 }
 
 function handleScrollSnap() {
+  if (!shortsContainer) return;
+
   const shorts = document.querySelectorAll(".shorts-video");
   const scrollTop = shortsContainer.scrollTop;
   const containerHeight = shortsContainer.clientHeight;
@@ -167,8 +199,8 @@ function handleScrollSnap() {
       behavior: "smooth"
     });
 
-    // Controlar cuál video se reproduce con sonido
     players.forEach(({ player, container }) => {
+      if (!player) return;
       if (container === closest) {
         player.playVideo();
         player.unMute();
