@@ -1,212 +1,43 @@
-const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI";
-const shortsContainer = document.getElementById("shorts-container");
+// shorts.js (versión corregida y mejorada)
 
-let nextPageToken = null;
-let isLoading = false;
-let loadedVideos = new Set();
-let players = [];
+const API_KEY = "AIzaSyC9EVsb-yOvbGe1dvi8m_nEakxklMrusAI"; // Sustituye por tu clave real const container = document.getElementById("shorts-container"); let nextPageToken = null;
 
-function initShorts() {
-  if (!shortsContainer) {
-    console.error("Elemento #shorts-container no encontrado.");
-    return;
-  }
+async function fetchShorts() { const query = "shorts para niños"; let url = https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoDuration=short&maxResults=10&q=${encodeURIComponent(query)}&key=${API_KEY}; if (nextPageToken) url += &pageToken=${nextPageToken};
 
-  loadYouTubeAPI();
-  fetchShortVideos();
-  shortsContainer.addEventListener("scroll", handleScrollSnap);
-}
+try { const res = await fetch(url); const data = await res.json(); nextPageToken = data.nextPageToken || null;
 
-function loadYouTubeAPI() {
-  if (window.YT && window.YT.Player) return;
+data.items?.forEach(item => {
+  const id = item.id.videoId;
+  createShortCard(id);
+});
 
-  const tag = document.createElement("script");
-  tag.src = "https://www.youtube.com/iframe_api";
-  document.body.appendChild(tag);
-}
+} catch (error) { console.error("Error al cargar shorts:", error); } }
 
-window.onYouTubeIframeAPIReady = () => {
-  // Si la API ya está lista, inicializar todos los players pendientes
-  players.forEach(entry => {
-    if (!entry.player) {
-      entry.init();
-    }
-  });
-};
+function createShortCard(videoId) { const wrapper = document.createElement("div"); wrapper.className = "short-video";
 
-async function fetchShortVideos() {
-  if (isLoading) return;
-  isLoading = true;
+wrapper.innerHTML = <div class="short-frame-wrapper"> <iframe class="short-frame" src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1&rel=0&showinfo=0&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen ></iframe> <div class="controls-overlay"> <button class="btn-control btn-play">▶️</button> <button class="btn-control btn-mute">🔈</button> </div> </div>;
 
-  const query = "shorts para niños";
-  let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&videoDuration=short&q=${encodeURIComponent(query)}&key=${API_KEY}`;
-  if (nextPageToken) url += `&pageToken=${nextPageToken}`;
+container.appendChild(wrapper); initPlayer(wrapper, videoId); }
 
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
+function initPlayer(wrapper, videoId) { const iframe = wrapper.querySelector("iframe"); const overlay = wrapper.querySelector(".controls-overlay"); const playBtn = overlay.querySelector(".btn-play"); const muteBtn = overlay.querySelector(".btn-mute");
 
-    nextPageToken = data.nextPageToken || null;
+let player;
 
-    for (const item of data.items) {
-      const videoId = item.id.videoId;
-      if (!loadedVideos.has(videoId)) {
-        loadedVideos.add(videoId);
-        queueShort(videoId);
-      }
-    }
-  } catch (err) {
-    console.error("Error cargando shorts:", err);
-  } finally {
-    isLoading = false;
-  }
-}
+const showControls = () => { overlay.classList.add("visible"); clearTimeout(overlay._hideTimeout); overlay._hideTimeout = setTimeout(() => overlay.classList.remove("visible"), 3000); };
 
-function queueShort(videoId) {
-  const container = document.createElement("div");
-  container.className = "shorts-video";
+wrapper.addEventListener("click", showControls);
 
-  const iframeWrapper = document.createElement("div");
-  iframeWrapper.id = `player-${videoId}`;
-  iframeWrapper.className = "video-frame";
+const onYouTubeIframeAPIReady = () => { player = new YT.Player(iframe, { events: { onReady: (event) => { player.mute(); player.playVideo(); } } }); };
 
-  const controls = document.createElement("div");
-  controls.className = "video-controls";
+if (typeof YT === "undefined" || typeof YT.Player === "undefined") { const tag = document.createElement("script"); tag.src = "https://www.youtube.com/iframe_api"; document.body.appendChild(tag); window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady; } else { onYouTubeIframeAPIReady(); }
 
-  const playBtn = document.createElement("button");
-  playBtn.className = "play-btn";
-  playBtn.textContent = "⏸";
+playBtn.addEventListener("click", (e) => { e.stopPropagation(); if (!player) return; const state = player.getPlayerState(); if (state === YT.PlayerState.PLAYING) { player.pauseVideo(); playBtn.textContent = "▶️"; } else { player.playVideo(); playBtn.textContent = "⏸️"; } });
 
-  const muteBtn = document.createElement("button");
-  muteBtn.className = "mute-btn";
-  muteBtn.textContent = "🔈";
+muteBtn.addEventListener("click", (e) => { e.stopPropagation(); if (!player) return; if (player.isMuted()) { player.unMute(); muteBtn.textContent = "🔊"; } else { player.mute(); muteBtn.textContent = "🔈"; } }); }
 
-  controls.appendChild(playBtn);
-  controls.appendChild(muteBtn);
-  container.appendChild(iframeWrapper);
-  container.appendChild(controls);
-  shortsContainer.appendChild(container);
+function setupInfiniteScroll() { window.addEventListener("scroll", () => { const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300; if (nearBottom) { fetchShorts(); } }); }
 
-  const entry = {
-    container,
-    player: null,
-    init: () => {
-      const player = new YT.Player(iframeWrapper.id, {
-        videoId,
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          mute: 1,
-          loop: 1,
-          playlist: videoId,
-          playsinline: 1
-        },
-        events: {
-          onReady: event => {
-            entry.player = event.target;
-            // Solo reproduce el primero visible con sonido
-            if (players.length === 0) {
-              event.target.unMute();
-              event.target.playVideo();
-            }
-            setupControls(event.target, container, playBtn, muteBtn, controls);
-          }
-        }
-      });
-    }
-  };
+function setupSnapScroll() { document.documentElement.style.scrollSnapType = "y mandatory"; container.querySelectorAll(".short-video").forEach(video => { video.style.scrollSnapAlign = "start"; }); }
 
-  players.push(entry);
+window.addEventListener("load", () => { fetchShorts(); setupInfiniteScroll(); setupSnapScroll(); });
 
-  // Si la API ya está lista, inicializa el player de inmediato
-  if (window.YT && window.YT.Player) {
-    entry.init();
-  }
-}
-
-function setupControls(player, container, playBtn, muteBtn, controls) {
-  // Ocultar controles automáticamente
-  setTimeout(() => hideControls(controls), 3000);
-
-  container.addEventListener("click", () => {
-    showControls(controls);
-    setTimeout(() => hideControls(controls), 3000);
-  });
-
-  playBtn.addEventListener("click", () => {
-    const isPaused = player.getPlayerState() !== 1;
-    if (isPaused) {
-      player.playVideo();
-      playBtn.textContent = "⏸";
-    } else {
-      player.pauseVideo();
-      playBtn.textContent = "▶️";
-    }
-  });
-
-  muteBtn.addEventListener("click", () => {
-    const isMuted = player.isMuted();
-    if (isMuted) {
-      player.unMute();
-      muteBtn.textContent = "🔈";
-    } else {
-      player.mute();
-      muteBtn.textContent = "🔇";
-    }
-  });
-}
-
-function hideControls(controls) {
-  controls.style.opacity = "0";
-  controls.style.pointerEvents = "none";
-}
-
-function showControls(controls) {
-  controls.style.opacity = "1";
-  controls.style.pointerEvents = "auto";
-}
-
-function handleScrollSnap() {
-  if (!shortsContainer) return;
-
-  const shorts = document.querySelectorAll(".shorts-video");
-  const scrollTop = shortsContainer.scrollTop;
-  const containerHeight = shortsContainer.clientHeight;
-
-  let closest = null;
-  let minDistance = Infinity;
-
-  shorts.forEach(short => {
-    const offset = short.offsetTop;
-    const distance = Math.abs(offset - scrollTop);
-    if (distance < minDistance) {
-      closest = short;
-      minDistance = distance;
-    }
-  });
-
-  if (closest) {
-    shortsContainer.scrollTo({
-      top: closest.offsetTop,
-      behavior: "smooth"
-    });
-
-    players.forEach(({ player, container }) => {
-      if (!player) return;
-      if (container === closest) {
-        player.playVideo();
-        player.unMute();
-      } else {
-        player.pauseVideo();
-        player.mute();
-      }
-    });
-  }
-
-  // Scroll infinito
-  if (shortsContainer.scrollHeight - scrollTop - containerHeight < 300) {
-    fetchShortVideos();
-  }
-}
-
-initShorts();
